@@ -1,0 +1,6 @@
+{
+    "env":{
+        "MONGOOSE_ATLAS_PW": "appEMU",
+        "JWT_KEY":"secret"
+    }
+}
