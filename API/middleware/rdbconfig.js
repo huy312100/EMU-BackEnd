@@ -6,6 +6,7 @@ module.exports={
     port: 1433,
     // Since we're on Windows Azure, we need to set the following options
     options: {
+        enableArithAbort : true,
           encrypt: true
       }
 };
