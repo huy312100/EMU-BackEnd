@@ -3,14 +3,14 @@ const express = require("express");
 
 const app = express();
 const mongoose = require("mongoose");
-var Connection = require("tedious").Connection;
-//const Request = require('tedious').Request;  
 const morgan = require("morgan");
 const cors = require("cors");
+
 const accountRoutes = require("./API/routes/account");
 const universityRouter = require("./API/routes/university");
 const facultyRouter=require("./API/routes/faculty");
 const profileRouter=require("./API/routes/profile");
+
 //mongoose.connect("mongodb+srv://EMU:appEMU@cluster0.oktkb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
 mongoose.connect("mongodb+srv://EMU:appEMU@cluster0.oktkb.mongodb.net/EMU?retryWrites=true&w=majority",
   {
@@ -21,9 +21,6 @@ mongoose.connect("mongodb+srv://EMU:appEMU@cluster0.oktkb.mongodb.net/EMU?retryW
 app.use(morgan('dev'));
 
 
-//app.use(bodyParser.urlencoded({ extended: false }));
-// parse application/json
-//app.use(bodyParser.json());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -61,7 +58,5 @@ app.use((error, req, res, next) => {
     }
   });
 });
-//export {connectionss};
-//exports.connectionss;
+
 module.exports =  app;
-//module.exports=connectionss;
