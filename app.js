@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/account", accountRoutes);
-app.use("/university", universityRouter);
+app.use("/university",universityRouter);
 app.use("/faculty", facultyRouter);
 app.use("/profile",profileRouter);
 app.use("/web",webcustomRouter);

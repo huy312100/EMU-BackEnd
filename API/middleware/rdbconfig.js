@@ -1,10 +1,9 @@
 module.exports={
-    server: "hcmus-emu-rdbms.database.windows.net", // Use your SQL server name
-    database: "ApplicationEMU", // Database to connect to
-    user: "rdbms", // Use your username
-    password: "appEMU11", // Use your password
+    server: "hcmus-emu-rdbms2.database.windows.net",
+    database: "ApplicationEMU", 
+    user: "rdbms", 
+    password: "appEMU11", 
     port: 1433,
-    // Since we're on Windows Azure, we need to set the following options
     options: {
         enableArithAbort : true,
           encrypt: true
