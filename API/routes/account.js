@@ -1,10 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const mongoose = require("mongoose");
-//const bodyParse =require("body-parser");
-const bcrypt = require("bcrypt");
-const jwt =require("jsonwebtoken");
-const Account = require("../models/account");
+
 const AccountController = require("../controllers/account");
 const check_auth =require("../middleware/check-auth");
 

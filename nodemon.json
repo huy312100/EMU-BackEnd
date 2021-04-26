@@ -1,7 +1,8 @@
 {
     "env":{
         "MONGOOSE_ATLAS_PW": "appEMU",
-        "JWT_KEY":"secret"
-
+        "JWT_KEY":"secret",
+        "Cipheriv": "myHashIV",
+        "Key_SHA256_Crypo":"HashTable"
     }
 }
