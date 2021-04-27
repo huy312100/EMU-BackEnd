@@ -1,8 +1,10 @@
 const Config = require("../middleware/rdbconfig");
-const sql = require("mssql");
+//const sql = require("mssql");
+const sql=require("mssql");
 
 exports.Get_Name= async (req,res,next)=>{
   try {
+    //let pool = await sql.connect(Config);
     let pool = await sql.connect(Config);
 
     let university = await pool.request()
