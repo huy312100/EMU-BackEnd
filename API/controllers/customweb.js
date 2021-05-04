@@ -79,7 +79,7 @@ exports.Post_Account_Custom =(req,res,next)=>{
                 };
                 request(options, function (error, response) {
                     if (error){
-                        res.status(500).json({message: "An error custom"})
+                        res.status(500).json({message: error})
                     }else{
                         if(response.statusCode===200)
                         {
@@ -163,6 +163,13 @@ exports.Post_Account_Custom =(req,res,next)=>{
             
         }
     })
+    .catch(err=>
+    {
+          //console.log(err);
+        res.status(500).json({
+        error:err
+        });
+    });
 };
 
 

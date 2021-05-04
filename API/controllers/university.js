@@ -6,7 +6,7 @@ exports.Get_Name= async (req,res,next)=>{
   try {
     //let pool = await sql.connect(Config);
     let pool = await sql.connect(Config);
-
+    
     let university = await pool.request()
         .query("select MaTruong,TenTruongDH from University");
 
