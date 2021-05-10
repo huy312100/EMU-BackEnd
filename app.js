@@ -8,10 +8,10 @@ const cors = require("cors");
 
 const accountRoutes = require("./API/routes/account");
 const universityRouter = require("./API/routes/university");
-const facultyRouter=require("./API/routes/faculty");
-const profileRouter=require("./API/routes/profile");
-const webcustomRouter=require("./API/routes/customweb");
-const deadlineMoodleRouter=require("./API/routes/deadlineMoodle");
+const facultyRouter = require("./API/routes/faculty");
+const profileRouter = require("./API/routes/profile");
+const webcustomRouter = require("./API/routes/customweb");
+const deadlineMoodleRouter = require("./API/routes/deadlineMoodle");
 const CheckAuthRouter = require("./API/routes/checkauth");
 const StudyCoursesRouter = require("./API/routes/studyCourses");
 
@@ -22,6 +22,17 @@ mongoose.connect("mongodb+srv://EMU:appEMU@cluster0.oktkb.mongodb.net/EMU?retryW
   });
 
 
+
+// var i = 0;
+// while (i < 100) {
+//   (function (i) {
+//     setTimeout(function () {
+//      console.log(i);
+//     }, 30000 * i)
+//   })(i++)
+// }
+
+
 app.use(morgan('dev'));
 
 
@@ -30,13 +41,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/account", accountRoutes);
-app.use("/university",universityRouter);
+app.use("/university", universityRouter);
 app.use("/faculty", facultyRouter);
-app.use("/profile",profileRouter);
-app.use("/web",webcustomRouter);
-app.use("/deadlinemoodle",deadlineMoodleRouter);
-app.use("/checktoken",CheckAuthRouter);
-app.use("/studycourses",StudyCoursesRouter);
+app.use("/profile", profileRouter);
+app.use("/web", webcustomRouter);
+app.use("/deadlinemoodle", deadlineMoodleRouter);
+app.use("/checktoken", CheckAuthRouter);
+app.use("/studycourses", StudyCoursesRouter);
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -66,4 +77,4 @@ app.use((error, req, res, next) => {
   });
 });
 
-module.exports =  app;
+module.exports = app;

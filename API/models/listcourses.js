@@ -1,9 +1,10 @@
 class listcourses{
-    constructor(nameCourese,decription,url, duedate){
-        this.nameCourese=nameCourese;
-        this.decription=decription;
-        this.url=url;
-        this.duedate=duedate;
+    constructor(IDCourses,name,category, startDate,teacher){
+        this.IDCourses= IDCourses,
+        this.name=name,
+        this.category=category,
+        this.startDate =startDate,
+        this.teacher = teacher
     }
 };
 
