@@ -45,7 +45,7 @@ exports.Get_Website_Custom = (req, res, next) => {
         });
 };
 
-exports.Post_Account_Custom = (req, res, next) => {
+exports.Post_Account_Custom = async (req, res, next) => {
     CustomWeb.find({ $and: [{ typeUrl: req.body.typeUrl }, { idUser: req.userData._id }] })
         .exec()
         .then(user => {
@@ -168,7 +168,7 @@ exports.Post_Account_Custom = (req, res, next) => {
                                                         })
 
                                                     }
-                                                    Init().then(async() => {
+                                                    Init().then(async () => {
                                                         //console.log(studycourses.listCourses);
                                                         const StudyCurrentCourses = new currentStudyCourses({
                                                             _id: new mongoose.Types.ObjectId(),
@@ -215,12 +215,12 @@ exports.Post_Account_Custom = (req, res, next) => {
                                                                             //     });
                                                                             // });
                                                                             await Courses.updateOne({
-                                                                                _id:re[0]._id
+                                                                                _id: re[0]._id
                                                                                 //$and: [{ IDCourses: element.IDCourses }, { url: urlcourses }]
                                                                             },
-                                                                            {
-                                                                                $push: { listStudent: {IDUser:req.userData._id,IDUserMoodle:infoIDUser[0].id}}
-                                                                            });
+                                                                                {
+                                                                                    $push: { listStudent: { IDUser: req.userData._id, IDUserMoodle: infoIDUser[0].id } }
+                                                                                });
                                                                         } else {
                                                                             if (element.IDCourses !== undefined) {
                                                                                 const courses = new Courses({
@@ -229,15 +229,15 @@ exports.Post_Account_Custom = (req, res, next) => {
                                                                                     url: urlcourses,
                                                                                     IDUser: req.userData._id,
                                                                                     IDUserInstead: infoIDUser[0].id,
-                                                                                    listStudent: {IDUser:req.userData._id,IDUserMoodle:infoIDUser[0].id}
+                                                                                    listStudent: { IDUser: req.userData._id, IDUserMoodle: infoIDUser[0].id }
                                                                                 });
                                                                                 courses.save()
-                                                                                .then()
-                                                                                .catch(err => {
-                                                                                    res.status(500).json({
-                                                                                        error: err
+                                                                                    .then()
+                                                                                    .catch(err => {
+                                                                                        res.status(500).json({
+                                                                                            error: err
+                                                                                        });
                                                                                     });
-                                                                                });
                                                                                 //couresess.push(courses)
                                                                                 //console.log(courses)
                                                                             }
@@ -249,73 +249,50 @@ exports.Post_Account_Custom = (req, res, next) => {
                                                                         });
                                                                     })
                                                             });
-                                                            console.log( couresess);
+                                                            console.log(couresess);
                                                         }
-                                                        
-                                                        function saveCustomWeb (){
+
+                                                        function saveCustomWeb() {
                                                             //console.log(customweb);
                                                             customweb.save()
-                                                            .then()
-                                                            .catch(err => {
-                                                                res.status(500).json({
-                                                                    error: err
+                                                                .then()
+                                                                .catch(err => {
+                                                                    res.status(500).json({
+                                                                        error: err
+                                                                    });
                                                                 });
-                                                            });
                                                         };
 
-                                                        function saveStudyCoures(){
+                                                        function saveStudyCoures() {
                                                             //console.log(studyCourses);
-                                                            
+
                                                             studycourses.save()
-                                                            .then()
-                                                            .catch(err => {
-                                                                res.status(500).json({
-                                                                    error: err
+                                                                .then()
+                                                                .catch(err => {
+                                                                    res.status(500).json({
+                                                                        error: err
+                                                                    });
                                                                 });
-                                                            });
                                                         };
 
-                                                        function saveCurrentCoures(){
+                                                        function saveCurrentCoures() {
                                                             //console.log( StudyCurrentCourses);
                                                             StudyCurrentCourses.save()
-                                                            .then()
-                                                            .catch(err => {
-                                                                res.status(500).json({
-                                                                    error: err
+                                                                .then()
+                                                                .catch(err => {
+                                                                    res.status(500).json({
+                                                                        error: err
+                                                                    });
                                                                 });
-                                                            });
                                                         };
-                                                        
-                                                        Promise.all([saveCustomWeb(),saveStudyCoures(),saveCurrentCoures(),SaveCoures()])
-                                                        .then(([re1,re2,re3,re4])=>{
-                                                            res.status(201).json({
-                                                                message: "account Moodle custom created"
-                                                            });
-                                                        })
-                                                        
 
+                                                        Promise.all([saveCustomWeb(), saveStudyCoures(), saveCurrentCoures(), SaveCoures()])
+                                                            .then(([re1, re2, re3, re4]) => {
+                                                                res.status(201).json({
+                                                                    message: "account Moodle custom created"
+                                                                });
+                                                            })
                                                     })//catch of init()
-
-
-
-
-                                                    //console.log("studyCourses.listCourses");
-                                                    
-                                                    //save into database
-                                                    // customweb.save()
-                                                    // .then(results=>{
-
-                                                    //     res.status(201).json({
-                                                    //         message: "account Moodle custom created"
-                                                    //     });
-                                                    // })
-                                                    // .catch(err=>{
-                                                    //     res.status(500).json({
-                                                    //         error:err
-                                                    //     });
-                                                    // });
-
-
                                                 } else {
                                                     res.status(500).json({ message: "Invalid fill your information" });
                                                 }
@@ -389,12 +366,149 @@ exports.Post_Account_Custom = (req, res, next) => {
 
 
 exports.Delete_Website = (req, res, next) => {
-    CustomWeb.remove({ $and: [{ typeUrl: req.body.typeUrl }, { idUser: req.userData._id }] })
+
+    function RemovethreeCollection() {
+        return new Promise(async(resolve) => {
+            await CustomWeb.find({ $and: [{ typeUrl: req.body.typeUrl }, { idUser: req.userData._id }] })
+                .exec()
+                .then(async(re1) => {
+                    if (re1.length >= 1) {
+                        //1. remove studycoures
+                        var IDUserMooodleFind=re1[0].IDUserMoodle;
+                        var urlcoures = re1[0].url.split(".edu.vn")[0] + ".edu.vn";
+                        studyCourses.remove({ $and: [{ idUser: req.userData._id }, { idUserMoodle: IDUserMooodleFind }] })
+                            .exec()
+                            .then()
+                            .catch(err => {
+                                //console.log(err);
+                                res.status(500).json({
+                                    error: err
+                                });
+                            });
+
+                        //2. remove courses
+                        await currentStudyCourses.find({ $and: [{ idUser: req.userData._id }, { idUserMoodle: IDUserMooodleFind }] })
+                            .exec()
+                            .then((re2) => {
+                                if (re2.length >= 1) {
+ 
+                                     re2[0].listCourses.forEach(( element) => {
+                                        
+                                        Courses.find({ $and: [{ url: urlcoures }, { IDCourses: element.IDCourses }] })
+                                            .exec()
+                                            .then(async (re3) => {
+                                                if (re3.length >= 1) {
+                                                    var re3IDUser = re3[0].IDUser;
+
+                                                    if (re3[0].listStudent.length === 1) {
+                                                        //co 1 SV trong DS mon hoc
+                                                        Courses.remove({ $and: [{ url: urlcoures }, { IDCourses: element.IDCourses }] })
+                                                            .exec()
+                                                            .then()
+                                                            .catch(err => {
+                                                                //console.log(err);
+                                                                res.status(500).json({
+                                                                    error: err
+                                                                });
+                                                            });
+                                                    } else {
+                                                        //co nhieu hon 1 SV
+                                                        //xem thu SV do dang phai la user dai dien khong
+                                                        
+                                                        if (re3IDUser.toString() === req.userData._id.toString()) {
+                                                            var IDUserUpdate2 = re3[0].listStudent[1].IDUser;
+                                                            var IDMoodleUpdate2 = re3[0].listStudent[1].IDUserMoodle;
+                                                            await Courses.updateOne({
+                                                                _id: re3[0]._id
+                                                            },
+                                                                {
+                                                                    $pull: { listStudent: { IDUser: req.userData._id, IDUserMoodle: IDUserMooodleFind } }
+                                                                });
+                                                           
+                                                            await Courses.updateOne({
+                                                                _id: re3[0]._id
+                                                            },
+                                                                {
+                                                                    $set: { IDUser: IDUserUpdate2, IDUserInstead: IDMoodleUpdate2 }
+                                                                });
+                                                        } else {
+                                                            
+                                                            await Courses.updateOne({
+                                                                _id: re3[0]._id
+                                                            },
+                                                                {
+                                                                    $pull: { listStudent: { IDUser: req.userData._id, IDUserMoodle: IDUserMooodleFind } }
+                                                                });
+                                                        }
+
+                                                    }
+                                                }
+                                                else {
+                                                    res.status(500).json({
+                                                        message: "No account need deleted"
+                                                    });
+                                                }
+                                            })
+                                            .catch(err => {
+                                                //console.log(err);
+                                                res.status(500).json({
+                                                    error: err
+                                                });
+                                            });
+
+                                    });
+
+
+                                }
+                                else {
+                                    //khong co danh sach mon hoc hien tai
+                                    res.status(500).json({
+                                        message: "No account need deleted"
+                                    });
+                                }
+                            })
+                            .catch(err => {
+                                //console.log(err);
+                                res.status(500).json({
+                                    message: "No account need deleted"
+                                });
+                            });
+                        
+                        //3. remove current coures
+                        currentStudyCourses.remove({ $and: [{ idUser: req.userData._id }, { idUserMoodle: IDUserMooodleFind }] })
+                        .exec()
+                        .then()
+                        .catch(err => {
+                            //console.log(err);
+                            res.status(500).json({
+                                error: err
+                            });
+                        });
+                    } else {
+
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({
+                        error: err
+                    });
+                });
+            resolve("done");
+        })
+
+    };
+
+    
+    RemovethreeCollection().then((value)=>{
+        if(value==="done"){
+            
+            CustomWeb.remove({ $and: [{ typeUrl: req.body.typeUrl }, { idUser: req.userData._id }] })
         .exec()
-        .then(result => {
+        .then(re=>{
             res.status(200).json({
-                message: "account deleted"
-            });
+                message:"account custom deleted"
+            })
         })
         .catch(err => {
             console.log(err);
@@ -402,4 +516,12 @@ exports.Delete_Website = (req, res, next) => {
                 error: err
             });
         });
+        }
+
+    })
+    .catch(err=>{
+        res.status(500).json({
+            error:err
+        })
+    })
 };
