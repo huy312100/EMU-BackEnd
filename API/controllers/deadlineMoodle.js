@@ -8,7 +8,7 @@ exports.Get_Deadline_This_Month =(req,res,next)=>{
     var url;
     CustomWeb.find({$and:[{typeUrl:"Moodle"},{idUser: req.userData._id}]})
     .exec()
-    .then(user=>{
+    .then( user=>{
         if(user.length>=1)
         {
             var tokenMoodle= user[0].token;
@@ -19,7 +19,10 @@ exports.Get_Deadline_This_Month =(req,res,next)=>{
             var mm = String(today.getMonth() + 1);
             var yyyy = today.getFullYear();
 
+            var mm2=parseInt(mm)+1;
+            
             url=urlMoodle+".edu.vn/webservice/rest/server.php?moodlewsrestformat=json&wstoken="+tokenMoodle+"&wsfunction=core_calendar_get_calendar_monthly_view&year="+yyyy+"&month="+mm;
+            url2=urlMoodle+".edu.vn/webservice/rest/server.php?moodlewsrestformat=json&wstoken="+tokenMoodle+"&wsfunction=core_calendar_get_calendar_monthly_view&year="+yyyy+"&month="+mm2.toString();
             //console.log(url);
             var options = {
                 "method": "GET",
@@ -27,6 +30,14 @@ exports.Get_Deadline_This_Month =(req,res,next)=>{
                 "headers": {
                 }
               };
+
+            var options2 = {
+                "method": "GET",
+                "url": url2,
+                "headers": {
+                }
+              };
+              var result=[];
             request(options, function (error, response) {
                 if (error) {
                     res.status(500).json({message: error});
@@ -36,7 +47,7 @@ exports.Get_Deadline_This_Month =(req,res,next)=>{
                         //console.log(response.body);
                         var CalendarDeadline =JSON.parse(response.body);
                         //console.log(CalendarDeadline.weeks)
-                        var result=[];
+                        
                         for(var i=0; i<CalendarDeadline.weeks.length;i++)
                         {
                             for(var j=0;j<CalendarDeadline.weeks[i].days.length;j++)
@@ -61,6 +72,8 @@ exports.Get_Deadline_This_Month =(req,res,next)=>{
                             }
                             
                         }
+
+                        
                         res.status(200).json(result);
                     }else{
                         res.status(500).json({message:"Have res error"});
@@ -68,6 +81,7 @@ exports.Get_Deadline_This_Month =(req,res,next)=>{
                 }
                 
               });
+            console.log(result);
         }
         else{
             res.status(500).json({message: "No account your custom Moodle"});
@@ -94,7 +108,7 @@ exports.Get_Deadline_With_MonthID =(req,res,next)=>{
   
             var mm = req.body.month;
             var yyyy = req.body.year;
-
+            
             url=urlMoodle+".edu.vn/webservice/rest/server.php?moodlewsrestformat=json&wstoken="+tokenMoodle+"&wsfunction=core_calendar_get_calendar_monthly_view&year="+yyyy+"&month="+mm;
             //console.log(url);
             var options = {
@@ -137,6 +151,9 @@ exports.Get_Deadline_With_MonthID =(req,res,next)=>{
                             }
                             
                         }
+
+
+
                         res.status(200).json(result);
                     }else{
                         res.status(500).json({message:"Have res error"});

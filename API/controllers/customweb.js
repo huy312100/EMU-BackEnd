@@ -8,6 +8,7 @@ const currentStudyCourses = require("../models/currentStudyCourses");
 const Courses = require("../models/courses");
 
 const { resolve } = require("path");
+const customweb = require("../models/customweb");
 const resizedIV = Buffer.allocUnsafe(16);
 const iv = crypto
     .createHash("sha256")
@@ -44,6 +45,27 @@ exports.Get_Website_Custom = (req, res, next) => {
             res.status(500).json({ error: err });
         });
 };
+
+exports.Get_NameWeb_Is_Link =(req,res,next)=>{
+    customweb.find({ idUser: req.userData._id })
+    .exec()
+    .then(re1=>{
+        if(re1.length>=1){
+            var result =[];
+            for(var i=0; i<re1.length;i++){
+                result.push(re1[i].typeUrl)
+            }
+            console.log(result);
+            res.status(200).json(result);
+        }
+        else{
+            res.status(500).json({message:"You dont custom web"})
+        }
+    })
+    .catch(err=>{
+        res.status(500).json({ error: err})
+    })
+}
 
 exports.Post_Account_Custom = async (req, res, next) => {
     CustomWeb.find({ $and: [{ typeUrl: req.body.typeUrl }, { idUser: req.userData._id }] })
