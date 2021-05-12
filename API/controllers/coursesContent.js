@@ -7,7 +7,7 @@ const courses = require("../models/courses");
 exports.Get_One_Courses = async (req, res, next) => {
     var urlofCustweb;
     var tokenofCustomweb;
-    console.log("1");
+    //console.log("1");
     await customweb.find({ $and: [{ idUser: req.userData._id }, { typeUrl: "Moodle" }] })
         .exec()
         .then((re2) => {
@@ -16,7 +16,7 @@ exports.Get_One_Courses = async (req, res, next) => {
                 tokenofCustomweb = re2[0].token;
             }
         });
-    console.log("2");
+    //console.log("2");
     var urlmcontent = urlofCustweb.split(".edu.vn")[0] + ".edu.vn";
     console.log(urlmcontent);
     await coursesContent.find({ $and: [{ urlm: urlmcontent }, { IDCourses: req.body.IDCourses }] })

@@ -22,8 +22,16 @@ exports.Get_ListCoures = async(req, res, next) => {
                 var list = re[0].listCourses;
                 var result = [];
                 async function init() {
+                    console.log(parseInt(list.length/5));
+                    if(parseInt(list.length/5)<parseInt(req.body.page))
+                    {
+                        return res.status(500).json({message:"Page not Found"});
+                    }
                     var temp =req.body.page;
                     for (var j = (temp*5); j < (temp*5)+5; j++) {
+                        if(list[j] ===undefined){
+                            break;
+                        }
                         var url = urlofCustweb.split(".edu.vn")[0] + ".edu.vn/webservice/rest/server.php?wstoken=" + tokenofCustomweb + "&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid=" + list[j].IDCourses;
                         //console.log(url);
                         var options = {
