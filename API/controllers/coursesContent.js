@@ -7,7 +7,7 @@ const courses = require("../models/courses");
 exports.Get_One_Courses = async (req, res, next) => {
     var urlofCustweb;
     var tokenofCustomweb;
-    //console.log("1");
+    console.log("1");
     await customweb.find({ $and: [{ idUser: req.userData._id }, { typeUrl: "Moodle" }] })
         .exec()
         .then((re2) => {
@@ -16,18 +16,18 @@ exports.Get_One_Courses = async (req, res, next) => {
                 tokenofCustomweb = re2[0].token;
             }
         });
-    //console.log("2");
-    urlmcontent = urlofCustweb.split(".edu.vn")[0] + ".edu.vn";
-    //console.log(urlofCustweb);
+    console.log("2");
+    var urlmcontent = urlofCustweb.split(".edu.vn")[0] + ".edu.vn";
+    console.log(urlmcontent);
     await coursesContent.find({ $and: [{ urlm: urlmcontent }, { IDCourses: req.body.IDCourses }] })
         .exec()
         .then((re1) => {
-            //console.log(re1)
+            console.log(re1.length)
             if (re1.length >= 1) {
                 res.status(200).json(re1[0]);
             }
             else {
-
+                console.log("3")
                 var CoursesContent = new coursesContent({
                     _id: new mongoose.Types.ObjectId(),
                     IDCourses: req.body.IDCourses,
@@ -86,12 +86,12 @@ exports.Get_One_Courses = async (req, res, next) => {
             }
         })
         .catch(err => {
-
             res.status(500).json({ error: err });
         })
 }
 
 exports.Check_Change_Courses = async (req, res, next) => {
+    console.log("ga")
     var change = [];
     var listUser = [];
     async function Init2() {
