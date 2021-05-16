@@ -4,7 +4,8 @@ const listInfoCourses=mongoose.Schema({
     IDCourses: {type: String, require:true},
     name: {type: String, require:true},
     category: {type: String, require:true},
-    startDate: {type: String, require:true}
+    startDate: {type: String, require:true},
+    teacher:{type:[String], default:[]}
 });
 
 const studyCoursesSchema= mongoose.Schema({

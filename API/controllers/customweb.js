@@ -38,6 +38,9 @@ exports.Get_Website_Custom = (req, res, next) => {
                 // var decodePassword =decipherPassword.update(user[0].password,"hex","utf-8");
                 // decodePassword+=decipherPassword.final("utf-8");
 
+                // console.log(decodeUsername);
+                // console.log(decodePassword);
+
                 res.status(200).json(user);
             }
         })

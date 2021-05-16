@@ -10,4 +10,6 @@ router.get("/view",check_auth,profileController.View_Profile);
 
 router.post("/edit", check_auth,profileController.Edit_Profile);
 
+router.post("/editprofilepicture",check_auth,profileController.Edit_Profile_Picture);
+
 module.exports=router;

@@ -56,11 +56,20 @@ exports.Get_One_Courses = async (req, res, next) => {
                                 for (var j = 0; j < info[i].modules.length; j++) {
                                     if (info[i].modules[j].modname === "assign") {
                                         var listAssigns = CoursesContent.listAssign;
-                                        listAssigns = {
-                                            IDOfListAssign: info[i].modules[j].id,
-                                            name: info[i].modules[j].name,
-                                            url: info[i].modules[j].url,
-                                            startDate: info[i].modules[j].completiondata.timecompleted
+                                        if (info[i].modules[j].completiondata.timecompleted !== undefined) {
+                                            listAssigns = {
+                                                IDOfListAssign: info[i].modules[j].id,
+                                                name: info[i].modules[j].name,
+                                                url: info[i].modules[j].url,
+                                                startDate: info[i].modules[j].completiondata.timecompleted
+                                            }
+                                        }else{
+                                            listAssigns = {
+                                                IDOfListAssign: info[i].modules[j].id,
+                                                name: info[i].modules[j].name,
+                                                url: info[i].modules[j].url,
+                                                startDate: 0
+                                            }
                                         }
                                         //console.log(listAssigns);
                                         if (CoursesContent.listAssign !== undefined) {
@@ -97,15 +106,15 @@ exports.Check_Change_Courses = async (req, res, next) => {
     async function Init2() {
         await courses.find()
             .exec()
-            .then(async(re1) => {
-                for(var k=0;k<re1.length;k++){
-                //re1.forEach(async (element) => {
-                    var element=re1[k];
+            .then(async (re1) => {
+                for (var k = 0; k < re1.length; k++) {
+                    //re1.forEach(async (element) => {
+                    var element = re1[k];
                     var tokenofCustomweb;
                     var urlofCustweb;
                     //console.log("51");
                     function Init4() {
-                        return new Promise(async(resolve)=> {
+                        return new Promise(async (resolve) => {
                             await customweb.find({ $and: [{ idUser: element.IDUser }, { typeUrl: "Moodle" }] })
                                 .exec()
                                 .then((re2) => {
@@ -115,14 +124,14 @@ exports.Check_Change_Courses = async (req, res, next) => {
                                         return resolve();
                                     }
                                 });
-                            
+
                         });
                     };
 
-                    await Init4().then(()=>{
+                    await Init4().then(() => {
                         //console.log("5");
                     });
-                    
+
                     var url = element.url + "/webservice/rest/server.php?moodlewsrestformat=json&wsfunction=core_course_get_contents&courseid=" + element.IDCourses + "&wstoken=" + tokenofCustomweb;
                     var options = {
                         "method": "GET",
@@ -186,10 +195,10 @@ exports.Check_Change_Courses = async (req, res, next) => {
                                                             .exec()
                                                             .then(re3 => {
                                                                 if (re3.length >= 1) {
-                                                                    if(listUser !== undefined){
+                                                                    if (listUser !== undefined) {
                                                                         listUser.push(re3[0].listStudent);
-                                                                    }else{
-                                                                    listUser = re3[0].listStudent;
+                                                                    } else {
+                                                                        listUser = re3[0].listStudent;
                                                                     }
                                                                 }
                                                             })
