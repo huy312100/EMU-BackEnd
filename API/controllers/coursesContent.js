@@ -3,7 +3,7 @@ var request = require("request");
 const coursesContent = require("../models/coursesContent");
 const customweb = require("../models/customweb");
 const courses = require("../models/courses");
-
+const htmlToJson = require("html-to-json");
 exports.Get_One_Courses = async (req, res, next) => {
     var urlofCustweb;
     var tokenofCustomweb;
@@ -63,7 +63,7 @@ exports.Get_One_Courses = async (req, res, next) => {
                                                 url: info[i].modules[j].url,
                                                 startDate: info[i].modules[j].completiondata.timecompleted
                                             }
-                                        }else{
+                                        } else {
                                             listAssigns = {
                                                 IDOfListAssign: info[i].modules[j].id,
                                                 name: info[i].modules[j].name,
@@ -77,10 +77,63 @@ exports.Get_One_Courses = async (req, res, next) => {
                                         } else {
                                             CoursesContent.listAssign = listAssigns;
                                         }
+                                    } else if (info[i].modules[j].modname === "label") {
+                                        var listLabels = CoursesContent.listLabel
+
+                                        listLabels = {
+                                            name: info[i].modules[j].name,
+
+                                            label: info[i].modules[j].description
+                                        }
+                                        // await promisea.done(function (result) {
+                                        //     listLabels.label=result
+                                        //   })
+                                        //console.log(listLabels.label);
+
+                                        if (CoursesContent.listLabel !== undefined) {
+                                            CoursesContent.listLabel.push(listLabels);
+                                        } else {
+                                            CoursesContent.listLabel = listLabels;
+                                        }
+                                    } else if (info[i].modules[j].modname === "resource") {
+                                        var listresources = CoursesContent.listResource
+                                        listresources = {
+                                            name: info[i].modules[j].name,
+                                            url: info[i].modules[j].url
+                                        }
+
+                                        if (CoursesContent.listResource !== undefined) {
+                                            CoursesContent.listResource.push(listresources);
+                                        } else {
+                                            CoursesContent.listResource = listresources;
+                                        }
+                                    } else if (info[i].modules[j].modname === "url") {
+                                        var listurls = CoursesContent.listUrl
+                                        listurls = {
+                                            name: info[i].modules[j].name,
+                                            url: info[i].modules[j].url
+                                        }
+
+                                        if (CoursesContent.listUrl !== undefined) {
+                                            CoursesContent.listUrl.push(listurls);
+                                        } else {
+                                            CoursesContent.listUrl = listurls;
+                                        }
+                                    } else if (info[i].modules[j].modname === "folder") {
+                                        var listfolders = CoursesContent.listFolder
+                                        listfolders = {
+                                            name: info[i].modules[j].name,
+                                            url: info[i].modules[j].url
+                                        }
+
+                                        if (CoursesContent.listFolder !== undefined) {
+                                            CoursesContent.listFolder.push(listfolders);
+                                        } else {
+                                            CoursesContent.listFolder = listfolders;
+                                        }
                                     }
                                 }
                             }
-
                             CoursesContent.save()
                                 .then(() => {
                                     res.status(200).json(CoursesContent);

@@ -16,6 +16,7 @@
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "express": "^4.17.1",
+    "html-to-json": "^0.6.0",
     "joi": "^17.4.0",
     "jsonwebtoken": "^8.5.1",
     "mongoclient": "^1.0.3",
