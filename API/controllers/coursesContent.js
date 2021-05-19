@@ -17,8 +17,9 @@ exports.Get_One_Courses = async (req, res, next) => {
             }
         });
     //console.log("2");
+    //console.log(urlofCustweb);
     var urlmcontent = urlofCustweb.split(".edu.vn")[0] + ".edu.vn";
-    console.log(urlmcontent);
+    //console.log(urlmcontent);
     await coursesContent.find({ $and: [{ urlm: urlmcontent }, { IDCourses: req.body.IDCourses }] })
         .exec()
         .then((re1) => {
@@ -27,7 +28,7 @@ exports.Get_One_Courses = async (req, res, next) => {
                 res.status(200).json(re1[0]);
             }
             else {
-                console.log("3")
+                //console.log("3")
                 var CoursesContent = new coursesContent({
                     _id: new mongoose.Types.ObjectId(),
                     IDCourses: req.body.IDCourses,
@@ -56,7 +57,7 @@ exports.Get_One_Courses = async (req, res, next) => {
                                 for (var j = 0; j < info[i].modules.length; j++) {
                                     if (info[i].modules[j].modname === "assign") {
                                         var listAssigns = CoursesContent.listAssign;
-                                        if (info[i].modules[j].completiondata.timecompleted !== undefined) {
+                                        if (info[i].modules[j].completion === 1) {
                                             listAssigns = {
                                                 IDOfListAssign: info[i].modules[j].id,
                                                 name: info[i].modules[j].name,
@@ -82,13 +83,8 @@ exports.Get_One_Courses = async (req, res, next) => {
 
                                         listLabels = {
                                             name: info[i].modules[j].name,
-
                                             label: info[i].modules[j].description
                                         }
-                                        // await promisea.done(function (result) {
-                                        //     listLabels.label=result
-                                        //   })
-                                        //console.log(listLabels.label);
 
                                         if (CoursesContent.listLabel !== undefined) {
                                             CoursesContent.listLabel.push(listLabels);
