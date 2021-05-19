@@ -150,7 +150,7 @@ exports.Change_Password = async (req, res, next) => {
           }
           else {
             res.status(401).json({
-              message: "Auth failed"
+              message: "Invalid password"
             })
           }
         });
