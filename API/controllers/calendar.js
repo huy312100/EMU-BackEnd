@@ -1,14 +1,17 @@
 const mongoose = require("mongoose");
-const calendar = require("../models/calendar");
+var request = require("request");
 
-exports.Get_Calendar_This_Month = (req, res, next) => {
-    //listcalendar
+const calendar = require("../models/calendar");
+const CustomWeb = require("../models/customweb");
+const deadlineMoodle = require("../models/deadlineMoodlle");
+exports.Get_Calendar_This_Month = async (req, res, next) => {
+    var listcalendar = [];
     //calendar.find({$and:[{"IDUser": req.userData._id},{Date:{$macth:[{year:req.body.year},{month:req.body.month}]}}]})
-    calendar.find({ $and: [{ IDUser: req.userData._id }, { "Date.year": req.body.year }, { "Date.month": req.body.month }] })
+    await calendar.find({ $and: [{ IDUser: req.userData._id }, { "Date.year": req.body.year }, { "Date.month": req.body.month }] })
         .exec()
         .then(re1 => {
             if (re1.length >= 1) {
-                res.status(200).json(re1);
+                listcalendar = re1;
             } else {
                 res.status(500).json({ message: "No calendar this month" });
             }
@@ -16,6 +19,91 @@ exports.Get_Calendar_This_Month = (req, res, next) => {
         .catch(err => {
             res.status(500).json({ error: err });
         })
+
+    var url;
+    CustomWeb.find({ $and: [{ typeUrl: "Moodle" }, { idUser: req.userData._id }] })
+        .exec()
+        .then(user => {
+            if (user.length >= 1) {
+                var tokenMoodle = user[0].token;
+                var urlMoodle = user[0].url.split(".edu.vn")[0];
+
+                var today = new Date();
+
+                var mm = String(today.getMonth() + 1);
+                var yyyy = today.getFullYear();
+
+                var mm2 = parseInt(mm) + 1;
+
+                url = urlMoodle + ".edu.vn/webservice/rest/server.php?moodlewsrestformat=json&wstoken=" + tokenMoodle + "&wsfunction=core_calendar_get_calendar_monthly_view&year=" + yyyy + "&month=" + mm;
+                url2 = urlMoodle + ".edu.vn/webservice/rest/server.php?moodlewsrestformat=json&wstoken=" + tokenMoodle + "&wsfunction=core_calendar_get_calendar_monthly_view&year=" + yyyy + "&month=" + mm2.toString();
+                //console.log(url);
+                var options = {
+                    "method": "GET",
+                    "url": url,
+                    "headers": {
+                    }
+                };
+
+                var options2 = {
+                    "method": "GET",
+                    "url": url2,
+                    "headers": {
+                    }
+                };
+                var result = [];
+                request(options, function (error, response) {
+                    if (error) {
+                        res.status(500).json({ message: error });
+                    }
+                    else {
+                        if (response.statusCode === 200) {
+                            //console.log(response.body);
+                            var CalendarDeadline = JSON.parse(response.body);
+                            //console.log(CalendarDeadline.weeks)
+
+                            for (var i = 0; i < CalendarDeadline.weeks.length; i++) {
+                                for (var j = 0; j < CalendarDeadline.weeks[i].days.length; j++) {
+                                    if (CalendarDeadline.weeks[i].days[j].events != "") {
+                                        for (var z = 0; z < CalendarDeadline.weeks[i].days[j].events.length; z++) {
+                                            if (CalendarDeadline.weeks[i].days[j].events[z].modulename === "assign") {
+                                                const deadline = new deadlineMoodle(
+                                                    CalendarDeadline.weeks[i].days[j].events[z].course.fullname,
+                                                    CalendarDeadline.weeks[i].days[j].events[z].name,
+                                                    CalendarDeadline.weeks[i].days[j].events[z].url,
+                                                    CalendarDeadline.weeks[i].days[j].events[z].timestart
+                                                );
+                                                listcalendar.push(deadline);
+                                            }
+                                        }
+
+
+                                    }
+
+                                }
+
+                            }
+
+
+                            res.status(200).json(listcalendar);
+                        } else {
+                            res.status(500).json({ message: "Have res error" });
+                        }
+                    }
+
+                });
+                console.log(result);
+            }
+            else {
+                res.status(500).json({ message: "No account your custom Moodle" });
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                error: err
+            });
+        });
 };
 
 exports.Post_Calendar = (req, res, next) => {
@@ -53,7 +141,7 @@ exports.Post_Calendar = (req, res, next) => {
         });
 };
 
-exports.Edit_Calendar = async(req, res, next) => {
+exports.Edit_Calendar = async (req, res, next) => {
 
     var newcalendar = new calendar({
         Title: req.body.newTitle,
@@ -67,14 +155,14 @@ exports.Edit_Calendar = async(req, res, next) => {
     })
     //console.log(newcalendar);
     await calendar.findOneAndUpdate({ $and: [{ IDUser: req.userData._id }, { Title: req.body.Title }, { "Date.year": req.body.year }, { "Date.month": req.body.month }, { "Date.day": req.body.day }] },
-    newcalendar, { upsert: false }, function (err, doc) {
+        newcalendar, { upsert: false }, function (err, doc) {
             if (err) {
                 res.status(500).json({ error: err });
             } else {
-                if(doc){
+                if (doc) {
                     res.status(200).json({ message: "your calendar is updated" });
-                }else{
-                    res.status(500).json({message:"No your calendar in db"});
+                } else {
+                    res.status(500).json({ message: "No your calendar in db" });
                 }
             }
         }).catch(err => {

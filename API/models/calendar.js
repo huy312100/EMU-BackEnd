@@ -11,6 +11,7 @@ const descriptionCalendar = mongoose.Schema({
 const calendarSchema=mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     IDUser: {type:mongoose.Schema.Types.ObjectId, ref:'Account'},
+    TypeCalendar:{type: String, default:"custom"},
     Title:{type: String, require:true},
     TypeEvent :{type:String,require:true},
     Date: {year:{type:String, require:true},month:{type:String, require:true},day:{type:String, require:true}},
