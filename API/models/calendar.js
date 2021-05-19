@@ -5,7 +5,7 @@ const descriptionCalendar = mongoose.Schema({
     underLine: {type: Boolean, default:false},
     italic: {type: Boolean, default:false},
     bold: {type: Boolean, default:false},
-    url: {type:String, default:""},
+    url: {type:String, default:""}
 });
 
 const calendarSchema=mongoose.Schema({

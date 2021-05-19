@@ -126,7 +126,7 @@ exports.Change_Password = async (req, res, next) => {
           if (err) {
             //console.log("err")
             res.status(401).json({
-              message: "Auth failed"
+              message: "Invalid password"
             });
           }
 
