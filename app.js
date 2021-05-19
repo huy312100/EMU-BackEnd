@@ -22,7 +22,7 @@ mongoose.connect("mongodb+srv://EMU:appEMU@cluster0.oktkb.mongodb.net/EMU?retryW
   {
     useMongoClient: true
   });
-
+mongoose.set('useFindAndModify', false);
 
 
 // var i = 0;

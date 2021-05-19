@@ -8,6 +8,8 @@ router.get("/getthismonth",check_auth,CalendarController.Get_Calendar_This_Month
 
 router.post("/post",check_auth,CalendarController.Post_Calendar);
 
+router.post("/edit",check_auth, CalendarController.Edit_Calendar);
+
 router.delete("/delete",check_auth,CalendarController.Delete_Calendar);
 
 module.exports=router;

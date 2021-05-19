@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const calendar = require("../models/calendar");
 
 exports.Get_Calendar_This_Month = (req, res, next) => {
+    //listcalendar
     //calendar.find({$and:[{"IDUser": req.userData._id},{Date:{$macth:[{year:req.body.year},{month:req.body.month}]}}]})
     calendar.find({ $and: [{ IDUser: req.userData._id }, { "Date.year": req.body.year }, { "Date.month": req.body.month }] })
         .exec()
@@ -50,6 +51,36 @@ exports.Post_Calendar = (req, res, next) => {
         .catch(err => {
             res.status(500).json({ error: err })
         });
+};
+
+exports.Edit_Calendar = async(req, res, next) => {
+
+    var newcalendar = new calendar({
+        Title: req.body.newTitle,
+        TypeEvent: req.body.TypeEvent,
+        Date: { year: req.body.newyear, month: req.body.newmonth, day: req.body.newday },
+        StartHour: req.body.StartHour,
+        EndHour: req.body.EndHour,
+        Decription: { text: req.body.desciptionText, underLine: req.body.UnderLine, italic: req.body.Italic, bold: req.body.Bold, url: req.body.url },
+        Color: req.body.Color,
+        Notification: req.body.Notification
+    })
+    //console.log(newcalendar);
+    await calendar.findOneAndUpdate({ $and: [{ IDUser: req.userData._id }, { Title: req.body.Title }, { "Date.year": req.body.year }, { "Date.month": req.body.month }, { "Date.day": req.body.day }] },
+    newcalendar, { upsert: false }, function (err, doc) {
+            if (err) {
+                res.status(500).json({ error: err });
+            } else {
+                if(doc){
+                    res.status(200).json({ message: "your calendar is updated" });
+                }else{
+                    res.status(500).json({message:"No your calendar in db"});
+                }
+            }
+        }).catch(err => {
+            res.status(500).json({ error: err })
+        })
+    ///console.log(doc);
 };
 
 exports.Delete_Calendar = async (req, res, next) => {

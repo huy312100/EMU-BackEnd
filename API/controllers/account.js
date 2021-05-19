@@ -126,7 +126,7 @@ exports.Change_Password = async (req, res, next) => {
           if (err) {
             //console.log("err")
             res.status(401).json({
-              message: "Invalid password"
+              message: "Auth failed"
             });
           }
 
@@ -224,6 +224,8 @@ exports.PutAccount = (req, res, next) => {
       });
     });
 };
+
+
 
 exports.Delete_Account = (req, res, next) => {
   Account.remove({ _id: req.params.username })
