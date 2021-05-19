@@ -13,7 +13,7 @@ const calendarSchema=mongoose.Schema({
     IDUser: {type:mongoose.Schema.Types.ObjectId, ref:'Account'},
     Title:{type: String, require:true},
     TypeEvent :{type:String,require:true},
-    Date: {type: String, require:true},
+    Date: {year:{type:String, require:true},month:{type:String, require:true},day:{type:String, require:true}},
     StartHour:{type: String, require:true},
     EndHour: {type: String, require:true},
     Decription: {type: descriptionCalendar, default:[]},

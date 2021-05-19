@@ -2,7 +2,7 @@ const mongoose= require("mongoose");
 const calendar = require("../models/calendar");
 
 exports.Get_Calendar_This_Month = (req, res, next)=>{
-    calendar.find({$and:[{IDUser: req.userData._id},{Date:req.body.Date}]})
+    calendar.find({$and:[{IDUser: req.userData._id},{Date:{month:req.body.month,year:req.body.year}}]})
     .exec()
     .then(re1=>{
         if(re1.length>=1){
@@ -17,7 +17,7 @@ exports.Get_Calendar_This_Month = (req, res, next)=>{
 };
 
 exports.Post_Calendar = (req, res,next)=>{
-    await calendar.find({$and:[{IDUser: req.userData._id},{Title:req.body.Title},{Date:req.body.Date}]})
+    calendar.find({$and:[{IDUser: req.userData._id},{Title:req.body.Title},{Date:{month:req.body.month,year:req.body.year, day:req.body.day}}]})
     .exec()
     .then(re1=>{
         if(re1.length>=1){
@@ -27,7 +27,7 @@ exports.Post_Calendar = (req, res,next)=>{
                 idUser: req.userData._id,
                 Title: req.body.Title,
                 TypeEvent:req.body.TypeEvent,
-                Date:req.body.Date,
+                Date:{year:req.body.year,month: req.body.month, day:req.body.day},
                 StartHour:req.body.StartHour,
                 EndHour:req.body.EndHour,
                 Decription: {text:req.body.desciptionText,underLine:req.body.UnderLine,italic:req.body.Italic,bold:req.body.Bold, url: req.body.url},
@@ -50,7 +50,7 @@ exports.Post_Calendar = (req, res,next)=>{
 };
 
 exports.Delete_Calendar = async (req, res, next)=>{
-    const IDCalendar;
+    //const IDCalendar;
     await calendar.findOneAndRemove({$and:[{IDUser: req.userData._id},{Title:req.body.Title},{Date:req.body.Date}]})
     .exec()
     .then(re1=>{
