@@ -5,12 +5,18 @@ const port = process.env.PORT || 3000;
 
 const server = http.createServer(app);
 
-//var io = require("socket.io")(server);
+const io = require("socket.io")(server);
 
 // app.use(function(req, res, next){
 //   res.io = io;
 //   next();
 // });
+// io.on("connection", (socket) => {
+//     console.log('a user connecteddddddddddddddddddddddddddddddddddddddddddddddd');
+//     socket.on('disconnect', () => {
+//       console.log('user disconnected');
+//     });
+//   });
 
 server.listen(port, (error) => {
     if (error) return console.log(`Error: ${error}`);

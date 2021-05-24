@@ -44,6 +44,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.use("/",(req,res,next)=>{
+  res.status(200).json({message:"application is running!!"});
+})
 app.use("/account", accountRoutes);
 app.use("/university", universityRouter);
 app.use("/faculty", facultyRouter);

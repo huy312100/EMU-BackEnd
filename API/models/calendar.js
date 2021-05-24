@@ -1,7 +1,9 @@
+
+const { Int32 } = require("bson");
 const  mongoose=require("mongoose");
 
 const descriptionCalendar = mongoose.Schema({
-    text: {type:String, require:true},
+    text: {type:String, require:true,default:""},
     underLine: {type: Boolean, default:false},
     italic: {type: Boolean, default:false},
     bold: {type: Boolean, default:false},
@@ -21,12 +23,12 @@ const calendarSchema=mongoose.Schema({
     Title:{type: String, require:true},
     TypeEvent :{type:String,require:true},
     Date: {year:{type:String, require:true},month:{type:String, require:true},day:{type:String, require:true}},
-    StartHour:{type: String, require:true},
-    EndHour: {type: String, require:true},
+    StartHour:{type: Number, require:true},
+    EndHour: {type: Number, require:true},
     Decription: {type: descriptionCalendar, default:[]},
     ListGuest:{ type: [Guest], default:[]},
     Color: {type: String, require:true},
-    Notification: {type: String, default:""}    
+    Notification: {type: Number}    
 });
 
 module.exports= mongoose.model('Calendar',calendarSchema);
