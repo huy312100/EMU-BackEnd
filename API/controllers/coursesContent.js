@@ -3,7 +3,7 @@ var request = require("request");
 const coursesContent = require("../models/coursesContent");
 const customweb = require("../models/customweb");
 const courses = require("../models/courses");
-const htmlToJson = require("html-to-json");
+//const htmlToJson = require("html-to-json");
 exports.Get_One_Courses = async (req, res, next) => {
     var urlofCustweb;
     var tokenofCustomweb;

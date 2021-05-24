@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const morgan = require("morgan");
 const cors = require("cors");
 
+
 const accountRoutes = require("./API/routes/account");
 const universityRouter = require("./API/routes/university");
 const facultyRouter = require("./API/routes/faculty");
@@ -15,7 +16,8 @@ const deadlineMoodleRouter = require("./API/routes/deadlineMoodle");
 const CheckAuthRouter = require("./API/routes/checkauth");
 const StudyCoursesRouter = require("./API/routes/studyCourses");
 const coursesContentRouter = require("./API/routes/coursesContent");
-const calendarRouter =require("./API/routes/calendar");
+const calendarRouter = require("./API/routes/calendar");
+const chatRouter = require("./API/routes/chat");
 
 //mongoose.connect("mongodb+srv://EMU:appEMU@cluster0.oktkb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
 mongoose.connect("mongodb+srv://EMU:appEMU@cluster0.oktkb.mongodb.net/EMU?retryWrites=true&w=majority",
@@ -50,8 +52,11 @@ app.use("/web", webcustomRouter);
 app.use("/deadlinemoodle", deadlineMoodleRouter);
 app.use("/checktoken", CheckAuthRouter);
 app.use("/studycourses", StudyCoursesRouter);
-app.use("/coursescontent",coursesContentRouter);
-app.use("/calendar",calendarRouter);
+app.use("/coursescontent", coursesContentRouter);
+app.use("/calendar", calendarRouter);
+app.use("/chat", chatRouter);
+
+
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");

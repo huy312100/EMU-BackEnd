@@ -8,6 +8,12 @@ const descriptionCalendar = mongoose.Schema({
     url: {type:String, default:""}
 });
 
+const Guest = mongoose.Schema({
+    Email: {type:String, require:true},
+    name: {type:String, require:true}
+
+})
+
 const calendarSchema=mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     IDUser: {type:mongoose.Schema.Types.ObjectId, ref:'Account'},
@@ -18,6 +24,7 @@ const calendarSchema=mongoose.Schema({
     StartHour:{type: String, require:true},
     EndHour: {type: String, require:true},
     Decription: {type: descriptionCalendar, default:[]},
+    ListGuest:{ type: [Guest], default:[]},
     Color: {type: String, require:true},
     Notification: {type: String, default:""}    
 });

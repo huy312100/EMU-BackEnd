@@ -107,39 +107,46 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
 };
 
 exports.Post_Calendar = (req, res, next) => {
-    calendar.find({ $and: [{ IDUser: req.userData._id }, { Title: req.body.Title }, { "Date.year": req.body.year }, { "Date.month": req.body.month }, { "Date.day": req.body.day }] })
-        .exec()
-        .then(re1 => {
-            if (re1.length >= 1) {
-                res.status(200).json({ message: "your tilte is exist" });
-            } else {
+    Calendars = new calendar({
+        _id: new mongoose.Types.ObjectId(),
+        IDUser: req.userData._id,
+        Title: req.body.Title,
+        TypeEvent: req.body.TypeEvent,
+        Date: { year: req.body.year, month: req.body.month, day: req.body.day },
+        StartHour: req.body.StartHour,
+        EndHour: req.body.EndHour,
+        Decription: { text: req.body.desciptionText, underLine: req.body.UnderLine, italic: req.body.Italic, bold: req.body.Bold, url: req.body.url },
+        ListGuest:[],
+        Color: req.body.Color,
+        Notification: req.body.Notification
+    });
+    var listEmail=req.body.listguestEmail;
+    var listName= req.body.listguestName;
 
-                Calendars = new calendar({
-                    _id: new mongoose.Types.ObjectId(),
-                    IDUser: req.userData._id,
-                    Title: req.body.Title,
-                    TypeEvent: req.body.TypeEvent,
-                    Date: { year: req.body.year, month: req.body.month, day: req.body.day },
-                    StartHour: req.body.StartHour,
-                    EndHour: req.body.EndHour,
-                    Decription: { text: req.body.desciptionText, underLine: req.body.UnderLine, italic: req.body.Italic, bold: req.body.Bold, url: req.body.url },
-                    Color: req.body.Color,
-                    Notification: req.body.Notification
-                });
-                console.log("1");
-                Calendars.save()
-                    .then(() => {
-                        res.status(200).json({ message: "Calendar is created" });
-                    }).catch((err) => {
-                        console.log(err);
-                        res.status(500).json({ error: err })
-                    });
-            }
-        })
-        .catch(err => {
+    //console.log(req.body.listguestEmail);
+    for(var i=0;i<listEmail.length;i++){
+        var listguest= Calendars.ListGuest;
+        listguest={
+            Email:listEmail[i],
+            name:listName[i]
+        }
+        if(Calendars.ListGuest!==undefined){
+            Calendars.ListGuest.push(listguest);
+        }
+        else{
+            Calendars.ListGuest=listguest;
+        }
+    }
+    //console.log(Calendars.ListGuest);
+    Calendars.save()
+        .then(() => {
+            res.status(200).json({ message: "Calendar is created" });
+        }).catch((err) => {
+            console.log(err);
             res.status(500).json({ error: err })
         });
-};
+}
+
 
 exports.Edit_Calendar = async (req, res, next) => {
 
@@ -173,7 +180,7 @@ exports.Edit_Calendar = async (req, res, next) => {
 
 exports.Delete_Calendar = async (req, res, next) => {
     //const IDCalendar;
-    await calendar.findOneAndRemove({ $and: [{ IDUser: req.userData._id }, { Title: req.body.Title }, { "Date.year": req.body.year }, { "Date.month": req.body.month }, { "Date.day": req.body.day }] })
+    await calendar.findOneAndRemove({ _id: req.body.id })
         .exec()
         .then(re1 => {
             res.status(200).json({ message: "your Calendar is removed" });

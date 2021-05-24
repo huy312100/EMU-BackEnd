@@ -15,6 +15,8 @@ router.get("/:accountId",AccountController.Get_One_Account);
 
 router.post("/changepassword",check_auth,AccountController.Change_Password);
 
+router.post("/forgotpassword",AccountController.Forgot_Password);
+
 router.patch("/:accountId", AccountController.PutAccount);
 
 router.delete("/:username",check_auth,AccountController.Delete_Account);

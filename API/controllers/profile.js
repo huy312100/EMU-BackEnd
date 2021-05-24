@@ -96,6 +96,29 @@ exports.Edit_Profile = async (req, res, next) => {
     }
 };
 
+exports.Find_name = async (req,res,next)=>{
+    try {
+        let pool = await sql.connect(Config);
+
+        let profiles = await pool.request()
+            .input('ID_Signin', sql.VarChar, '%' + req.body.username + '%')
+            .query("SELECT [Email],[HoTen] FROM [dbo].[InfoSinhVien] where InfoSinhVien.Email LIKE @ID_Signin");
+
+        //console.log(facultys.recordsets[0]);
+        if (profiles.recordsets[0]) {
+            res.status(200).json(profiles.recordsets[0]);
+        }
+        else {
+            res.status(500).json();
+        }
+
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json(error);
+    }
+}
+
 exports.View_Profile = async (req, res, next) => {
     try {
         let pool = await sql.connect(Config);
