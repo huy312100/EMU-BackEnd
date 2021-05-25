@@ -12,7 +12,7 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
         .then(re1 => {
             if (re1.length >= 1) {
                 listcalendar = re1;
-            } 
+            }
         })
         .catch(err => {
             res.status(500).json({ error: err });
@@ -71,13 +71,13 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
                                                     CalendarDeadline.weeks[i].days[j].events[z].url,
                                                     CalendarDeadline.weeks[i].days[j].events[z].timestart
                                                 );
-                                                if(listcalendar!== undefined){
+                                                if (listcalendar !== undefined) {
                                                     listcalendar.push(deadline);
                                                 }
-                                                else{
-                                                    listcalendar= deadline;
+                                                else {
+                                                    listcalendar = deadline;
                                                 }
-                                                
+
                                             }
                                         }
 
@@ -120,25 +120,25 @@ exports.Post_Calendar = (req, res, next) => {
         StartHour: req.body.StartHour,
         EndHour: req.body.EndHour,
         Decription: { text: req.body.desciptionText, underLine: req.body.UnderLine, italic: req.body.Italic, bold: req.body.Bold, url: req.body.url },
-        ListGuest:[],
+        ListGuest: [],
         Color: req.body.Color,
         Notification: req.body.Notification
     });
-    var listEmail=req.body.listguestEmail;
-    var listName= req.body.listguestName;
+    var listEmail = req.body.listguestEmail;
+    var listName = req.body.listguestName;
 
     //console.log(req.body.listguestEmail);
-    for(var i=0;i<listEmail.length;i++){
-        var listguest= Calendars.ListGuest;
-        listguest={
-            Email:listEmail[i],
-            name:listName[i]
+    for (var i = 0; i < listEmail.length; i++) {
+        var listguest = Calendars.ListGuest;
+        listguest = {
+            Email: listEmail[i],
+            name: listName[i]
         }
-        if(Calendars.ListGuest!==undefined){
+        if (Calendars.ListGuest !== undefined) {
             Calendars.ListGuest.push(listguest);
         }
-        else{
-            Calendars.ListGuest=listguest;
+        else {
+            Calendars.ListGuest = listguest;
         }
     }
     //console.log(Calendars.ListGuest);
@@ -155,17 +155,36 @@ exports.Post_Calendar = (req, res, next) => {
 exports.Edit_Calendar = async (req, res, next) => {
 
     var newcalendar = new calendar({
-        Title: req.body.newTitle,
+        Title: req.body.Title,
         TypeEvent: req.body.TypeEvent,
-        Date: { year: req.body.newyear, month: req.body.newmonth, day: req.body.newday },
+        Date: { year: req.body.year, month: req.body.month, day: req.body.day },
         StartHour: req.body.StartHour,
         EndHour: req.body.EndHour,
         Decription: { text: req.body.desciptionText, underLine: req.body.UnderLine, italic: req.body.Italic, bold: req.body.Bold, url: req.body.url },
         Color: req.body.Color,
         Notification: req.body.Notification
     })
+    if (req.body.listguestEmail !== undefined && req.body.listguestName !== undefined) {
+        var listEmail = req.body.listguestEmail;
+        var listName = req.body.listguestName;
+
+        //console.log(req.body.listguestEmail);
+        for (var i = 0; i < listEmail.length; i++) {
+            var listguest = newcalendar.ListGuest;
+            listguest = {
+                Email: listEmail[i],
+                name: listName[i]
+            }
+            if (newcalendar.ListGuest !== undefined) {
+                newcalendar.ListGuest.push(listguest);
+            }
+            else {
+                newcalendar.ListGuest = listguest;
+            }
+        }
+    }
     //console.log(newcalendar);
-    await calendar.findOneAndUpdate({ $and: [{ IDUser: req.userData._id }, { Title: req.body.Title }, { "Date.year": req.body.year }, { "Date.month": req.body.month }, { "Date.day": req.body.day }] },
+    await calendar.findOneAndUpdate({ _id: req.body.id },
         newcalendar, { upsert: false }, function (err, doc) {
             if (err) {
                 res.status(500).json({ error: err });
