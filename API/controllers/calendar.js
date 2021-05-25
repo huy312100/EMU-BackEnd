@@ -12,9 +12,7 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
         .then(re1 => {
             if (re1.length >= 1) {
                 listcalendar = re1;
-            } else {
-                res.status(500).json({ message: "No calendar this month" });
-            }
+            } 
         })
         .catch(err => {
             res.status(500).json({ error: err });
@@ -73,7 +71,13 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
                                                     CalendarDeadline.weeks[i].days[j].events[z].url,
                                                     CalendarDeadline.weeks[i].days[j].events[z].timestart
                                                 );
-                                                listcalendar.push(deadline);
+                                                if(listcalendar!== undefined){
+                                                    listcalendar.push(deadline);
+                                                }
+                                                else{
+                                                    listcalendar= deadline;
+                                                }
+                                                
                                             }
                                         }
 
