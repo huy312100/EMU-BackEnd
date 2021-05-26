@@ -39,7 +39,7 @@ exports.OnSocket =(socket)=>{
                         .then(re2=>{
                             if(re2.length>=1){
                                 
-                                Chat = new chat({
+                                var Chat = new chat({
                                     _id: new mongoose.Types.ObjectId(),
                                     User1:re1._id,
                                     User2:re2._id,
@@ -49,7 +49,7 @@ exports.OnSocket =(socket)=>{
                                 var Idroom= Chat._id;
                                 Chat.save()
                                 .then(()=>{
-                                    socket.emit("Reply-Create-Room",Idroom);
+                                    socket.emit("Reply-Create-Room",Idroom.toString());
                                 })
                                 .catch(err=>{
 
