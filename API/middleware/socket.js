@@ -26,23 +26,24 @@ exports.OnSocket =(socket)=>{
     var FromUser
     socket.on("Create-Room",(user)=>{
         try {
-            const decoded= jwt.verify(user[0],process.env.JWT_KEY);
-            FromUser=decoded.username;
+            //const decoded= jwt.verify(user[0],process.env.JWT_KEY);
+            //FromUser=decoded.username;
             //if(FromUser.length>=1){
-                Account.find({username:FromUser})
+                Account.find({username:user})
                 .exec()
                 .then(re1=>{
                     if(re1.length>=1){
-                        Account.find({username:user[1]})
-                        .exec()
-                        .then(re2=>{
-                            if(re2.length>=1){
+                        socket.emit("Reply-Create-Room","created")
+                        // Account.find({username:user[1]})
+                        // .exec()
+                        // .then(re2=>{
+                        //     if(re2.length>=1){
                                 
-                                socket.emit("Reply-Create-Room","created")
-                            }else{
-                                socket.emit("Reply-Create-Room","error1");
-                            }
-                        })
+                        //         socket.emit("Reply-Create-Room","created")
+                        //     }else{
+                        //         socket.emit("Reply-Create-Room","error1");
+                        //     }
+                        // })
                     }else{
                         socket.emit("Reply-Create-Room","error2");
                     }
