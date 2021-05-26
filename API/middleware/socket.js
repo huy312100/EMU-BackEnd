@@ -28,7 +28,7 @@ exports.OnSocket =(socket)=>{
         try {
             const decoded= jwt.verify(user[0],process.env.JWT_KEY);
             FromUser=decoded.username;
-            if(FromUser.length>=1){
+            //if(FromUser.length>=1){
                 Account.find({username:FromUser})
                 .exec()
                 .then(re1=>{
@@ -47,7 +47,7 @@ exports.OnSocket =(socket)=>{
                         socket.emit("Reply-Create-Room","error2");
                     }
                 })
-            }
+            //}
         } catch (error) {
             socket.emit("Reply-Create-Room","error4");
         }
