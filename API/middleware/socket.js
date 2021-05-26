@@ -33,27 +33,41 @@ exports.OnSocket =(socket)=>{
                 .exec()
                 .then(re1=>{
                     if(re1.length>=1){
-                        socket.emit("Reply-Create-Room","created")
+                        //socket.emit("Reply-Create-Room","created")
                         Account.find({username:user1[1]})
                         .exec()
                         .then(re2=>{
                             if(re2.length>=1){
                                 
-                                socket.emit("Reply-Create-Room","created")
+                                Chat = new chat({
+                                    _id: new mongoose.Types.ObjectId(),
+                                    User1:re1._id,
+                                    User2:re2._id,
+                                    TypeRoom:"TwoPeple",
+                                    chat:[]
+                                })
+                                Chat.save()
+                                .then(()=>{
+                                    socket.emit("Reply-Create-Room",Chat._id);
+                                })
+                                .catch(err=>{
+
+                                })
+                                
                             }else{
-                                socket.emit("Reply-Create-Room","error1");
+                                socket.emit("Reply-Create-Room","error");
                             }
                         })
                     }else{
-                        socket.emit("Reply-Create-Room","error2");
+                        socket.emit("Reply-Create-Room","error");
                     }
                 })
             }
             else{
-                socket.emit("Reply-Create-Room","error3");
+                socket.emit("Reply-Create-Room","error");
             }
         } catch (error) {
-            socket.emit("Reply-Create-Room","error4");
+            socket.emit("Reply-Create-Room","error");
         }
     })
     console.log('a user connecteddddddddddddddddddddddddddddddddddddddddddddddd');
