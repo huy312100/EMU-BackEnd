@@ -46,9 +46,10 @@ exports.OnSocket =(socket)=>{
                                     TypeRoom:"TwoPeple",
                                     chat:[]
                                 })
+                                var Idroom= Chat._id;
                                 Chat.save()
                                 .then(()=>{
-                                    socket.emit("Reply-Create-Room",Chat._id);
+                                    socket.emit("Reply-Create-Room",Idroom);
                                 })
                                 .catch(err=>{
 
