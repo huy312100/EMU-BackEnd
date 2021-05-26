@@ -11,10 +11,10 @@ const soctketss= require("./API/middleware/socket");
 //   res.io = io;
 //   next();
 // });
-//io.on("connection", soctketss.OnSocket);
-io.on("connection", (socket)=>{
-    console.log("connedtdddddd");
-});
+io.on("connection", soctketss.OnSocket);
+// io.on("connection", (socket)=>{
+//     console.log("connedtdddddd");
+// });
 
 
 server.listen(port, (error) => {
