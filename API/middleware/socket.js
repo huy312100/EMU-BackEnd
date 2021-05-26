@@ -28,7 +28,7 @@ exports.OnSocket =(socket)=>{
         try {
             const decoded= jwt.verify(user[0],process.env.JWT_KEY);
             FromUser=decoded.username;
-            if(FromUser!== undefined){
+            if(FromUser.length>=1){
                 Account.find({username:FromUser})
                 .exec()
                 .then(re1=>{
@@ -49,7 +49,7 @@ exports.OnSocket =(socket)=>{
                 })
             }
         } catch (error) {
-            socket.emit("Reply-Create-Room","error3");
+            socket.emit("Reply-Create-Room","error4");
         }
     })
     console.log('a user connecteddddddddddddddddddddddddddddddddddddddddddddddd');

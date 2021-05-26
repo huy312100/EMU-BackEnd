@@ -1,7 +1,7 @@
   
 const http = require("http");
 const app = require("./app");
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3002;
 
 const server = http.createServer(app);
 
@@ -11,7 +11,11 @@ const soctketss= require("./API/middleware/socket");
 //   res.io = io;
 //   next();
 // });
-io.on("connection", soctketss.OnSocket);
+//io.on("connection", soctketss.OnSocket);
+io.on("connection", (socket)=>{
+    console.log("connedtdddddd");
+});
+
 
 server.listen(port, (error) => {
     if (error) return console.log(`Error: ${error}`);
