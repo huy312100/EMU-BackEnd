@@ -12,6 +12,8 @@ router.post("/edit", check_auth,profileController.Edit_Profile);
 
 router.post("/findname",profileController.Find_name);
 
+router.post("/findinfofromfullname",profileController.Find_Info_From_Full_Name);
+
 router.post("/editprofilepicture",check_auth,profileController.Edit_Profile_Picture);
 
 module.exports=router;

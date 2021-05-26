@@ -96,6 +96,29 @@ exports.Edit_Profile = async (req, res, next) => {
     }
 };
 
+exports.Find_Info_From_Full_Name =async (req,res,next)=>{
+    try {
+        let pool = await sql.connect(Config);
+
+        let profiles = await pool.request()
+            .input('ID_Signin', sql.VarChar, '%' + req.body.HoTen + '%')
+            .query("SELECT [InfoSinhVien].Email, InfoSinhVien.HoTen, InfoSinhVien.AnhSV, University.TenTruongDH, Faculty.MaKhoa FROM [dbo].[InfoSinhVien], University_Faculty,University,Faculty where InfoSinhVien.IDTruongKhoa=University_Faculty.ID and University_Faculty.MaTruong=University.MaTruong and University_Faculty.MaKhoa=Faculty.MaKhoa and InfoSinhVien.HoTen LIKE @ID_Signin");
+
+        //console.log(facultys.recordsets[0]);
+        if (profiles.recordsets[0]) {
+            res.status(200).json(profiles.recordsets[0]);
+        }
+        else {
+            res.status(500).json();
+        }
+
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json(error);
+    }
+};
+
 exports.Find_name = async (req,res,next)=>{
     try {
         let pool = await sql.connect(Config);
