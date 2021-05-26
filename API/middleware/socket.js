@@ -39,16 +39,16 @@ exports.OnSocket =(socket)=>{
                                 
                                 socket.emit("Reply-Create-Room","created")
                             }else{
-                                socket.emit("Reply-Create-Room","error");
+                                socket.emit("Reply-Create-Room","error1");
                             }
                         })
                     }else{
-                        socket.emit("Reply-Create-Room","error");
+                        socket.emit("Reply-Create-Room","error2");
                     }
                 })
             }
         } catch (error) {
-            socket.emit("Reply-Create-Room","error");
+            socket.emit("Reply-Create-Room","error3");
         }
     })
     console.log('a user connecteddddddddddddddddddddddddddddddddddddddddddddddd');
