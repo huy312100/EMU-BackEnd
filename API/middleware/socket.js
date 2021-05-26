@@ -23,16 +23,16 @@ const chat = require("../models/chat");
 
 exports.OnSocket =(socket)=>{
     var FromUser
-    socket.on("Create-Room",(token, usercontact)=>{
+    socket.on("Create-Room",(user)=>{
         try {
-            const decoded= jwt.verify(token,process.env.JWT_KEY);
+            const decoded= jwt.verify(user[0],process.env.JWT_KEY);
             FromUser=decoded.username;
             if(FromUser!== undefined){
                 Account.find({username:FromUser})
                 .exec()
                 .then(re1=>{
                     if(re1.length>=1){
-                        Account.find({username:usercontact})
+                        Account.find({username:user[1]})
                         .exec()
                         .then(re2=>{
                             if(re2.length>=1){
