@@ -6,17 +6,12 @@ const port = process.env.PORT || 3000;
 const server = http.createServer(app);
 
 const io = require("socket.io")(server);
-
+const soctketss= require("./API/middleware/socket");
 // app.use(function(req, res, next){
 //   res.io = io;
 //   next();
 // });
-// io.on("connection", (socket) => {
-//     console.log('a user connecteddddddddddddddddddddddddddddddddddddddddddddddd');
-//     socket.on('disconnect', () => {
-//       console.log('user disconnected');
-//     });
-//   });
+io.on("connection", soctketss.OnSocket);
 
 server.listen(port, (error) => {
     if (error) return console.log(`Error: ${error}`);
