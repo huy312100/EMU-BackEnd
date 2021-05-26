@@ -24,9 +24,9 @@ const jwt = require("jsonwebtoken");
 
 exports.OnSocket =(socket)=>{
     var FromUser
-    socket.on("Create-Room",(user1,user2)=>{
+    socket.on("Create-Room",(user1)=>{
         try {
-            const decoded= jwt.verify(user1,process.env.JWT_KEY);
+            const decoded= jwt.verify(user1[0],process.env.JWT_KEY);
             FromUser=decoded.username;
             if(FromUser.length>=1){
                 Account.find({username:FromUser})
@@ -34,7 +34,7 @@ exports.OnSocket =(socket)=>{
                 .then(re1=>{
                     if(re1.length>=1){
                         socket.emit("Reply-Create-Room","created")
-                        Account.find({username:user2})
+                        Account.find({username:user1[1]})
                         .exec()
                         .then(re2=>{
                             if(re2.length>=1){
@@ -48,6 +48,9 @@ exports.OnSocket =(socket)=>{
                         socket.emit("Reply-Create-Room","error2");
                     }
                 })
+            }
+            else{
+                socket.emit("Reply-Create-Room","error3");
             }
         } catch (error) {
             socket.emit("Reply-Create-Room","error4");
