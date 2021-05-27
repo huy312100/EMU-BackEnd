@@ -39,7 +39,7 @@ exports.OnSocket =(socket)=>{
                         .exec()
                         .then(re2=>{
                             if(re2.length>=1){
-                                chat.find( { User: { $all: [ObjectId(re1[0]._id),ObjectId(re2[0]._id)] } } )
+                                chat.find( { User: { $all: [re1[0].username,re2[0].username] } } )
                                 .exec()
                                 .then(re3=>{
                                     if(re3.length>=1){
@@ -48,11 +48,11 @@ exports.OnSocket =(socket)=>{
                                     else{
                                         var Chat = new chat({
                                             _id: new mongoose.Types.ObjectId(),
-                                            User:re1[0]._id,
+                                            User:re1[0].username,
                                             TypeRoom:"TwoPeple",
                                             chat:[]
                                         })
-                                        User.push(re2[0]._id);
+                                        User.push(re2[0].username);
                                         var Idroom= Chat._id;
                                         Chat.save()
                                         .then(()=>{
