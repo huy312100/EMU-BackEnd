@@ -39,7 +39,7 @@ exports.OnSocket =(socket)=>{
                         .exec()
                         .then(re2=>{
                             if(re2.length>=1){
-                                chat.find( { User: { $all: [re1[0].username,re2[0].username] } } )
+                                chat.find( { User: { $all: [FromUser.toString(),user[1].toString()] } } )
                                 .exec()
                                 .then(re3=>{
                                     if(re3.length>=1){
