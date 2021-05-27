@@ -43,6 +43,9 @@ exports.OnSocket =(socket)=>{
                                 .exec()
                                 .then(re3=>{
                                     if(re3.length>=1){
+                                        socket.emit("Reply-Create-Room",re3[0]._id); 
+                                    }
+                                    else{
                                         var Chat = new chat({
                                             _id: new mongoose.Types.ObjectId(),
                                             User:re1[0]._id,
@@ -58,9 +61,7 @@ exports.OnSocket =(socket)=>{
                                         .catch(err=>{
                                             socket.emit("Reply-Create-Room","error");
                                         })
-                                    }
-                                    else{
-                                        socket.emit("Reply-Create-Room",re3[0]._id);
+                                        
                                     }
                                 })
                             }else{
