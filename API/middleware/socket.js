@@ -39,7 +39,9 @@ exports.OnSocket =(socket)=>{
                         .exec()
                         .then(re2=>{
                             if(re2.length>=1){
-                                chat.find({User:{$all:[user[0],user[1]]}})
+                                //chat.find( { User: { $all: ["red", "blank"] } } )
+
+                                chat.find({User:{$all:[FromUser,user[1]]}})
                                 .exec()
                                 .then(re3=>{
                                     if(re3.length>=1){
@@ -61,8 +63,10 @@ exports.OnSocket =(socket)=>{
                                         .catch(err=>{
                                             socket.emit("Reply-Create-Room","error");
                                         })
-                                        
                                     }
+                                })
+                                .catch(err=>{
+                                    socket.emit("Reply-Create-Room","error2");
                                 })
                             }else{
                                 socket.emit("Reply-Create-Room","error");
