@@ -39,7 +39,7 @@ exports.OnSocket =(socket)=>{
                         .exec()
                         .then(re2=>{
                             if(re2.length>=1){
-                                chat.find( { User: { $all: [re1[0]._id, re2[0]._id] } } )
+                                chat.find( { User: { $all: [mongoose.Types.ObjectId(re1[0]._id), mongoose.Types.ObjectId(re2[0]._id)] } } )
                                 .exec()
                                 .then(re3=>{
                                     if(re3.length>=1){
