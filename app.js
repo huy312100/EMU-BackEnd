@@ -18,6 +18,8 @@ const StudyCoursesRouter = require("./API/routes/studyCourses");
 const coursesContentRouter = require("./API/routes/coursesContent");
 const calendarRouter = require("./API/routes/calendar");
 const chatRouter = require("./API/routes/chat");
+const checkChangeRouter = require("./API/routes/checkChange");
+const infoAndNewsRouter = require("./API/routes/infoAndnews");
 
 //mongoose.connect("mongodb+srv://EMU:appEMU@cluster0.oktkb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
 mongoose.connect("mongodb+srv://EMU:appEMU@cluster0.oktkb.mongodb.net/EMU?retryWrites=true&w=majority",
@@ -55,8 +57,8 @@ app.use("/studycourses", StudyCoursesRouter);
 app.use("/coursescontent", coursesContentRouter);
 app.use("/calendar", calendarRouter);
 app.use("/chat", chatRouter);
-
-
+app.use("/check",checkChangeRouter);
+app.use("/info", infoAndNewsRouter);
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");

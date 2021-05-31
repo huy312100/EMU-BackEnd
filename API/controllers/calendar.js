@@ -26,15 +26,8 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
                 var tokenMoodle = user[0].token;
                 var urlMoodle = user[0].url.split(".edu.vn")[0];
 
-                var today = new Date();
-
-                var mm = String(today.getMonth() + 1);
-                var yyyy = today.getFullYear();
-
-                var mm2 = parseInt(mm) + 1;
-
-                url = urlMoodle + ".edu.vn/webservice/rest/server.php?moodlewsrestformat=json&wstoken=" + tokenMoodle + "&wsfunction=core_calendar_get_calendar_monthly_view&year=" + yyyy + "&month=" + mm;
-                url2 = urlMoodle + ".edu.vn/webservice/rest/server.php?moodlewsrestformat=json&wstoken=" + tokenMoodle + "&wsfunction=core_calendar_get_calendar_monthly_view&year=" + yyyy + "&month=" + mm2.toString();
+                var url = urlMoodle + ".edu.vn/webservice/rest/server.php?moodlewsrestformat=json&wstoken=" + tokenMoodle + "&wsfunction=core_calendar_get_calendar_monthly_view&year=" + req.body.year + "&month=" + req.body.month;
+                //url2 = urlMoodle + ".edu.vn/webservice/rest/server.php?moodlewsrestformat=json&wstoken=" + tokenMoodle + "&wsfunction=core_calendar_get_calendar_monthly_view&year=" + yyyy + "&month=" + mm2.toString();
                 //console.log(url);
                 var options = {
                     "method": "GET",
@@ -43,12 +36,6 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
                     }
                 };
 
-                var options2 = {
-                    "method": "GET",
-                    "url": url2,
-                    "headers": {
-                    }
-                };
                 var result = [];
                 request(options, function (error, response) {
                     if (error) {

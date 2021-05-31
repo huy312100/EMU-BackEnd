@@ -48,10 +48,11 @@ exports.OnSocket =(socket)=>{
                                     else{
                                         var Chat = new chat({
                                             _id: new mongoose.Types.ObjectId(),
-                                            User:re1[0].username,
+                                            User:[],
                                             TypeRoom:"TwoPeple",
                                             chat:[]
                                         })
+                                        User =re1[0].username;
                                         User.push(re2[0].username);
                                         var Idroom= Chat._id;
                                         Chat.save()
