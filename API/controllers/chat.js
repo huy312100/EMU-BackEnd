@@ -26,6 +26,11 @@ exports.User_connect = async (req, res, next) => {
     }
     async function UI(url) {
         const browser = await puppeteer.launch({
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+            ],
             ignoreHTTPSErrors: true
         });
         const page = await browser.newPage();
@@ -163,6 +168,11 @@ exports.User_connect = async (req, res, next) => {
         if (url.includes("geopet") || url.includes("dee") || url.includes("sim.edu") || url.includes("fmt.hcmut") ||
             url.includes("dte.hcmut") || url.includes("pfiev.hcmut")) {
             const browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                ],
                 ignoreHTTPSErrors: true
             });
             const page = await browser.newPage();
@@ -254,6 +264,11 @@ exports.User_connect = async (req, res, next) => {
         }
         else if (url.includes("che.hcmut") || url.includes("fas.hcmut")) {
             const browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                ],
                 ignoreHTTPSErrors: true
             });
             const page = await browser.newPage();
@@ -293,6 +308,11 @@ exports.User_connect = async (req, res, next) => {
         }
         else if (url.includes("fenr.hcmut")) {
             const browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                ],
                 ignoreHTTPSErrors: true
             });
             const page = await browser.newPage();
@@ -315,6 +335,11 @@ exports.User_connect = async (req, res, next) => {
         }
         else {
             const browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                ],
                 ignoreHTTPSErrors: true
             });
             const page = await browser.newPage();
@@ -408,12 +433,13 @@ exports.User_connect = async (req, res, next) => {
         //     ignoreHTTPSErrors: true
         // });
         const browser = await puppeteer.launch({
+            headless: true,
             args: [
-              '--no-sandbox',
-              '--disable-setuid-sandbox',
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
             ],
             ignoreHTTPSErrors: true
-          });
+        });
 
         const page = await browser.newPage();
         await page.goto(url);
@@ -625,6 +651,11 @@ exports.User_connect = async (req, res, next) => {
         }
         if (index = 11) {
             const browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                ],
                 ignoreHTTPSErrors: true
             });
             const page = await browser.newPage();
@@ -654,6 +685,11 @@ exports.User_connect = async (req, res, next) => {
         }
         else if (index in [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 14, 15]) {
             const browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                ],
                 ignoreHTTPSErrors: true
             });
             const page = await browser.newPage();
@@ -685,6 +721,11 @@ exports.User_connect = async (req, res, next) => {
         }
         else if (index == 3 || index == 12 || index == 13) {
             const browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                ],
                 ignoreHTTPSErrors: true
             });
             const page = await browser.newPage();
@@ -754,6 +795,11 @@ exports.User_connect = async (req, res, next) => {
         }
         if (index in [0, 1, 2, 3, 4, 5, 6]) {
             const browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                ],
                 ignoreHTTPSErrors: true
             });
             const page = await browser.newPage();
@@ -852,6 +898,11 @@ exports.User_connect = async (req, res, next) => {
                 break;
         }
         const browser = await puppeteer.launch({
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+            ],
             ignoreHTTPSErrors: true
         });
         const page = await browser.newPage();
@@ -883,6 +934,11 @@ exports.User_connect = async (req, res, next) => {
         var selector_url = ".news-title a";
         var selector_date = ".date";
         const browser = await puppeteer.launch({
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+            ],
             ignoreHTTPSErrors: true
         });
         const page = await browser.newPage();
@@ -957,6 +1013,11 @@ exports.User_connect = async (req, res, next) => {
                 break;
         }
         const browser = await puppeteer.launch({
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+            ],
             ignoreHTTPSErrors: true
         });
         const page = await browser.newPage();
@@ -1029,19 +1090,19 @@ exports.User_connect = async (req, res, next) => {
         return articles;
 
     }
-    try{
+    try {
         var a = await Crawl_Data(req.body.url);
-    console.log(a);
-    if (a !== undefined) {
-        res.status(200).json(a);
-    }
-    else {
+        console.log(a);
+        if (a !== undefined) {
+            res.status(200).json(a);
+        }
+        else {
+            res.status(500).json({ error: "err" });
+        }
+    } catch (error) {
         res.status(500).json({ error: "err" });
     }
-    }catch(error){
-        res.status(500).json({ error: "err" });
-    }
-    
+
 
 
 };

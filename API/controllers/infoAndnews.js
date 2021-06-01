@@ -28,11 +28,10 @@ exports.Get_Info_University = async (req, res, next) => {
 };
 
 exports.Get_News_University = async (req, res, next) => {
-    
+
 };
 
 exports.Get_News_Faculty = async (req, res, next) => {
-
     async function autoScroll(page, finishTime) {
         await page.evaluate(async (finishTime) => {
 
@@ -56,6 +55,11 @@ exports.Get_News_Faculty = async (req, res, next) => {
     }
     async function UI(url) {
         const browser = await puppeteer.launch({
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+            ],
             ignoreHTTPSErrors: true
         });
         const page = await browser.newPage();
@@ -193,6 +197,11 @@ exports.Get_News_Faculty = async (req, res, next) => {
         if (url.includes("geopet") || url.includes("dee") || url.includes("sim.edu") || url.includes("fmt.hcmut") ||
             url.includes("dte.hcmut") || url.includes("pfiev.hcmut")) {
             const browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                ],
                 ignoreHTTPSErrors: true
             });
             const page = await browser.newPage();
@@ -284,6 +293,11 @@ exports.Get_News_Faculty = async (req, res, next) => {
         }
         else if (url.includes("che.hcmut") || url.includes("fas.hcmut")) {
             const browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                ],
                 ignoreHTTPSErrors: true
             });
             const page = await browser.newPage();
@@ -323,6 +337,11 @@ exports.Get_News_Faculty = async (req, res, next) => {
         }
         else if (url.includes("fenr.hcmut")) {
             const browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                ],
                 ignoreHTTPSErrors: true
             });
             const page = await browser.newPage();
@@ -345,6 +364,11 @@ exports.Get_News_Faculty = async (req, res, next) => {
         }
         else {
             const browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                ],
                 ignoreHTTPSErrors: true
             });
             const page = await browser.newPage();
@@ -434,9 +458,18 @@ exports.Get_News_Faculty = async (req, res, next) => {
                 selector_date = ".mod-articles-category-date"
                 break;
         }
+        // const browser = await puppeteer.launch({
+        //     ignoreHTTPSErrors: true
+        // });
         const browser = await puppeteer.launch({
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+            ],
             ignoreHTTPSErrors: true
         });
+
         const page = await browser.newPage();
         await page.goto(url);
         if (url.includes("mst")) {
@@ -647,6 +680,11 @@ exports.Get_News_Faculty = async (req, res, next) => {
         }
         if (index = 11) {
             const browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                ],
                 ignoreHTTPSErrors: true
             });
             const page = await browser.newPage();
@@ -676,6 +714,11 @@ exports.Get_News_Faculty = async (req, res, next) => {
         }
         else if (index in [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 14, 15]) {
             const browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                ],
                 ignoreHTTPSErrors: true
             });
             const page = await browser.newPage();
@@ -707,6 +750,11 @@ exports.Get_News_Faculty = async (req, res, next) => {
         }
         else if (index == 3 || index == 12 || index == 13) {
             const browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                ],
                 ignoreHTTPSErrors: true
             });
             const page = await browser.newPage();
@@ -776,6 +824,11 @@ exports.Get_News_Faculty = async (req, res, next) => {
         }
         if (index in [0, 1, 2, 3, 4, 5, 6]) {
             const browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                ],
                 ignoreHTTPSErrors: true
             });
             const page = await browser.newPage();
@@ -874,6 +927,11 @@ exports.Get_News_Faculty = async (req, res, next) => {
                 break;
         }
         const browser = await puppeteer.launch({
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+            ],
             ignoreHTTPSErrors: true
         });
         const page = await browser.newPage();
@@ -905,6 +963,11 @@ exports.Get_News_Faculty = async (req, res, next) => {
         var selector_url = ".news-title a";
         var selector_date = ".date";
         const browser = await puppeteer.launch({
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+            ],
             ignoreHTTPSErrors: true
         });
         const page = await browser.newPage();
@@ -979,6 +1042,11 @@ exports.Get_News_Faculty = async (req, res, next) => {
                 break;
         }
         const browser = await puppeteer.launch({
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+            ],
             ignoreHTTPSErrors: true
         });
         const page = await browser.newPage();
