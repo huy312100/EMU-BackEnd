@@ -1021,7 +1021,8 @@ exports.User_connect = async (req, res, next) => {
         return articles;
 
     }
-    var a = await Crawl_Data(req.body.url);
+    try{
+        var a = await Crawl_Data(req.body.url);
     console.log(a);
     if (a !== undefined) {
         res.status(200).json(a);
@@ -1029,6 +1030,10 @@ exports.User_connect = async (req, res, next) => {
     else {
         res.status(500).json({ error: "err" });
     }
+    }catch(error){
+        res.status(500).json({ error: "err" });
+    }
+    
 
 
 };
