@@ -404,9 +404,17 @@ exports.User_connect = async (req, res, next) => {
                 selector_date = ".mod-articles-category-date"
                 break;
         }
+        // const browser = await puppeteer.launch({
+        //     ignoreHTTPSErrors: true
+        // });
         const browser = await puppeteer.launch({
+            args: [
+              '--no-sandbox',
+              '--disable-setuid-sandbox',
+            ],
             ignoreHTTPSErrors: true
-        });
+          });
+
         const page = await browser.newPage();
         await page.goto(url);
         if (url.includes("mst")) {
