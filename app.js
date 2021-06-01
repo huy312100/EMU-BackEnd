@@ -33,8 +33,9 @@ mongoose.set('useFindAndModify', false);
 // while (i < 100) {
 //   (function (i) {
 //     setTimeout(function () {
-//      console.log(i);
-//     }, 30000 * i)
+//      //console.log(i);
+     
+//     }, 300 * i)
 //   })(i++)
 // }
 
