@@ -3,27 +3,23 @@ const Account = require("../models/account");
 const chat = require("../models/chat");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
-// const io = socket_io();
 
-// var Socket = {
-
-//     emit: function (event, data) {
-//         io.on("connection",(socket)=>{
-//             console.log(socket.id);
-//             console.log(event, data);
-//         })
-
-//         io.sockets.emit(event, data);
-//     }
-// };
-
-// io.on("connection", function (socket) {
-//     console.log("A user connectedddddddddddddddddddddddddddddddddddddd");
-// });
-
-// exports.socketConnecttion={"io":io,"socket":Socket};
+const UserConnect = [];
+const Room = [];
 
 exports.OnSocket = (socket) => {
+    var idsocket = socket.id;
+    socket.on("Start", (user) => {
+        var userconnect = {
+            idsoc: idsocket,
+            username: user
+        }
+        if (UserConnect !== undefined) {
+            UserConnect = userconnect;
+        } else {
+            UserConnect.push(userconnect);
+        }
+    })
     var FromUser
     socket.on("Create-Room", (user) => {
         try {
@@ -44,19 +40,21 @@ exports.OnSocket = (socket) => {
                                             .then(re3 => {
                                                 if (re3.length >= 1) {
                                                     socket.emit("Reply-Create-Room", re3[0]._id);
+                                                    socket.join(re3[0]._id);
                                                 }
                                                 else {
                                                     var Chat = new chat({
                                                         _id: new mongoose.Types.ObjectId(),
-                                                        User: [re1[0].username,re2[0].username],
+                                                        User: [re1[0].username, re2[0].username],
                                                         TypeRoom: "TwoPeple",
                                                         chat: []
                                                     })
-                                                    
+
                                                     var Idroom = Chat._id;
                                                     Chat.save()
                                                         .then(() => {
                                                             socket.emit("Reply-Create-Room", Idroom.toString());
+                                                            socket.join(Idroom);
                                                         })
                                                         .catch(err => {
                                                             socket.emit("Reply-Create-Room", "error");
@@ -64,7 +62,7 @@ exports.OnSocket = (socket) => {
                                                 }
                                             })
                                             .catch(err => {
-                                                socket.emit("Reply-Create-Room", "error2");
+                                                socket.emit("Reply-Create-Room", "error");
                                             })
                                     } else {
                                         socket.emit("Reply-Create-Room", "error");
@@ -82,6 +80,32 @@ exports.OnSocket = (socket) => {
             socket.emit("Reply-Create-Room", "error");
         }
     })
+
+    socket.on("Private-Message", (user) => {
+        var FromUser;
+        const decoded = jwt.verify(user[1], process.env.JWT_KEY);
+        FromUser = decoded.username;
+        const found = UserConnect.some(el => el.username === user[2]);
+        if (found) {
+            //neu co user connect
+            
+        } else {
+            //neu ko co userconnect
+            const currentDate = new Date();
+            const timestamp = currentDate.getTime();
+            Chat.updateOne({
+                _id: user[0]
+                //$and: [{ IDCourses: element.IDCourses }, { url: urlcourses }]
+            },
+                {
+                    $push: { chat: { from: FromUser, text: user[3], time: timestamp } }
+                });
+            //var usersend =[user[0]]
+            socket.to(user[0]).emit("Private-Message", user);
+        }
+
+    });
+
     console.log('a user connecteddddddddddddddddddddddddddddddddddddddddddddddd');
     socket.on('disconnect', () => {
         console.log('user disconnected');
