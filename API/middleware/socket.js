@@ -39,8 +39,9 @@ exports.OnSocket = (socket) => {
                                             .exec()
                                             .then(re3 => {
                                                 if (re3.length >= 1) {
-                                                    socket.emit("Reply-Create-Room", re3[0]._id);
                                                     socket.join(re3[0]._id);
+                                                    socket.to(re3[0]._id.toString()).emit("Reply-Create-Room", re3[0]._id);
+                                                    
                                                 }
                                                 else {
                                                     var Chat = new chat({
@@ -53,8 +54,9 @@ exports.OnSocket = (socket) => {
                                                     var Idroom = Chat._id;
                                                     Chat.save()
                                                         .then(() => {
-                                                            socket.emit("Reply-Create-Room", Idroom.toString());
                                                             socket.join(Idroom);
+                                                            socket.to(Idroom.toString()).emit("Reply-Create-Room", Idroom.toString());
+                                                            
                                                         })
                                                         .catch(err => {
                                                             socket.emit("Reply-Create-Room", "error");
@@ -88,7 +90,20 @@ exports.OnSocket = (socket) => {
         const found = UserConnect.some(el => el.username === user[2]);
         if (found) {
             //neu co user connect
-            
+            const RoomMessage = Room.some(el => el.idRoom === user[0]);
+            if(RoomMessage)
+            {
+                if(RoomMessage.chatcontext.length>=10){
+                    //save into db
+                }
+                else{
+                    socket.to(user[0]).emit("Private-Message", user);
+
+                }
+            }
+            else{
+                Room.push({idRoom:user[0],chatcontext: []});
+            }
         } else {
             //neu ko co userconnect
             const currentDate = new Date();
@@ -101,7 +116,7 @@ exports.OnSocket = (socket) => {
                     $push: { chat: { from: FromUser, text: user[3], time: timestamp } }
                 });
             //var usersend =[user[0]]
-            socket.to(user[0]).emit("Private-Message", user);
+            socket.to(user[0].toString()).emit("Private-Message", user);
         }
 
     });
