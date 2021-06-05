@@ -3,6 +3,7 @@ const Account = require("../models/account");
 const chat = require("../models/chat");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const io = require("socket.io")
 
 const UserConnect = [];
 const Room = [];
@@ -19,7 +20,7 @@ exports.OnSocket = (socket) => {
         } else {
             UserConnect.push(userconnect);
         }
-    })
+    });
     var FromUser
     socket.on("Create-Room", (user) => {
         try {
@@ -40,7 +41,8 @@ exports.OnSocket = (socket) => {
                                             .then(re3 => {
                                                 if (re3.length >= 1) {
                                                     socket.join(re3[0]._id);
-                                                    socket.to(re3[0]._id.toString()).emit("Reply-Create-Room", re3[0]._id);
+                                                    
+                                                    io.sockets.in(re3[0]._id).emit("Reply-Create-Room", Idroom.toString());
                                                     
                                                 }
                                                 else {
@@ -55,7 +57,8 @@ exports.OnSocket = (socket) => {
                                                     Chat.save()
                                                         .then(() => {
                                                             socket.join(Idroom);
-                                                            socket.to(Idroom.toString()).emit("Reply-Create-Room", Idroom.toString());
+                                                            io.sockets.in(Idroom).emit("Reply-Create-Room", Idroom.toString());
+                                                            //socket.to(Idroom.toString()).emit("Reply-Create-Room", Idroom.toString());
                                                             
                                                         })
                                                         .catch(err => {
@@ -98,7 +101,7 @@ exports.OnSocket = (socket) => {
                 }
                 else{
                     socket.to(user[0]).emit("Private-Message", user);
-
+                    
                 }
             }
             else{
