@@ -46,8 +46,8 @@ module.exports.OnSocket = (io, socket) => {
                                             .then(re3 => {
                                                 if (re3.length >= 1) {
                                                     socket.join(re3[0]._id.toString());
-
-                                                    //io.in(re3[0]._id.toString()).emit("Reply-Create-Room", socket.username);
+                                                    const found = UserConnect.some(el => el.username === socket.username);
+                                                    io.in(found.idsocket).emit("Reply-Create-Room", socket.username);
                                                     io.in(re3[0]._id.toString()).emit("Reply-Create-Room", re3[0]._id.toString());
 
                                                 }
