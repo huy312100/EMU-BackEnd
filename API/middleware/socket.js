@@ -14,11 +14,15 @@ module.exports.OnSocket = (io, socket) => {
         FromUser = decoded.username;
         socket.username = FromUser;
 
+        var temp={
+            idsocket: socket.id,
+            username: FromUser
+        };
+
         if (UserConnect !== undefined) {
-            UserConnect.push(FromUser);
-            
+            UserConnect.push(temp);
         } else {
-            UserConnect = FromUser;
+            UserConnect = temp;
         }
     });
     var FromUser
@@ -42,7 +46,7 @@ module.exports.OnSocket = (io, socket) => {
                                                 if (re3.length >= 1) {
                                                     socket.join(re3[0]._id.toString());
 
-                                                    io.in(re3[0]._id.toString()).emit("Reply-Create-Room", socket.username);
+                                                    //io.in(re3[0]._id.toString()).emit("Reply-Create-Room", socket.username);
                                                     io.in(re3[0]._id.toString()).emit("Reply-Create-Room", re3[0]._id.toString());
 
                                                 }
@@ -86,25 +90,23 @@ module.exports.OnSocket = (io, socket) => {
         }
     })
 
+    
+
     socket.on("Private-Message", (user) => {
-        var FromUser;
-        const decoded = jwt.verify(user[1], process.env.JWT_KEY);
-        FromUser = decoded.username;
-        const found = UserConnect.some(el => el.username === user[2]);
+        const found = UserConnect.some(el => el.username === user[1]);
+        
         if (found) {
             //neu co user connect
-            const RoomMessage = Room.some(el => el.idRoom === user[0]);
-            if (RoomMessage) {
-                if (RoomMessage.chatcontext.length >= 10) {
-                    //save into db
-                }
-                else {
-                    socket.to(user[0]).emit("Private-Message", user);
-
-                }
+            const hasRoom =socket.rooms.has(user[0]);
+            //const RoomMessage = Room.some(el => el.idRoom === user[0]);
+            if (hasRoom) {
+                //user co connect ma ko co join room
+                var data =[socket.username,user[0]];
+                io.to(found.idsocket).emit("Request-Accept",data);
             }
             else {
-                Room.push({ idRoom: user[0], chatcontext: [] });
+                //user connect ma da join room
+                //Room.push({ idRoom: user[0], chatcontext: [] });
             }
         } else {
             //neu ko co userconnect
