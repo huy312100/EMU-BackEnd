@@ -107,7 +107,7 @@ module.exports.OnSocket = (io, socket) => {
             if (!hasRoom) {
                 //user co connect ma ko co join room
                 const found1 = UserConnect.filter(el => el.username === user[1])[0];
-                var data =[socket.username,user[0]];
+                var data =[socket.username,user[0].toString()];
                 io.to(found1.idsocket.toString()).emit("Request-Accept",data);
             }
             else {
