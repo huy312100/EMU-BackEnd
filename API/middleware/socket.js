@@ -40,8 +40,8 @@ exports.OnSocket = (io,socket) => {
                                             .then(re3 => {
                                                 if (re3.length >= 1) {
                                                     socket.join(re3[0]._id);
-                                                    
-                                                    io.to(re3[0]._id).emit("Reply-Create-Room", Idroom.toString());
+                                                    socket.emit("Reply-Create-Room",socket.adapter.rooms);
+                                                    //io.to(re3[0]._id).emit("Reply-Create-Room", Idroom.toString());
                                                     
                                                 }
                                                 else {
