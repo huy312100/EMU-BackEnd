@@ -42,7 +42,7 @@ module.exports.OnSocket = (io,socket) => {
                                                     socket.join(re3[0]._id);
                                                     
                                                     socket.emit("Reply-Create-Room",socket.rooms.has(re3[0]._id));
-                                                    io.sockets.in(re3[0]._id).emit("Reply-Create-Room", Idroom.toString());
+                                                    io.sockets.in(re3[0]._id.toString()).emit("Reply-Create-Room", re3[0]._id.toString());
                                                     
                                                 }
                                                 else {
