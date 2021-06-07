@@ -149,8 +149,12 @@ module.exports.OnSocket = (io, socket) => {
                 const founds = UserConnect.filter(el => el.username === user[1])[0];
                 var data = [socket.username, user[0].toString()];
                 console.log(data);
-                io.on(founds.idsocket).emit("Request-Accept", data);
+                if(founds.length>=1){
+                //io.on(founds.idsocket).emit("Request-Accept", data);
                 io.to(founds.idsocket).emit("Request-Accept", data);
+                }else{
+                    socket.emit("Request-Accept", "username is not define");
+                }
             }
             else {
                 //user connect ma da join room
