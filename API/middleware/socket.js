@@ -16,9 +16,13 @@ module.exports.OnSocket = (io, socket) => {
         if (UserConnect.length !== 0) {
             const found = UserConnect.filter(el => el.username === FromUser).length;
             if (found >= 1) {
-                var objIndex = UserConnect.findIndex(el => el.username === socket.username);
-
-                UserConnect[objIndex].idsocket = socketid;
+                var objIndex = UserConnect.findIndex(el => el.username === FromUser);
+                socket.username = FromUser;
+                var temp = {
+                    "idsocket": socketid,
+                    "username": FromUser
+                };
+                UserConnect[objIndex]=temp;
             } else {
 
                 socket.username = FromUser;
