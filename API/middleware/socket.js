@@ -8,6 +8,7 @@ const UserConnect = [];
 const Room = [];
 
 module.exports.OnSocket = (io, socket) => {
+    var socketid=socket.id
     socket.on("Start", (user) => {
         var FromUser;
         const decoded = jwt.verify(user, process.env.JWT_KEY);
@@ -15,7 +16,7 @@ module.exports.OnSocket = (io, socket) => {
         socket.username = FromUser;
 
         var temp={
-            idsocket: socket.id,
+            idsocket: socketid,
             username: FromUser
         };
 
@@ -105,7 +106,7 @@ module.exports.OnSocket = (io, socket) => {
             if (!hasRoom) {
                 //user co connect ma ko co join room
                 var data =[socket.username,user[0]];
-                io.to(found.idsocket).emit("Request-Accept",data);
+                io.to(found.idsocket.toString()).emit("Request-Accept",data);
             }
             else {
                 //user connect ma da join room
