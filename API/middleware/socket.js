@@ -8,23 +8,32 @@ const UserConnect = [];
 const Room = [];
 
 module.exports.OnSocket = (io, socket) => {
-    var socketid=socket.id
+    var socketid = socket.id
     socket.on("Start", (user) => {
-        var FromUser;
-        const decoded = jwt.verify(user, process.env.JWT_KEY);
-        FromUser = decoded.username;
-        socket.username = FromUser;
+        const found = UserConnect.filter(el => el.username === socket.username)[0];
+        if (found) {
+            var objIndex = UserConnect.findIndex(el => el.username === socket.username);
 
-        var temp={
-            "idsocket": socketid,
-            "username": FromUser
-        };
-
-        if (UserConnect !== undefined) {
-            UserConnect.push(temp);
+            UserConnect[objIndex].idsocket= socketid;
         } else {
-            UserConnect = temp;
+            var FromUser;
+            const decoded = jwt.verify(user, process.env.JWT_KEY);
+            FromUser = decoded.username;
+            socket.username = FromUser;
+
+            var temp = {
+                "idsocket": socketid,
+                "username": FromUser
+            };
+
+            if (UserConnect !== undefined) {
+                UserConnect.push(temp);
+            } else {
+                UserConnect = temp;
+            }
         }
+
+
     });
     var FromUser
     socket.on("Create-Room", (user) => {
@@ -92,29 +101,29 @@ module.exports.OnSocket = (io, socket) => {
         }
     })
 
-    socket.on("Accepted",(data)=>{
+    socket.on("Accepted", (data) => {
         socket.join(data);
-        socket.emit("Reply-Accepted",(data));
+        socket.emit("Reply-Accepted", (data));
     })
 
     socket.on("Private-Message", (user) => {
         const found = UserConnect.some(el => el.username === user[1]);
-        
+
         if (found) {
             //neu co user connect
-            const hasRoom =socket.rooms.has(user[0].toString());
+            const hasRoom = socket.rooms.has(user[0].toString());
             //const RoomMessage = Room.some(el => el.idRoom === user[0]);
             if (!hasRoom) {
                 //user co connect ma ko co join room
                 const found1 = UserConnect.filter(el => el.username === user[1])[0];
-                var data =[socket.username,user[0].toString()];
-                io.to(found1.idsocket.toString()).emit("Request-Accept",data);
+                var data = [socket.username, user[0].toString()];
+                io.to(found1.idsocket.toString()).emit("Request-Accept", data);
             }
             else {
                 //user connect ma da join room
                 //Room.push({ idRoom: user[0], chatcontext: [] });
                 const found1 = UserConnect.filter(el => el.username === user[1])[0];
-                io.to(found1.idsocket.toString()).emit("Request-Accept","err");
+                io.to(found1.idsocket.toString()).emit("Request-Accept", "err");
             }
         } else {
             //neu ko co userconnect
