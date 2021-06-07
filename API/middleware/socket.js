@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 const UserConnect = [];
 const Room = [];
 
-exports.OnSocket = (io,socket) => {
+module.exports.OnSocket = (io,socket) => {
     var idsocket = socket.id;
     socket.on("Start", (user) => {
         var userconnect = {
@@ -41,7 +41,7 @@ exports.OnSocket = (io,socket) => {
                                                 if (re3.length >= 1) {
                                                     socket.join(re3[0]._id);
                                                     socket.emit("Reply-Create-Room",io.sockets.adapter.rooms);
-                                                    //io.to(re3[0]._id).emit("Reply-Create-Room", Idroom.toString());
+                                                    io.sockets.in(re3[0]._id).emit("Reply-Create-Room", Idroom.toString());
                                                     
                                                 }
                                                 else {
