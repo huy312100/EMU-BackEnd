@@ -113,7 +113,8 @@ module.exports.OnSocket = (io, socket) => {
             else {
                 //user connect ma da join room
                 //Room.push({ idRoom: user[0], chatcontext: [] });
-                io.to(found.idsocket.toString()).emit("Request-Accept","err");
+                const found1 = UserConnect.filter(el => el.username === user[1])[0];
+                io.to(found1.idsocket.toString()).emit("Request-Accept","err");
             }
         } else {
             //neu ko co userconnect
