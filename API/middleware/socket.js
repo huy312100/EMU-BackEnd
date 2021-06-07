@@ -24,7 +24,7 @@ module.exports.OnSocket = (io, socket) => {
                     "username": FromUser
                 };
                 UserConnect[objIndex]=temp;
-                console.log("1");
+                //console.log("1");
             } else {
 
                 socket.username = FromUser;
@@ -39,7 +39,7 @@ module.exports.OnSocket = (io, socket) => {
                 } else {
                     UserConnect = temp;
                 }
-                console.log("2");
+                //console.log("2");
             }
         } else {
             socket.username = FromUser;
@@ -54,7 +54,7 @@ module.exports.OnSocket = (io, socket) => {
             } else {
                 UserConnect = temp;
             }
-            console.log("3");
+            //console.log("3");
         }
 
     });
@@ -136,10 +136,12 @@ module.exports.OnSocket = (io, socket) => {
         if (found>=1) {
             //neu co user connect
 
-            const hasRoom = socket.rooms.has(user[0].toString());
+            //const hasRoom = socket.rooms.has(user[0].toString());
+            var hasRoom = io.sockets.clients(user[0].toString());
             //const RoomMessage = Room.some(el => el.idRoom === user[0]);
-            if (!hasRoom) {
+            if (hasRoom.length<=1) {
                 //user co connect ma ko co join room
+                console.log(hasRoom.length);
                 console.log("user co connect ma ko co join room");
                 const found1 = UserConnect.filter(el => el.username === user[1])[0];
                 var data = [socket.username, user[0].toString()];
@@ -148,6 +150,7 @@ module.exports.OnSocket = (io, socket) => {
             else {
                 //user connect ma da join room
                 //Room.push({ idRoom: user[0], chatcontext: [] });
+                console.log(hasRoom.length);
                 console.log("user connect ma da join room");
                 const found1 = UserConnect.filter(el => el.username === user[1])[0];
                 io.to(found1.idsocket.toString()).emit("Request-Accept", "err");
