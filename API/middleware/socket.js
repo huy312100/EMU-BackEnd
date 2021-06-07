@@ -13,13 +13,28 @@ module.exports.OnSocket = (io, socket) => {
         var FromUser;
         const decoded = jwt.verify(user, process.env.JWT_KEY);
         FromUser = decoded.username;
-        const found = UserConnect.filter(el => el.username === FromUser)[0];
-        if (found.username !== undefined) {
-            var objIndex = UserConnect.findIndex(el => el.username === socket.username);
+        if (UserConnect.length !== 0) {
+            const found = UserConnect.filter(el => el.username === FromUser).length;
+            if (found >= 1) {
+                var objIndex = UserConnect.findIndex(el => el.username === socket.username);
 
-            UserConnect[objIndex].idsocket = socketid;
+                UserConnect[objIndex].idsocket = socketid;
+            } else {
+
+                socket.username = FromUser;
+
+                var temp = {
+                    "idsocket": socketid,
+                    "username": FromUser
+                };
+
+                if (UserConnect !== undefined) {
+                    UserConnect.push(temp);
+                } else {
+                    UserConnect = temp;
+                }
+            }
         } else {
-
             socket.username = FromUser;
 
             var temp = {
@@ -33,6 +48,7 @@ module.exports.OnSocket = (io, socket) => {
                 UserConnect = temp;
             }
         }
+
     });
     var FromUser
     socket.on("Create-Room", (user) => {
