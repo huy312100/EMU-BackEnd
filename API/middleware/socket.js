@@ -126,10 +126,12 @@ module.exports.OnSocket = (io, socket) => {
     })
 
     socket.on("Private-Message", (user) => {
-        const found = UserConnect.some(el => el.username === user[1]);
+        //tim user ng muon gui xem co ko?
+        const found = UserConnect.filter(el => el.username === user[1]).length;
 
-        if (found) {
+        if (found>=1) {
             //neu co user connect
+
             const hasRoom = socket.rooms.has(user[0].toString());
             //const RoomMessage = Room.some(el => el.idRoom === user[0]);
             if (!hasRoom) {
