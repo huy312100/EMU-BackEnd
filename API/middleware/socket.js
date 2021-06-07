@@ -120,7 +120,8 @@ module.exports.OnSocket = (io, socket) => {
                     $push: { chat: { from: FromUser, text: user[3], time: timestamp } }
                 });
             //var usersend =[user[0]]
-            socket.to(user[0].toString()).emit("Private-Message", user);
+            socket.emit("Private-Message", user);
+            //io.in(user[0].toString()).emit("Private-Message", user);
         }
 
     });
