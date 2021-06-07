@@ -150,8 +150,8 @@ module.exports.OnSocket = (io, socket) => {
                     console.log(UserConnect);
                     console.log(user);
                     const founds = UserConnect.filter(el => el.username === user[1])[0];
-                    //console.log(founds.idsocket);
-                    var data = [founds.username, user[0].toString()];
+                    console.log(founds.idsocket);
+                    var data = [socket.username, user[0].toString()];
                     console.log(data);
 
                     //io.on(founds.idsocket).emit("Request-Accept", data);
