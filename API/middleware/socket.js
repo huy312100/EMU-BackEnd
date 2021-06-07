@@ -144,7 +144,7 @@ module.exports.OnSocket = (io, socket) => {
             //const RoomMessage = Room.some(el => el.idRoom === user[0]);
             if (numClients<=1) {
                 //user co connect ma ko co join room
-                console.log(hasRoom.length);
+                console.log(numClients);
                 console.log("user co connect ma ko co join room");
                 const found1 = UserConnect.filter(el => el.username === user[1])[0];
                 var data = [socket.username, user[0].toString()];
@@ -153,7 +153,7 @@ module.exports.OnSocket = (io, socket) => {
             else {
                 //user connect ma da join room
                 //Room.push({ idRoom: user[0], chatcontext: [] });
-                console.log(hasRoom.length);
+                console.log(numClients);
                 console.log("user connect ma da join room");
                 const found1 = UserConnect.filter(el => el.username === user[1])[0];
                 io.to(found1.idsocket.toString()).emit("Request-Accept", "err");
