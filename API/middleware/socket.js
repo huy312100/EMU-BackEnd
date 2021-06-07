@@ -129,7 +129,7 @@ module.exports.OnSocket = (io, socket) => {
             //neu ko co userconnect
             const currentDate = new Date();
             const timestamp = currentDate.getTime();
-            Chat.updateOne({
+            chat.updateOne({
                 _id: user[0]
                 //$and: [{ IDCourses: element.IDCourses }, { url: urlcourses }]
             },
