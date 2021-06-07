@@ -144,11 +144,13 @@ module.exports.OnSocket = (io, socket) => {
             //const RoomMessage = Room.some(el => el.idRoom === user[0]);
             if (numClients<=1) {
                 //user co connect ma ko co join room
-                console.log(numClients);
+                
                 console.log("user co connect ma ko co join room");
-                const found1 = UserConnect.filter(el => el.username === user[1])[0];
+                const founds = UserConnect.filter(el => el.username === user[1])[0];
                 var data = [socket.username, user[0].toString()];
-                io.to(found1.idsocket.toString()).emit("Request-Accept", data);
+                console.log(data);
+                io.on(founds.idsocket).emit("Request-Accept", data);
+                io.to(founds.idsocket).emit("Request-Accept", data);
             }
             else {
                 //user connect ma da join room
