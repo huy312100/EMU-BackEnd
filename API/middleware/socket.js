@@ -46,7 +46,7 @@ module.exports.OnSocket = (io, socket) => {
                                             .then(re3 => {
                                                 if (re3.length >= 1) {
                                                     socket.join(re3[0]._id.toString());
-                                                    const found = UserConnect.some(el => el.username === socket.username);
+                                                    const found = UserConnect.filter(el => el.username === socket.username)[0];
                                                     io.in(found.idsocket).emit("Reply-Create-Room", socket.id);
                                                     io.to(found.idsocket).emit("Reply-Create-Room", socket.username);
                                                     io.in(re3[0]._id.toString()).emit("Reply-Create-Room", re3[0]._id.toString());
@@ -106,8 +106,9 @@ module.exports.OnSocket = (io, socket) => {
             //const RoomMessage = Room.some(el => el.idRoom === user[0]);
             if (!hasRoom) {
                 //user co connect ma ko co join room
+                const found1 = UserConnect.filter(el => el.username === user[1])[0];
                 var data =[socket.username,user[0]];
-                io.to(found.idsocket.toString()).emit("Request-Accept",data);
+                io.to(found1.idsocket.toString()).emit("Request-Accept",data);
             }
             else {
                 //user connect ma da join room
