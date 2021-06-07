@@ -3,12 +3,11 @@ const Account = require("../models/account");
 const chat = require("../models/chat");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
-const io = require("socket.io")
 
 const UserConnect = [];
 const Room = [];
 
-exports.OnSocket = (socket) => {
+exports.OnSocket = (io,socket) => {
     var idsocket = socket.id;
     socket.on("Start", (user) => {
         var userconnect = {
