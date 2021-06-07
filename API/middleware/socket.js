@@ -90,16 +90,19 @@ module.exports.OnSocket = (io, socket) => {
         }
     })
 
-    
+    socket.on("Accepted",(data)=>{
+        socket.join(data);
+        socket.emit("Reply-Accepted",(data));
+    })
 
     socket.on("Private-Message", (user) => {
         const found = UserConnect.some(el => el.username === user[1]);
         
         if (found) {
             //neu co user connect
-            const hasRoom =socket.rooms.has(user[0]);
+            const hasRoom =socket.rooms.has(user[0].toString());
             //const RoomMessage = Room.some(el => el.idRoom === user[0]);
-            if (hasRoom) {
+            if (!hasRoom) {
                 //user co connect ma ko co join room
                 var data =[socket.username,user[0]];
                 io.to(found.idsocket).emit("Request-Accept",data);
