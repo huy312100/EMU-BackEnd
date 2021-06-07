@@ -39,7 +39,7 @@ module.exports.OnSocket = (io,socket) => {
                                             .exec()
                                             .then(re3 => {
                                                 if (re3.length >= 1) {
-                                                    socket.join(re3[0]._id);
+                                                    socket.join(re3[0]._id.toString());
                                                     
                                                     socket.emit("Reply-Create-Room",socket.rooms.has(re3[0]._id));
                                                     io.in(re3[0]._id.toString()).emit("Reply-Create-Room", re3[0]._id.toString());
