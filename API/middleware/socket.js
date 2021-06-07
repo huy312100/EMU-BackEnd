@@ -10,15 +10,16 @@ const Room = [];
 module.exports.OnSocket = (io, socket) => {
     var socketid = socket.id
     socket.on("Start", (user) => {
-        const found = UserConnect.filter(el => el.username === socket.username)[0];
-        if (found) {
+        var FromUser;
+        const decoded = jwt.verify(user, process.env.JWT_KEY);
+        FromUser = decoded.username;
+        const found = UserConnect.filter(el => el.username === FromUser)[0];
+        if (found.username !== undefined) {
             var objIndex = UserConnect.findIndex(el => el.username === socket.username);
 
-            UserConnect[objIndex].idsocket= socketid;
+            UserConnect[objIndex].idsocket = socketid;
         } else {
-            var FromUser;
-            const decoded = jwt.verify(user, process.env.JWT_KEY);
-            FromUser = decoded.username;
+
             socket.username = FromUser;
 
             var temp = {
@@ -32,8 +33,6 @@ module.exports.OnSocket = (io, socket) => {
                 UserConnect = temp;
             }
         }
-
-
     });
     var FromUser
     socket.on("Create-Room", (user) => {
