@@ -11,7 +11,7 @@ const soctketss= require("./API/middleware/socket");
 //   res.io = io;
 //   next();
 // });
-var chat =io.on("connection",(socket)=>{
+io.sockets.on("connection",(socket)=>{
     soctketss.OnSocket(io,socket);
 } );
 // io.on("connection", (socket)=>{
