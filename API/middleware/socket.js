@@ -40,7 +40,7 @@ exports.OnSocket = (io,socket) => {
                                             .then(re3 => {
                                                 if (re3.length >= 1) {
                                                     socket.join(re3[0]._id);
-                                                    socket.emit("Reply-Create-Room",io.sockets.adapter.sids[socket.id]);
+                                                    socket.emit("Reply-Create-Room",io.sockets.adapter.rooms);
                                                     //io.to(re3[0]._id).emit("Reply-Create-Room", Idroom.toString());
                                                     
                                                 }
@@ -56,7 +56,7 @@ exports.OnSocket = (io,socket) => {
                                                     Chat.save()
                                                         .then(() => {
                                                             socket.join(Idroom);
-                                                            io.to(Idroom).emit("Reply-Create-Room", io.sockets.adapter.sids[socket.id]);
+                                                            io.to(Idroom).emit("Reply-Create-Room", io.sockets.adapter.rooms);
                                                             //socket.to(Idroom.toString()).emit("Reply-Create-Room", Idroom.toString());
                                                             
                                                         })
