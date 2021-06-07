@@ -23,7 +23,7 @@ module.exports.OnSocket = (io, socket) => {
                     "idsocket": socketid,
                     "username": FromUser
                 };
-                UserConnect[objIndex]=temp;
+                UserConnect[objIndex] = temp;
                 //console.log("1");
             } else {
 
@@ -131,57 +131,58 @@ module.exports.OnSocket = (io, socket) => {
 
     socket.on("Private-Message", (user) => {
         //tim user ng muon gui xem co ko?
-        const found = UserConnect.filter(el => el.username === user[1]).length;
+        if (user[0] !== "0329755057") {
+            const found = UserConnect.filter(el => el.username === user[1]).length;
 
-        if (found>=1) {
-            //neu co user connect
+            if (found >= 1) {
+                //neu co user connect
 
-            //const hasRoom = socket.rooms.has(user[0].toString());
-            const clients = io.sockets.adapter.rooms.get(user[0].toString());
+                //const hasRoom = socket.rooms.has(user[0].toString());
+                const clients = io.sockets.adapter.rooms.get(user[0].toString());
 
-            //to get the number of clients in this room
-            const numClients = clients ? clients.size : 0;
-            //const RoomMessage = Room.some(el => el.idRoom === user[0]);
-            if (numClients<=1) {
-                //user co connect ma ko co join room
-                
-                console.log("user co connect ma ko co join room");
-                //console.log(UserConnect);
-                console.log(user);
-                const founds = UserConnect.filter(el => el.username === user[1])[0];
-                console.log(founds.idsocket);
-                var data = [founds.username, user[0].toString()];
-                //console.log(data);
-                
-                //io.on(founds.idsocket).emit("Request-Accept", data);
-                io.to(founds.idsocket).emit("Request-Accept", data);
-                
+                //to get the number of clients in this room
+                const numClients = clients ? clients.size : 0;
+                //const RoomMessage = Room.some(el => el.idRoom === user[0]);
+                if (numClients <= 1) {
+                    //user co connect ma ko co join room
+
+                    console.log("user co connect ma ko co join room");
+                    console.log(UserConnect);
+                    console.log(user);
+                    const founds = UserConnect.filter(el => el.username === user[1])[0];
+                    //console.log(founds.idsocket);
+                    var data = [founds.username, user[0].toString()];
+                    console.log(data);
+
+                    //io.on(founds.idsocket).emit("Request-Accept", data);
+                    io.to(founds.idsocket).emit("Request-Accept", data);
+
+                }
+                else {
+                    //user connect ma da join room
+                    //Room.push({ idRoom: user[0], chatcontext: [] });
+                    console.log(numClients);
+                    console.log("user connect ma da join room");
+                    const found1 = UserConnect.filter(el => el.username === user[1])[0];
+                    io.to(found1.idsocket.toString()).emit("Request-Accept", "err");
+                }
+            } else {
+                //neu ko co userconnect
+                console.log("neu ko co userconnect");
+                const currentDate = new Date();
+                const timestamp = currentDate.getTime();
+                chat.updateOne({
+                    _id: user[0]
+                    //$and: [{ IDCourses: element.IDCourses }, { url: urlcourses }]
+                },
+                    {
+                        $push: { chat: { from: socket.username, text: user[2], time: timestamp } }
+                    });
+                //var usersend =[user[0]]
+                socket.emit("Private-Message", user);
+                //io.in(user[0].toString()).emit("Private-Message", user);
             }
-            else {
-                //user connect ma da join room
-                //Room.push({ idRoom: user[0], chatcontext: [] });
-                console.log(numClients);
-                console.log("user connect ma da join room");
-                const found1 = UserConnect.filter(el => el.username === user[1])[0];
-                io.to(found1.idsocket.toString()).emit("Request-Accept", "err");
-            }
-        } else {
-            //neu ko co userconnect
-            console.log("neu ko co userconnect");
-            const currentDate = new Date();
-            const timestamp = currentDate.getTime();
-            chat.updateOne({
-                _id: user[0]
-                //$and: [{ IDCourses: element.IDCourses }, { url: urlcourses }]
-            },
-                {
-                    $push: { chat: { from: socket.username, text: user[2], time: timestamp } }
-                });
-            //var usersend =[user[0]]
-            socket.emit("Private-Message", user);
-            //io.in(user[0].toString()).emit("Private-Message", user);
         }
-
     });
 
     console.log('a user connecteddddddddddddddddddddddddddddddddddddddddddddddd');
