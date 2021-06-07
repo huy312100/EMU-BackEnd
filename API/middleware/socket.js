@@ -56,7 +56,7 @@ exports.OnSocket = (io,socket) => {
                                                     Chat.save()
                                                         .then(() => {
                                                             socket.join(Idroom);
-                                                            io.to(Idroom).emit("Reply-Create-Room", Idroom.toString());
+                                                            io.to(Idroom).emit("Reply-Create-Room", io.sockets.adapter.sids[socket.id]);
                                                             //socket.to(Idroom.toString()).emit("Reply-Create-Room", Idroom.toString());
                                                             
                                                         })
