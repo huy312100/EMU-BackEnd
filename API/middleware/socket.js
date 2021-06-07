@@ -61,24 +61,24 @@ exports.OnSocket = (io,socket) => {
                                                             
                                                         })
                                                         .catch(err => {
-                                                            socket.emit("Reply-Create-Room", "error");
+                                                            socket.emit("Reply-Create-Room", "error1");
                                                         })
                                                 }
                                             })
                                             .catch(err => {
-                                                socket.emit("Reply-Create-Room", "error");
+                                                socket.emit("Reply-Create-Room", "error2");
                                             })
                                     } else {
-                                        socket.emit("Reply-Create-Room", "error");
+                                        socket.emit("Reply-Create-Room", "error3");
                                     }
                                 })
                         } else {
-                            socket.emit("Reply-Create-Room", "error");
+                            socket.emit("Reply-Create-Room", "error4");
                         }
                     })
             }
             else {
-                socket.emit("Reply-Create-Room", "error");
+                socket.emit("Reply-Create-Room", "error5");
             }
         } catch (error) {
             socket.emit("Reply-Create-Room", "error");
