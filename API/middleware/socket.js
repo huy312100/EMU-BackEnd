@@ -122,7 +122,7 @@ module.exports.OnSocket = (io, socket) => {
                 //$and: [{ IDCourses: element.IDCourses }, { url: urlcourses }]
             },
                 {
-                    $push: { chat: { from: FromUser, text: user[3], time: timestamp } }
+                    $push: { chat: { from: socket.username, text: user[3], time: timestamp } }
                 });
             //var usersend =[user[0]]
             socket.emit("Private-Message", user);
