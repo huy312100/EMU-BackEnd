@@ -146,9 +146,12 @@ module.exports.OnSocket = (io, socket) => {
                 //user co connect ma ko co join room
                 
                 console.log("user co connect ma ko co join room");
+                console.log(UserConnect);
+                console.log(user);
                 const founds = UserConnect.filter(el => el.username === user[1])[0];
+                console.log(founds);
                 var data = [socket.username, user[0].toString()];
-                console.log(data);
+                //console.log(data);
                 if(founds.length>=1){
                 //io.on(founds.idsocket).emit("Request-Accept", data);
                 io.to(founds.idsocket).emit("Request-Accept", data);
