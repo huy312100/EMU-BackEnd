@@ -41,7 +41,7 @@ exports.OnSocket = (io,socket) => {
                                                 if (re3.length >= 1) {
                                                     socket.join(re3[0]._id);
                                                     
-                                                    io.sockets.in(re3[0]._id).emit("Reply-Create-Room", Idroom.toString());
+                                                    io.to(re3[0]._id).emit("Reply-Create-Room", Idroom.toString());
                                                     
                                                 }
                                                 else {
@@ -56,7 +56,7 @@ exports.OnSocket = (io,socket) => {
                                                     Chat.save()
                                                         .then(() => {
                                                             socket.join(Idroom);
-                                                            io.sockets.in(Idroom).emit("Reply-Create-Room", Idroom.toString());
+                                                            io.to(Idroom).emit("Reply-Create-Room", Idroom.toString());
                                                             //socket.to(Idroom.toString()).emit("Reply-Create-Room", Idroom.toString());
                                                             
                                                         })
