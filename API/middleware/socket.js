@@ -15,9 +15,10 @@ module.exports.OnSocket = (io, socket) => {
         socket.username = FromUser;
 
         if (UserConnect !== undefined) {
-            UserConnect = FromUser;
-        } else {
             UserConnect.push(FromUser);
+            
+        } else {
+            UserConnect = FromUser;
         }
     });
     var FromUser
