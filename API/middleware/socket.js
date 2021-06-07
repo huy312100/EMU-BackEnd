@@ -140,6 +140,7 @@ module.exports.OnSocket = (io, socket) => {
             //const RoomMessage = Room.some(el => el.idRoom === user[0]);
             if (!hasRoom) {
                 //user co connect ma ko co join room
+                console.log("user co connect ma ko co join room");
                 const found1 = UserConnect.filter(el => el.username === user[1])[0];
                 var data = [socket.username, user[0].toString()];
                 io.to(found1.idsocket.toString()).emit("Request-Accept", data);
@@ -147,11 +148,13 @@ module.exports.OnSocket = (io, socket) => {
             else {
                 //user connect ma da join room
                 //Room.push({ idRoom: user[0], chatcontext: [] });
+                console.log("user connect ma da join room");
                 const found1 = UserConnect.filter(el => el.username === user[1])[0];
                 io.to(found1.idsocket.toString()).emit("Request-Accept", "err");
             }
         } else {
             //neu ko co userconnect
+            console.log("neu ko co userconnect");
             const currentDate = new Date();
             const timestamp = currentDate.getTime();
             chat.updateOne({
