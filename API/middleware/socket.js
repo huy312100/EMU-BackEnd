@@ -137,9 +137,12 @@ module.exports.OnSocket = (io, socket) => {
             //neu co user connect
 
             //const hasRoom = socket.rooms.has(user[0].toString());
-            var hasRoom = io.sockets.clients(user[0].toString());
+            const clients = io.sockets.adapter.rooms.get(user[0].toString());
+
+            //to get the number of clients in this room
+            const numClients = clients ? clients.size : 0;
             //const RoomMessage = Room.some(el => el.idRoom === user[0]);
-            if (hasRoom.length<=1) {
+            if (numClients<=1) {
                 //user co connect ma ko co join room
                 console.log(hasRoom.length);
                 console.log("user co connect ma ko co join room");
