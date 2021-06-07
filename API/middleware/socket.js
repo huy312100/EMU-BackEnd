@@ -16,8 +16,8 @@ module.exports.OnSocket = (io, socket) => {
         socket.username = FromUser;
 
         var temp={
-            idsocket: socketid,
-            username: FromUser
+            "idsocket": socketid,
+            "username": FromUser
         };
 
         if (UserConnect !== undefined) {
