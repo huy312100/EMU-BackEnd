@@ -13,6 +13,7 @@ module.exports.OnSocket = (io, socket) => {
         var FromUser;
         const decoded = jwt.verify(user, process.env.JWT_KEY);
         FromUser = decoded.username;
+
         if (UserConnect.length !== 0) {
             const found = UserConnect.filter(el => el.username === FromUser).length;
             if (found >= 1) {
@@ -23,6 +24,7 @@ module.exports.OnSocket = (io, socket) => {
                     "username": FromUser
                 };
                 UserConnect[objIndex]=temp;
+                console.log("1");
             } else {
 
                 socket.username = FromUser;
@@ -37,6 +39,7 @@ module.exports.OnSocket = (io, socket) => {
                 } else {
                     UserConnect = temp;
                 }
+                console.log("2");
             }
         } else {
             socket.username = FromUser;
@@ -51,6 +54,7 @@ module.exports.OnSocket = (io, socket) => {
             } else {
                 UserConnect = temp;
             }
+            console.log("3");
         }
 
     });
@@ -155,7 +159,7 @@ module.exports.OnSocket = (io, socket) => {
                 //$and: [{ IDCourses: element.IDCourses }, { url: urlcourses }]
             },
                 {
-                    $push: { chat: { from: socket.username, text: user[3], time: timestamp } }
+                    $push: { chat: { from: socket.username, text: user[2], time: timestamp } }
                 });
             //var usersend =[user[0]]
             socket.emit("Private-Message", user);
