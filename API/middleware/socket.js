@@ -7,17 +7,17 @@ const mongoose = require("mongoose");
 const UserConnect = [];
 const Room = [];
 
-module.exports.OnSocket = (io,socket) => {
-    var idsocket = socket.id;
+module.exports.OnSocket = (io, socket) => {
     socket.on("Start", (user) => {
-        var userconnect = {
-            idsoc: idsocket,
-            username: user
-        }
+        var FromUser;
+        const decoded = jwt.verify(user, process.env.JWT_KEY);
+        FromUser = decoded.username;
+        socket.username = FromUser;
+
         if (UserConnect !== undefined) {
-            UserConnect = userconnect;
+            UserConnect = FromUser;
         } else {
-            UserConnect.push(userconnect);
+            UserConnect.push(FromUser);
         }
     });
     var FromUser
@@ -40,10 +40,10 @@ module.exports.OnSocket = (io,socket) => {
                                             .then(re3 => {
                                                 if (re3.length >= 1) {
                                                     socket.join(re3[0]._id.toString());
-                                                    
-                                                    socket.emit("Reply-Create-Room",socket.rooms.has(re3[0]._id));
+
+                                                    io.in(re3[0]._id.toString()).emit("Reply-Create-Room", socket.username);
                                                     io.in(re3[0]._id.toString()).emit("Reply-Create-Room", re3[0]._id.toString());
-                                                    
+
                                                 }
                                                 else {
                                                     var Chat = new chat({
@@ -56,10 +56,9 @@ module.exports.OnSocket = (io,socket) => {
                                                     var Idroom = Chat._id;
                                                     Chat.save()
                                                         .then(() => {
-                                                            socket.join(Idroom);
-                                                            io.to(Idroom).emit("Reply-Create-Room", io.sockets.adapter.rooms);
-                                                            //socket.to(Idroom.toString()).emit("Reply-Create-Room", Idroom.toString());
-                                                            
+                                                            socket.join(Idroom.toString());
+                                                            io.in(Idroom.toString()).emit("Reply-Create-Room", Idroom.toString());
+
                                                         })
                                                         .catch(err => {
                                                             socket.emit("Reply-Create-Room", "error1");
@@ -94,18 +93,17 @@ module.exports.OnSocket = (io,socket) => {
         if (found) {
             //neu co user connect
             const RoomMessage = Room.some(el => el.idRoom === user[0]);
-            if(RoomMessage)
-            {
-                if(RoomMessage.chatcontext.length>=10){
+            if (RoomMessage) {
+                if (RoomMessage.chatcontext.length >= 10) {
                     //save into db
                 }
-                else{
+                else {
                     socket.to(user[0]).emit("Private-Message", user);
-                    
+
                 }
             }
-            else{
-                Room.push({idRoom:user[0],chatcontext: []});
+            else {
+                Room.push({ idRoom: user[0], chatcontext: [] });
             }
         } else {
             //neu ko co userconnect
