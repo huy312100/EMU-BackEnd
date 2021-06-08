@@ -159,7 +159,10 @@ module.exports.OnSocket = (io, socket) => {
                             //neu co chi can push vo
                             
                             const fromusers = re1[0].awaittext.filter(el => el.from === socket.username)
-                            if (fromusers === undefined) {
+                            if (fromusers.length >= 1) {
+                                socket.emit("Request-Accept", "message await");
+                            }
+                            else{
                                 awaitMessage.updateOne({
                                     _id: re1[0]._id
                                 },
@@ -174,9 +177,7 @@ module.exports.OnSocket = (io, socket) => {
                                         }
                                     });
                                 io.to(founds.idsocket).emit("Request-Accept", data);
-                            }
-                            else{
-                                socket.emit("Request-Accept", "message await");
+                                
                             }
 
                         }
