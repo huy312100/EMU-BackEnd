@@ -133,6 +133,7 @@ module.exports.OnSocket = (io, socket) => {
                 if (re1.length >= 1) {
                     const FromUserDelete = re1[0].awaittext.filter(el => el.idChatRoom === data)
                     if (FromUserDelete.length >= 1) {
+                        var chat2=FromUserDelete;
                         awaitMessage.updateOne({
                             _id: re1[0]._id
                         },
@@ -141,8 +142,10 @@ module.exports.OnSocket = (io, socket) => {
                             }, (err, doc) => {
                                 if (err) {
                                     console.log("error ne", err);
+                                    //io.to(data).emit("Start-Chat", "err");
                                 }
                                 else {
+                                    //io.to(data).emit("Start-Chat", chat2);
                                     console.log("Updated Docs : ", doc);
                                 }
                             });
@@ -151,7 +154,7 @@ module.exports.OnSocket = (io, socket) => {
             })
             .catch(err => {
                 console.log(err);
-            })
+            });
     })
 
     socket.on("Private-Message", (user) => {
@@ -209,12 +212,11 @@ module.exports.OnSocket = (io, socket) => {
                             const AwaitMessages = new awaitMessage({
                                 _id: new mongoose.Types.ObjectId(),
                                 OwnUser: user[1],
-
                                 awaittext: { idChatRoom: user[0], from: socket.username, text: user[2], time: timestamp }
                             })
                             console.log(AwaitMessages);
                             AwaitMessages.save()
-                                .then(() => {
+                                .then((re2) => {
                                     io.to(founds.idsocket).emit("Request-Accept", "sended");
                                 })
                                 .catch(err => {

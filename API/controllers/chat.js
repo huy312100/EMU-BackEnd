@@ -1445,12 +1445,13 @@ exports.FindChatAwait = (req, res, next) => {
                         let pool = await sql.connect(Config);
 
                         let profiles = await pool.request()
-                            .input('ID_Signin', sql.VarChar, '%' + re1[0].awaittext[i].from + '%')
-                            .query("SELECT [HoTen] FROM [dbo].[InfoSinhVien] where InfoSinhVien.Email LIKE @ID_Signin");
+                            .input('ID_Signin', sql.VarChar,  re1[0].awaittext[i].from)
+                            .query("SELECT [HoTen] FROM [dbo].[InfoSinhVien] where InfoSinhVien.Email = @ID_Signin");
 
                         //console.log(facultys.recordsets[0]);
                         if (profiles.recordsets[0]) {
                             re1[0].awaittext[i].from = profiles.recordsets[0][0]["HoTen"];
+                            console.log(profiles.recordsets[0][0]);
                         }
                         else {
                             res.status(500).json({ err: "err" });
