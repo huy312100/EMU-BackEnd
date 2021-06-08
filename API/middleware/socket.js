@@ -242,13 +242,13 @@ module.exports.OnSocket = (io, socket) => {
 
             chat.updateOne({
                 //_id: idRoomObject
-                "User": { $all: [socket.username.toString(), user[1].toString()] }
+                "User": { $all: [socket.username, user[1].toString()] }
             },
                 {
                     $push: { chat: { from: socket.username, text: user[2], time: timestamp } }
                 },(err,doc)=>{
                     if (err){
-                        console.log(err)
+                        console.log("error ne",err);
                     }
                     else{
                         console.log("Updated Docs : ", doc);
