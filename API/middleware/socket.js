@@ -197,6 +197,7 @@ module.exports.OnSocket = (io, socket) => {
                                     {
                                         $push: { chat: Chat.chat }
                                     });
+                                //chua emit
                             }
                             else {
                                 //tiep tuc push bao room
@@ -209,6 +210,7 @@ module.exports.OnSocket = (io, socket) => {
                                     }
                                 }
                             }
+                            //chua emit
                         }
                         else {
                             //tao room moi
@@ -220,7 +222,7 @@ module.exports.OnSocket = (io, socket) => {
                             Room.push(temp);
 
                         }
-
+                        //chua emit
                     }
                     else {
                         //tao room dau tien
@@ -230,15 +232,16 @@ module.exports.OnSocket = (io, socket) => {
                         }
                         Room = temp;
                     }
-
+                    //chua emit
                 }
             } else {
                 //neu ko co userconnect
                 console.log("neu ko co userconnect");
                 const currentDate = new Date();
                 const timestamp = currentDate.getTime();
+                var idRoomObject = mongoose.Types.ObjectId(user[0].toString())
                 chat.updateOne({
-                    _id: mongoose.Types.ObjectId(user[0])
+                    _id: idRoomObject
                     //$and: [{ IDCourses: element.IDCourses }, { url: urlcourses }]
                 },
                     {
