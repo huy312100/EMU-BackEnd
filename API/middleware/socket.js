@@ -160,7 +160,7 @@ module.exports.OnSocket = (io, socket) => {
                             
                             const fromusers = re1[0].awaittext.filter(el => el.from === socket.username)
                             if (fromusers.length >= 1) {
-                                socket.emit("Request-Accept", "message await");
+                                socket.emit("Request-Accept", "message_await");
                             }
                             else{
                                 awaitMessage.updateOne({
@@ -176,7 +176,7 @@ module.exports.OnSocket = (io, socket) => {
                                             console.log("Updated Docs : ", doc);
                                         }
                                     });
-                                io.to(founds.idsocket).emit("Request-Accept", data);
+                                io.to(founds.idsocket).emit("Request-Accept", "sended");
                                 
                             }
                         }
@@ -191,7 +191,7 @@ module.exports.OnSocket = (io, socket) => {
                             console.log(AwaitMessages);
                             AwaitMessages.save()
                             .then(()=>{
-                                io.to(founds.idsocket).emit("Request-Accept", data);
+                                io.to(founds.idsocket).emit("Request-Accept", "sended");
                             })
                             .catch(err=>{
                                 console.log(err);
