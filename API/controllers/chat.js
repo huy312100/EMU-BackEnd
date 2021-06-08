@@ -1435,6 +1435,7 @@ const Config = require("../middleware/rdbconfig");
 const sql=require("mssql");
 
 exports.FindChatAwait = (req, res, next) => {
+
     awaitMessage.find({ OwnUser: req.userData.username })
         .exec()
         .then( async(re1) => {
@@ -1450,6 +1451,14 @@ exports.FindChatAwait = (req, res, next) => {
                         //console.log(facultys.recordsets[0]);
                         if (profiles.recordsets[0]) {
                             re1[0].awaittext[i].from = profiles.recordsets[0][0]["HoTen"];
+                            // if(re1[0].awaittext[i].HoTen === undefined){
+                            //     re1[0].awaittext[i]= {"HoTen": profiles.recordsets[0][0]["HoTen"]};
+                            // }
+                            // else{
+                            //     var HoTenTemp = { "HoTen": profiles.recordsets[0][0]["HoTen"]};
+                            //     re1[0].awaittext[i].push(HoTenTemp);
+                            // }
+                            //console.log(re1[0].awaittext[i].HoTen);
                         }
                         else {
                             res.status(500).json({ err: "err" });
@@ -1460,10 +1469,11 @@ exports.FindChatAwait = (req, res, next) => {
                         console.log(error);
                         res.status(500).json(error);
                     }
+                    res.status(200).json(re1[0]);
                 }
                 
-                res.status(200).json(re1[0]);
-                console.log("100");
+                //res.status(200).json(re1[0].awaittext[0].HoTen);
+                console.log(re1[0].awaittext[1].HoTen);
             }
             else {
                 res.status(500).json({ message: "Message await is Empty" });

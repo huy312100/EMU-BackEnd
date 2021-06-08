@@ -167,7 +167,7 @@ module.exports.OnSocket = (io, socket) => {
                                     _id: re1[0]._id
                                 },
                                     {
-                                        $push: { awaittext: { from: socket.username, text: user[2],time: timestamp } }
+                                        $push: { awaittext: {idChatRoom:user[0], from: socket.username, text: user[2],time: timestamp } }
                                     },(err, doc) => {
                                         if (err) {
                                             console.log("error ne", err);
@@ -185,8 +185,8 @@ module.exports.OnSocket = (io, socket) => {
                             const AwaitMessages = new awaitMessage({
                                 _id: new mongoose.Types.ObjectId(),
                                 OwnUser:user[1],
-                                idChatRoom:user[0],
-                                awaittext: {from:socket.username,text: user[2],time: timestamp }
+                                
+                                awaittext: {idChatRoom:user[0],from:socket.username,text: user[2],time: timestamp }
                             })
                             console.log(AwaitMessages);
                             AwaitMessages.save()
