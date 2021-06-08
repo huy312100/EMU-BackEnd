@@ -246,6 +246,13 @@ module.exports.OnSocket = (io, socket) => {
             },
                 {
                     $push: { chat: { from: socket.username, text: user[2], time: timestamp } }
+                },(err,doc)=>{
+                    if (err){
+                        console.log(err)
+                    }
+                    else{
+                        console.log("Updated Docs : ", doc);
+                    }
                 });
             console.log(idRoomObject);
             console.log(socket.username);
