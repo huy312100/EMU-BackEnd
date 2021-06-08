@@ -179,7 +179,6 @@ module.exports.OnSocket = (io, socket) => {
                                 io.to(founds.idsocket).emit("Request-Accept", data);
                                 
                             }
-
                         }
                         else {
                             //chua co trong db

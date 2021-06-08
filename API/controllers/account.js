@@ -55,7 +55,7 @@ exports.Post_Account_Signup = (req, res, next) => {
           message: "Username exists"
         });
       } else {
-        bcrypt.hash(req.body.password, 9, (err, hash) => {
+        bcrypt.hash(req.body.password, 9, async (err, hash) => {
           if (err) {
             return res.status(500).json({
               error: err
@@ -66,45 +66,44 @@ exports.Post_Account_Signup = (req, res, next) => {
               username: req.body.username,
               password: hash
             });
-            account.save()
-              .then(async results => {
-                //console.log(results);
 
-                try {
-                  let pool = await sql.connect(Config);
+            try {
+              let pool = await sql.connect(Config);
 
-                  let MaTruongKhoa = await pool.request()
-                    .input('Ma_Truong', sql.VarChar, req.body.MaTruong)
-                    .input('Ma_Khoa', sql.VarChar, req.body.MaKhoa)
-                    .query("Select uf.ID from University u,Faculty f, University_Faculty uf where uf.MaTruong=u.MaTruong and uf.MaKhoa=f.MaKhoa and u.MaTruong= @Ma_Truong and f.MaKhoa=@Ma_Khoa;");
-
-                  //console.log(MaTruongKhoa.recordsets[0][0]["ID"]);
-                  //res.status(200).json();
-                  let profile = await pool.request()
-                    .input('IDSignin', sql.VarChar, account._id)
-                    .input('HoTen', sql.NVarChar, req.body.HoTen)
-                    .input('Email', sql.VarChar, account.username)
-                    .input('IDTruongKhoa', sql.Int, MaTruongKhoa.recordsets[0][0]["ID"])
-                    .input('AnhSV', sql.VarChar, req.body.AnhSV)
-                    .execute('InsertProfile')
-
-                  res.status(201).json({
-                    message: "account created"
+              account.save()
+                .then(results => {
+                  //console.log(results);
+                })
+                .catch(err => {
+                  console.log(err);
+                  res.status(500).json({
+                    error: err
                   });
-                }
-                catch (error) {
-                  console.log(error);
-                  res.status(500).json(error);
-                }
-
-
-              })
-              .catch(err => {
-                console.log(err);
-                res.status(500).json({
-                  error: err
                 });
+
+              let MaTruongKhoa = await pool.request()
+                .input('Ma_Truong', sql.VarChar, req.body.MaTruong)
+                .input('Ma_Khoa', sql.VarChar, req.body.MaKhoa)
+                .query("Select uf.ID from University u,Faculty f, University_Faculty uf where uf.MaTruong=u.MaTruong and uf.MaKhoa=f.MaKhoa and u.MaTruong= @Ma_Truong and f.MaKhoa=@Ma_Khoa;");
+
+              //console.log(MaTruongKhoa.recordsets[0][0]["ID"]);
+              //res.status(200).json();
+              let profile = await pool.request()
+                .input('IDSignin', sql.VarChar, account._id)
+                .input('HoTen', sql.NVarChar, req.body.HoTen)
+                .input('Email', sql.VarChar, req.body.username)
+                .input('IDTruongKhoa', sql.Int, MaTruongKhoa.recordsets[0][0]["ID"])
+                .input('AnhSV', sql.VarChar, req.body.AnhSV)
+                .execute('InsertProfile')
+
+              res.status(201).json({
+                message: "account created"
               });
+            }
+            catch (error) {
+              console.log(error);
+              res.status(500).json(error);
+            }
           }
         });
       }
@@ -161,8 +160,8 @@ exports.Change_Password = async (req, res, next) => {
     })
 };
 
-exports.Forgot_Password =(req,res,next)=>{
-  res.status(200).json({message:"forgot password"});
+exports.Forgot_Password = (req, res, next) => {
+  res.status(200).json({ message: "forgot password" });
 }
 
 exports.Post_Account_Signin = (req, res, next) => {
