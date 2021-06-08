@@ -182,8 +182,8 @@ module.exports.OnSocket = (io, socket) => {
                     .then(re1 => {
                         if (re1.length >= 1) {
                             //neu co chi can push vo
-                            const fromusers = re1[0].awaittext.filter(el => el.from === socket.username)[0];
-                            if (fromusers.length >= 1) {
+                            const fromuserleng = re1[0].awaittext.some(el => el.from === socket.username);
+                            if (fromuserleng) {
                                 socket.emit("Request-Accept", "message_await");
                             }
                             else {
