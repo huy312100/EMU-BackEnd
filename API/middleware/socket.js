@@ -127,7 +127,31 @@ module.exports.OnSocket = (io, socket) => {
 
     socket.on("Accepted", (data) => {
         socket.join(data);
-        socket.emit("Reply-Accepted", (data));
+        awaitMessage.find({ OwnUser: socket.username })
+            .exec()
+            .then(re1 => {
+                if (re1.length >= 1) {
+                    const FromUserDelete = re1[0].awaittext.filter(el => el.idChatRoom === data)
+                    if (FromUserDelete.length >= 1) {
+                        awaitMessage.updateOne({
+                            _id: re1[0]._id
+                        },
+                            {
+                                $pull: { awaittext: { idChatRoom: FromUserDelete.idChatRoom } }
+                            }, (err, doc) => {
+                                if (err) {
+                                    console.log("error ne", err);
+                                }
+                                else {
+                                    console.log("Updated Docs : ", doc);
+                                }
+                            });
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            })
     })
 
     socket.on("Private-Message", (user) => {
@@ -157,18 +181,18 @@ module.exports.OnSocket = (io, socket) => {
                     .then(re1 => {
                         if (re1.length >= 1) {
                             //neu co chi can push vo
-                            
+
                             const fromusers = re1[0].awaittext.filter(el => el.from === socket.username)
                             if (fromusers.length >= 1) {
                                 socket.emit("Request-Accept", "message_await");
                             }
-                            else{
+                            else {
                                 awaitMessage.updateOne({
                                     _id: re1[0]._id
                                 },
                                     {
-                                        $push: { awaittext: {idChatRoom:user[0], from: socket.username, text: user[2],time: timestamp } }
-                                    },(err, doc) => {
+                                        $push: { awaittext: { idChatRoom: user[0], from: socket.username, text: user[2], time: timestamp } }
+                                    }, (err, doc) => {
                                         if (err) {
                                             console.log("error ne", err);
                                         }
@@ -177,26 +201,26 @@ module.exports.OnSocket = (io, socket) => {
                                         }
                                     });
                                 io.to(founds.idsocket).emit("Request-Accept", "sended");
-                                
+
                             }
                         }
                         else {
                             //chua co trong db
                             const AwaitMessages = new awaitMessage({
                                 _id: new mongoose.Types.ObjectId(),
-                                OwnUser:user[1],
-                                
-                                awaittext: {idChatRoom:user[0],from:socket.username,text: user[2],time: timestamp }
+                                OwnUser: user[1],
+
+                                awaittext: { idChatRoom: user[0], from: socket.username, text: user[2], time: timestamp }
                             })
                             console.log(AwaitMessages);
                             AwaitMessages.save()
-                            .then(()=>{
-                                io.to(founds.idsocket).emit("Request-Accept", "sended");
-                            })
-                            .catch(err=>{
-                                console.log(err);
-                                socket.emit("Request-Accept", "error");
-                            })
+                                .then(() => {
+                                    io.to(founds.idsocket).emit("Request-Accept", "sended");
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                    socket.emit("Request-Accept", "error");
+                                })
                         }
                     })
                     .catch(err => {
@@ -313,10 +337,6 @@ module.exports.OnSocket = (io, socket) => {
                         console.log("Updated Docs : ", doc);
                     }
                 });
-            console.log(idRoomObject);
-            console.log(socket.username);
-            console.log(user[2]);
-            console.log(timestamp);
             //var usersend =[user[0]]
             //socket.emit("Private-Message-Send-Client", user);
             //io.in(user[0].toString()).emit("Private-Message", user);
