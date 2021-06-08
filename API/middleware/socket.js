@@ -321,7 +321,7 @@ module.exports.OnSocket = (io, socket) => {
             console.log("neu ko co userconnect");
             const currentDate = new Date();
             const timestamp = currentDate.getTime();
-            var idRoomObject = mongoose.Types.ObjectId(user[0].toString());
+            //var idRoomObject = mongoose.Types.ObjectId(user[0].toString());
 
             chat.updateOne({
                 //_id: idRoomObject
