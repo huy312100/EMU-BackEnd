@@ -181,6 +181,7 @@ module.exports.OnSocket = (io, socket) => {
                                 idChatRoom:user[0],
                                 awaittext: {from:socket.username,text: user[2],time: timestamp }
                             })
+                            console.log(AwaitMessages);
                             AwaitMessages.save()
                             .then(()=>{
                                 io.to(founds.idsocket).emit("Request-Accept", data);
@@ -195,11 +196,6 @@ module.exports.OnSocket = (io, socket) => {
                         console.log(err);
                         socket.emit("Request-Accept", "error");
                     });
-
-
-
-                
-
             }
 
             else {
