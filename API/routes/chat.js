@@ -4,10 +4,8 @@ const router = express.Router();
 const chatController = require("../controllers/chat");
 const check_auth =require("../middleware/check-auth");
 
-router.get("/",chatController.User_connect);
+router.get("/findchat",check_auth,chatController.FindChatUser);
 
-router.get("/chat",chatController.Client_Socket);
-
-router.post("/test",check_auth, chatController.Test);
+router.get("/findchatawait",check_auth,chatController.FindChatAwait);
 
 module.exports=router;
