@@ -166,6 +166,7 @@ module.exports.OnSocket = (io, socket) => {
                                     {
                                         $push: { awaittext: { from: socket.username, text: user[2],time: timestamp } }
                                     });
+                                io.to(founds.idsocket).emit("Request-Accept", data);
                             }
                             else{
                                 socket.emit("Request-Accept", "message await");
@@ -175,7 +176,17 @@ module.exports.OnSocket = (io, socket) => {
                         else {
                             //chua co trong db
                             const AwaitMessages = new awaitMessage({
-
+                                _id: new mongoose.Types.ObjectId(),
+                                OwnUser:user[1],
+                                idChatRoom:user[0],
+                                awaittext: {from:socket.username,text: user[2],time: timestamp }
+                            })
+                            AwaitMessages.save()
+                            .then(()=>{
+                                io.to(founds.idsocket).emit("Request-Accept", data);
+                            })
+                            .catch(err=>{
+                                socket.emit("Request-Accept", "error");
                             })
                         }
                     })
@@ -185,7 +196,7 @@ module.exports.OnSocket = (io, socket) => {
 
 
 
-                io.to(founds.idsocket).emit("Request-Accept", data);
+                
 
             }
 

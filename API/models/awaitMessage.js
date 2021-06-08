@@ -10,7 +10,7 @@ const ChatContext = mongoose.Schema({
 const chatSchema = mongoose.Schema({
     __id: mongoose.Schema.Types.ObjectId,
     OwnUser:  {type:String, require:true},
-    idChatRoom: {type:mongoose.Schema.Types.ObjectId, ref:'Chat'},
+    idChatRoom: {type:String,require:true},
     awaittext:{type:[ChatContext], default:[]}
 });
 
