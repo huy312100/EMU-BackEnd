@@ -161,7 +161,7 @@ module.exports.OnSocket = (io, socket) => {
                 else {
                     //user connect ma da join room
                     //Room.push({ idRoom: user[0], chatcontext: [] });
-                    if (Room.length !== 0) {
+                    if (Room !== 0) {
 
                         const currentDate = new Date();
                         const timestamp = currentDate.getTime();
@@ -228,8 +228,9 @@ module.exports.OnSocket = (io, socket) => {
                         //tao room dau tien
                         var temp = {
                             "idRoom": user[0],
-                            "chatContext": []
+                            "chatContext": { "from": socket.username, "text": user[3], "time": timestamp }
                         }
+
                         Room = temp;
                     }
                     //chua emit
@@ -247,6 +248,10 @@ module.exports.OnSocket = (io, socket) => {
                     {
                         $push: { chat: { from: socket.username, text: user[2], time: timestamp } }
                     });
+                console.log(idRoomObject);
+                console.log(socket.username);
+                console.log(user[2]);
+                console.log(time);
                 //var usersend =[user[0]]
                 socket.emit("Private-Message-Send-Client", user);
                 //io.in(user[0].toString()).emit("Private-Message", user);
