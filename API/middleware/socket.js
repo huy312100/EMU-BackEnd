@@ -158,13 +158,20 @@ module.exports.OnSocket = (io, socket) => {
                         if (re1.length >= 1) {
                             //neu co chi can push vo
                             
-                            const fromuser = re1[0].awaittext.filter(el => el.from === socket.username)
-                            if (fromuser.from === undefined) {
+                            const fromusers = re1[0].awaittext.filter(el => el.from === socket.username)
+                            if (fromusers === undefined) {
                                 awaitMessage.updateOne({
                                     _id: re1[0]._id
                                 },
                                     {
                                         $push: { awaittext: { from: socket.username, text: user[2],time: timestamp } }
+                                    },(err, doc) => {
+                                        if (err) {
+                                            console.log("error ne", err);
+                                        }
+                                        else {
+                                            console.log("Updated Docs : ", doc);
+                                        }
                                     });
                                 io.to(founds.idsocket).emit("Request-Accept", data);
                             }
