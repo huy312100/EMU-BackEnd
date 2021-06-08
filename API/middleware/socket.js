@@ -131,24 +131,37 @@ module.exports.OnSocket = (io, socket) => {
             .exec()
             .then(re1 => {
                 if (re1.length >= 1) {
-                    const FromUserDelete = re1[0].awaittext.filter(el => el.idChatRoom === data)
-                    if (FromUserDelete.length >= 1) {
-                        var chat2=FromUserDelete;
-                        awaitMessage.updateOne({
-                            _id: re1[0]._id
-                        },
-                            {
-                                $pull: { awaittext: { idChatRoom: FromUserDelete.idChatRoom } }
-                            }, (err, doc) => {
-                                if (err) {
-                                    console.log("error ne", err);
-                                    //io.to(data).emit("Start-Chat", "err");
-                                }
-                                else {
-                                    //io.to(data).emit("Start-Chat", chat2);
-                                    console.log("Updated Docs : ", doc);
-                                }
+                    if (re1[0].awaittext.length <= 1) {
+                        awaitMessage.findOneAndRemove({ _id: re1[0]._id })
+                            .exec()
+                            .then(re1 => {
+
+
+                            })
+                            .catch(err => {
+
                             });
+                    }
+                    else {
+                        const FromUserDelete = re1[0].awaittext.filter(el => el.idChatRoom === data)
+                        if (FromUserDelete.length >= 1) {
+                            console.log(FromUserDelete);
+                            awaitMessage.updateOne({
+                                _id: re1[0]._id
+                            },
+                                {
+                                    $pull: { awaittext: { idChatRoom: data.toString() } }
+                                }, (err, doc) => {
+                                    if (err) {
+                                        console.log("error ne", err);
+                                        //io.to(data).emit("Start-Chat", "err");
+                                    }
+                                    else {
+                                        //io.to(data).emit("Start-Chat", chat2);
+                                        console.log("Updated Docs : ", doc);
+                                    }
+                                });
+                        }
                     }
                 }
             })
@@ -200,7 +213,7 @@ module.exports.OnSocket = (io, socket) => {
                                             console.log("Updated Docs : ", doc);
                                         }
                                     });
-                                
+
                                 io.to(founds.idsocket).emit("Request-Accept", "sended");
 
                             }
@@ -232,7 +245,7 @@ module.exports.OnSocket = (io, socket) => {
             else {
                 //user connect ma da join room
                 //Room.push({ idRoom: user[0], chatcontext: [] });
-                if (Room !== 0) {
+                if (Room.length !== 0) {
 
                     const currentDate = new Date();
                     const timestamp = currentDate.getTime();
