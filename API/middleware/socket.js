@@ -240,7 +240,8 @@ module.exports.OnSocket = (io, socket) => {
                 console.log("neu ko co userconnect");
                 const currentDate = new Date();
                 const timestamp = currentDate.getTime();
-                var idRoomObject = mongoose.Types.ObjectId(user[0].toString())
+                var idRoomObject = mongoose.Types.ObjectId(user[0].toString());
+                
                 chat.updateOne({
                     _id: idRoomObject
                     //$and: [{ IDCourses: element.IDCourses }, { url: urlcourses }]
@@ -251,9 +252,9 @@ module.exports.OnSocket = (io, socket) => {
                 console.log(idRoomObject);
                 console.log(socket.username);
                 console.log(user[2]);
-                console.log(time);
+                console.log(timestamp);
                 //var usersend =[user[0]]
-                socket.emit("Private-Message-Send-Client", user);
+                //socket.emit("Private-Message-Send-Client", user);
                 //io.in(user[0].toString()).emit("Private-Message", user);
             }
         }
