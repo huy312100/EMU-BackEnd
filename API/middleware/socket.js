@@ -144,7 +144,8 @@ module.exports.OnSocket = (io, socket) => {
             //const RoomMessage = Room.some(el => el.idRoom === user[0]);
             if (numClients <= 1) {
                 //user co connect ma ko co join room
-
+                const currentDate = new Date();
+                const timestamp = currentDate.getTime();
                 //console.log("user co connect ma ko co join room");
                 //console.log(UserConnect);
                 //console.log(user);
@@ -156,8 +157,7 @@ module.exports.OnSocket = (io, socket) => {
                     .then(re1 => {
                         if (re1.length >= 1) {
                             //neu co chi can push vo
-                            const currentDate = new Date();
-                            const timestamp = currentDate.getTime();
+                            
                             const fromuser = re1[0].awaittext.filter(el => el.from === socket.username)
                             if (fromuser.from === undefined) {
                                 awaitMessage.updateOne({
