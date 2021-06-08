@@ -1,6 +1,7 @@
 const socket_io = require('socket.io');
 const Account = require("../models/account");
 const chat = require("../models/chat");
+const awaitMessage = require("../models/awaitMessage");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 
@@ -100,24 +101,24 @@ module.exports.OnSocket = (io, socket) => {
 
                                                         })
                                                         .catch(err => {
-                                                            socket.emit("Reply-Create-Room", "error1");
+                                                            socket.emit("Reply-Create-Room", "error");
                                                         })
                                                 }
                                             })
                                             .catch(err => {
-                                                socket.emit("Reply-Create-Room", "error2");
+                                                socket.emit("Reply-Create-Room", "error");
                                             })
                                     } else {
-                                        socket.emit("Reply-Create-Room", "error3");
+                                        socket.emit("Reply-Create-Room", "error");
                                     }
                                 })
                         } else {
-                            socket.emit("Reply-Create-Room", "error4");
+                            socket.emit("Reply-Create-Room", "error");
                         }
                     })
             }
             else {
-                socket.emit("Reply-Create-Room", "error5");
+                socket.emit("Reply-Create-Room", "error");
             }
         } catch (error) {
             socket.emit("Reply-Create-Room", "error");
@@ -144,13 +145,45 @@ module.exports.OnSocket = (io, socket) => {
             if (numClients <= 1) {
                 //user co connect ma ko co join room
 
-                console.log("user co connect ma ko co join room");
-                console.log(UserConnect);
-                console.log(user);
+                //console.log("user co connect ma ko co join room");
+                //console.log(UserConnect);
+                //console.log(user);
                 const founds = UserConnect.filter(el => el.username === user[1])[0];
-                console.log(founds.idsocket);
                 var data = [socket.username, user[0].toString()];
-                console.log(data);
+                //console.log(data);
+                awaitMessage.find({ OwnUser: user[1] })
+                    .exec()
+                    .then(re1 => {
+                        if (re1.length >= 1) {
+                            //neu co chi can push vo
+                            const currentDate = new Date();
+                            const timestamp = currentDate.getTime();
+                            const fromuser = re1[0].awaittext.filter(el => el.from === socket.username)
+                            if (fromuser.from === undefined) {
+                                awaitMessage.updateOne({
+                                    _id: re1[0]._id
+                                },
+                                    {
+                                        $push: { awaittext: { from: socket.username, text: user[2],time: timestamp } }
+                                    });
+                            }
+                            else{
+                                socket.emit("Request-Accept", "message await");
+                            }
+
+                        }
+                        else {
+                            //chua co trong db
+                            const AwaitMessages = new awaitMessage({
+
+                            })
+                        }
+                    })
+                    .catch(err => {
+                        socket.emit("Request-Accept", "error");
+                    });
+
+
 
                 io.to(founds.idsocket).emit("Request-Accept", data);
 
@@ -189,12 +222,22 @@ module.exports.OnSocket = (io, socket) => {
                             }
 
                             chat.updateOne({
-                                _id: user[0]
-                                //$and: [{ IDCourses: element.IDCourses }, { url: urlcourses }]
+                                //_id: idRoomObject
+                                "User": { $all: [socket.username, user[1].toString()] }
                             },
                                 {
                                     $push: { chat: Chat.chat }
+                                }, (err, doc) => {
+                                    if (err) {
+                                        console.log("error ne", err);
+                                    }
+                                    else {
+                                        console.log("Updated Docs : ", doc);
+                                    }
                                 });
+
+
+
                             //chua emit
                         }
                         else {
@@ -246,11 +289,11 @@ module.exports.OnSocket = (io, socket) => {
             },
                 {
                     $push: { chat: { from: socket.username, text: user[2], time: timestamp } }
-                },(err,doc)=>{
-                    if (err){
-                        console.log("error ne",err);
+                }, (err, doc) => {
+                    if (err) {
+                        console.log("error ne", err);
                     }
-                    else{
+                    else {
                         console.log("Updated Docs : ", doc);
                     }
                 });
