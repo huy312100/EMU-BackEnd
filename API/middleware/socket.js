@@ -162,8 +162,6 @@ module.exports.OnSocket = (io, socket) => {
 
         if (found >= 1) {
             //neu co user connect
-
-            //const hasRoom = socket.rooms.has(user[0].toString());
             const clients = io.sockets.adapter.rooms.get(user[0].toString());
 
             //to get the number of clients in this room
@@ -184,8 +182,7 @@ module.exports.OnSocket = (io, socket) => {
                     .then(re1 => {
                         if (re1.length >= 1) {
                             //neu co chi can push vo
-
-                            const fromusers = re1[0].awaittext.filter(el => el.from === socket.username)
+                            const fromusers = re1[0].awaittext.filter(el => el.from === socket.username)[0];
                             if (fromusers.length >= 1) {
                                 socket.emit("Request-Accept", "message_await");
                             }
@@ -203,6 +200,7 @@ module.exports.OnSocket = (io, socket) => {
                                             console.log("Updated Docs : ", doc);
                                         }
                                     });
+                                
                                 io.to(founds.idsocket).emit("Request-Accept", "sended");
 
                             }
