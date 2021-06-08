@@ -154,17 +154,83 @@ module.exports.OnSocket = (io, socket) => {
                     var data = [socket.username, user[0].toString()];
                     console.log(data);
 
-                    //io.on(founds.idsocket).emit("Request-Accept", data);
                     io.to(founds.idsocket).emit("Request-Accept", data);
 
                 }
+
                 else {
                     //user connect ma da join room
                     //Room.push({ idRoom: user[0], chatcontext: [] });
-                    console.log(numClients);
-                    console.log("user connect ma da join room");
-                    const found1 = UserConnect.filter(el => el.username === user[1])[0];
-                    io.to(found1.idsocket.toString()).emit("Request-Accept", "err");
+                    if (Room.length !== 0) {
+
+                        const currentDate = new Date();
+                        const timestamp = currentDate.getTime();
+                        const found2 = Room.filter(el => el.idRoom === user[0])[0];
+                        if (found2.idRoom !== undefined) {
+                            //room da co trong mang
+                            if (found2.chatContext.length >= 10) {
+                                //save into database
+                                var Chat = new chat({
+                                    __id: user[0],
+                                    chat: []
+                                });
+
+                                for (var i = o; i < found2.chatContext.length; i++) {
+                                    var chatmessage = Chat.chat;
+                                    chatmessage = {
+                                        from: found2.chatContext[i].from,
+                                        text:found2.chatContext[i],text,
+                                        time:found2.chatContext[i].time
+                                    }
+                                    if(Chat.chat!== undefined){
+                                        Chat.chat.push(chatmessage);
+                                    }
+                                    else{
+                                        Chat.chat =chatmessage;
+                                    }
+                                }
+
+                                chat.updateOne({
+                                    _id: user[0]
+                                    //$and: [{ IDCourses: element.IDCourses }, { url: urlcourses }]
+                                },
+                                    {
+                                        $push: { chat: Chat.chat }
+                                    });
+                            }
+                            else {
+                                //tiep tuc push bao room
+                                for (var j =0; j<Room.length;j++){
+                                    if(user[0]===Room[j].idRoom){
+                                        var temp ={
+                                            "from": socket.username, "text": user[3], "time": timestamp
+                                        }
+                                        Room[i].chatContext.push(temp);
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            //tao room moi
+                            var temp = {
+                                "idRoom": user[0],
+                                "chatContext": { "from": socket.username, "text": user[3], "time": timestamp }
+                            }
+
+                            Room.push(temp);
+
+                        }
+
+                    }
+                    else {
+                        //tao room dau tien
+                        var temp = {
+                            "idRoom": user[0],
+                            "chatContext": []
+                        }
+                        Room = temp;
+                    }
+
                 }
             } else {
                 //neu ko co userconnect
@@ -172,14 +238,14 @@ module.exports.OnSocket = (io, socket) => {
                 const currentDate = new Date();
                 const timestamp = currentDate.getTime();
                 chat.updateOne({
-                    _id: user[0]
+                    _id: mongoose.Types.ObjectId(user[0])
                     //$and: [{ IDCourses: element.IDCourses }, { url: urlcourses }]
                 },
                     {
                         $push: { chat: { from: socket.username, text: user[2], time: timestamp } }
                     });
                 //var usersend =[user[0]]
-                socket.emit("Private-Message", user);
+                socket.emit("Private-Message-Send-Client", user);
                 //io.in(user[0].toString()).emit("Private-Message", user);
             }
         }

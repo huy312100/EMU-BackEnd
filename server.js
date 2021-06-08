@@ -23,8 +23,4 @@ server.listen(port, (error) => {
     if (error) return console.log(`Error: ${error}`);
  
     console.log(`Server is listening on port ${port}`)
-    // console.log("serverrrrrrrrrrrrrrrrrrrrr")
-    // console.log(server)
-    // console.log("serverrrrrrrrrrrrrrrrrrrrr")
-    // console.log(io);
 })
