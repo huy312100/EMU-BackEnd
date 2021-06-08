@@ -186,11 +186,13 @@ module.exports.OnSocket = (io, socket) => {
                                 io.to(founds.idsocket).emit("Request-Accept", data);
                             })
                             .catch(err=>{
+                                console.log(err);
                                 socket.emit("Request-Accept", "error");
                             })
                         }
                     })
                     .catch(err => {
+                        console.log(err);
                         socket.emit("Request-Accept", "error");
                     });
 
