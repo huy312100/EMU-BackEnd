@@ -13,7 +13,6 @@ module.exports.OnSocket = (io, socket) => {
     var socketid = socket.id
     socket.on("Start", (user) => {
         if (user !== undefined) {
-
             const decoded = jwt.verify(user, process.env.JWT_KEY);
             FromUser = decoded.username;
 
@@ -34,7 +33,7 @@ module.exports.OnSocket = (io, socket) => {
                     }
                 })
                 .catch(err => {
-
+                    console.log("loiiiiiiiiiiiiii roiiiiiiiiiii");
                 })
 
 
