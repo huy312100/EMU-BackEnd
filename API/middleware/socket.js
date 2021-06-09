@@ -318,7 +318,7 @@ module.exports.OnSocket = (io, socket) => {
                 console.log("neu co userconnect ma da join room");
                 //user connect ma da join room
                 //Room.push({ idRoom: user[0], chatcontext: [] });
-                if (Room.length !== 0) {
+                if (Room.length >= 1) {
                     const currentDate = new Date();
                     const timestamp = currentDate.getTime();
                     var checkfound = Room.some(el => el.idRoom === user[0]);
@@ -400,8 +400,12 @@ module.exports.OnSocket = (io, socket) => {
                         "idRoom": user[0],
                         "chatContext": { "from": socket.username, "text": user[2], "time": timestamp }
                     }
-
-                    Room = temp;
+                    console.log(temp);
+                    if (Room === undefined) {
+                        Room = temp;
+                        //UserConnect.push(temp);
+                    }
+                    
                     console.log(Room);
                 }
                 //chua emit
