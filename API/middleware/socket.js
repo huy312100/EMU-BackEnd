@@ -360,6 +360,7 @@ module.exports.OnSocket = (io, socket) => {
                                     Room[j].chatContext.push(temp);
                                 }
                             }
+                            console.log(Room);
                         }
                         //chua emit
                     }
@@ -371,7 +372,7 @@ module.exports.OnSocket = (io, socket) => {
                         }
 
                         Room.push(temp);
-
+                        console.log(Room);
                     }
                     //chua emit
                 }
@@ -381,10 +382,11 @@ module.exports.OnSocket = (io, socket) => {
                     const timestamp = currentDate.getTime();
                     var temp = {
                         "idRoom": user[0],
-                        "chatContext": { "from": socket.username, "text": user[3], "time": timestamp }
+                        "chatContext": { "from": socket.username, "text": user[2], "time": timestamp }
                     }
 
                     Room = temp;
+                    console.log(Room);
                 }
                 //chua emit
             }
