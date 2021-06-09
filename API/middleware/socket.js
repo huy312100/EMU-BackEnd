@@ -467,7 +467,7 @@ module.exports.OnSocket = (io, socket) => {
                 for (var i = 0; i < chattemp.length; i++) {
 
                     //luu tin nhan binh thuong
-                    await chat.updateOne({
+                    chat.updateOne({
                         _id: user
                         //"User": { $all: [UserOwner, chatmessage2.from] }
                     },
@@ -481,8 +481,6 @@ module.exports.OnSocket = (io, socket) => {
                                 console.log("Updated Docs : ", doc);
                             }
                         });
-
-
                 };
 
                 await chat.find({ _id: user })
