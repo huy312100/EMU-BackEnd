@@ -131,10 +131,10 @@ module.exports.OnSocket = (io, socket) => {
             .exec()
             .then(re1 => {
                 if (re1.length >= 1) {
-                    
+
                     if (re1[0].awaittext.length <= 1) {
                         var chatmessage2 = re1[0].awaittext[0];
-                        
+
                         awaitMessage.findOneAndRemove({ _id: re1[0]._id })
                             .exec()
                             .then(re1 => {
@@ -144,11 +144,25 @@ module.exports.OnSocket = (io, socket) => {
                             .catch(err => {
 
                             });
+                        chat.updateOne({
+                            //_id: idRoomObject
+                            "User": { $all: [socket.username, user[1].toString()] }
+                        },
+                            {
+                                $push: { chat: { from: socket.username, text: user[2], time: timestamp } }
+                            }, (err, doc) => {
+                                if (err) {
+                                    console.log("error ne", err);
+                                }
+                                else {
+                                    console.log("Updated Docs : ", doc);
+                                }
+                            });
                         // var chatcontext = new chat({
                         //     _id: new mongoose.Types.ObjectId(),
                         //     chat:{from:chatmessage2.from,text:chatmessage2.text,time:chatmessage2.time,state:chatmessage2.}
                         // })
-                        
+
                     }
                     else {
                         const FromUserDelete = re1[0].awaittext.filter(el => el.idChatRoom === data)
@@ -212,7 +226,7 @@ module.exports.OnSocket = (io, socket) => {
                                     _id: re1[0]._id
                                 },
                                     {
-                                        $push: { awaittext: { idChatRoom: user[0], from: socket.username, text: user[2], time: timestamp } }
+                                        $push: { awaittext: { idChatRoom: user[0], from: found.username, text: user[2], time: timestamp } }
                                     }, (err, doc) => {
                                         if (err) {
                                             console.log("error ne", err);
