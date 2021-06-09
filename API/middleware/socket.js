@@ -131,7 +131,10 @@ module.exports.OnSocket = (io, socket) => {
             .exec()
             .then(re1 => {
                 if (re1.length >= 1) {
+                    
                     if (re1[0].awaittext.length <= 1) {
+                        var chatmessage2 = re1[0].awaittext[0];
+                        
                         awaitMessage.findOneAndRemove({ _id: re1[0]._id })
                             .exec()
                             .then(re1 => {
@@ -141,6 +144,11 @@ module.exports.OnSocket = (io, socket) => {
                             .catch(err => {
 
                             });
+                        // var chatcontext = new chat({
+                        //     _id: new mongoose.Types.ObjectId(),
+                        //     chat:{from:chatmessage2.from,text:chatmessage2.text,time:chatmessage2.time,state:chatmessage2.}
+                        // })
+                        
                     }
                     else {
                         const FromUserDelete = re1[0].awaittext.filter(el => el.idChatRoom === data)

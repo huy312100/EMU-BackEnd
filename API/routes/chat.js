@@ -8,4 +8,6 @@ router.get("/findchat",check_auth,chatController.FindChatUser);
 
 router.get("/findchatawait",check_auth,chatController.FindChatAwait);
 
+router.post("/loadmessage",check_auth,chatController.LoadMessage);
+
 module.exports=router;
