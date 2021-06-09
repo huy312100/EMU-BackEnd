@@ -1546,8 +1546,41 @@ exports.FindChatUser = (req, res, next) => {
     //res.status(200).json(results);
 }
 
-exports.LoadMessage = (req, res, next) => {
-    
+exports.LoadMessage = async (req, res, next) => {
+    await chat.find({_id:req.body.IDRoom})
+    .exec()
+    .then(( re1)=>{
+        if(re1.length>=1){
+            var listchat = re1[0].chat;
+
+            if(parseInt(listchat.length/20)<parseInt(req.body.page))
+            {
+                res.status(500).json({message:"page not found"});
+            }
+
+            var MessageState = re1[0].chat[re1[0].chat.length -1];
+            console.log(MessageState)
+            if(MessageState.from !== req.userData.username){
+                chat.updateOne({
+                    "_id": re1[0]._id,
+                    "chat._id": MessageState._id
+                },
+                {
+                    $set: { "chat.$.state": "true" } }
+                ,(err,doc)=>{
+                    if(err){
+                        console.log("err",err);
+                    }else{
+                        console.log("doc:",doc);
+                    }
+                });
+            }
+        }
+    })
+    .catch(err=>{
+        res.status(500).json({err:err});
+    });
+
 
     chat.find({_id:req.body.IDRoom})
     .exec()
@@ -1562,25 +1595,7 @@ exports.LoadMessage = (req, res, next) => {
             {
                 res.status(500).json({message:"page not found"});
             }
-
-            var MessageState = re1[0].chat[re1[0].chat.length -1];
-            console.log(MessageState)
-            if(MessageState.from !== req.userData.username){
-                await chat.updateOne({
-                    "_id": re1[0]._id,
-                    "chat._id": MessageState._id
-                },
-                {
-                    $set: { "chat.$.state": "true" } }
-                ,(err,doc)=>{
-                    if(err){
-                        console.log("err",err);
-                    }else{
-                        console.log("doc:",doc);
-                    }
-                });
-            }
-
+            
             //console.log(startpage);
             //console.log(endpage);
             for(var i = startpage;i>endpage;i--){
@@ -1604,21 +1619,5 @@ exports.LoadMessage = (req, res, next) => {
     })
     .catch(err=>{
         res.status(500).json({err:err});
-    })
-};
-
-exports.Update_State = (req, res, next) => {
-    chat.find({_id:req.body.IDRoom})
-    .exec()
-    .then(re1=>{
-        if(re1.length>=1){
-
-        }
-        else{
-            res.status(500).json({message:"Yoy dont have message"});
-        }
-    })
-    .catch(err=>{
-        res.status(500).json({err :err});
     })
 };
