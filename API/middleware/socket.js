@@ -15,8 +15,9 @@ module.exports.OnSocket = (io, socket) => {
         if (user !== undefined) {
             const decoded = jwt.verify(user, process.env.JWT_KEY);
             FromUser = decoded.username;
-
-            chat.find({ "User": { "$all": [FromUser.toString()] } })
+            console.log(FromUser);
+            var tempstring = FromUser.toString();
+            chat.find({ "User": { "$all": [tempstring] } })
                 .exec()
                 .then(re1 => {
                     if (re1.length >= 1) {
