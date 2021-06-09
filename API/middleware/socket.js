@@ -16,7 +16,7 @@ module.exports.OnSocket = (io, socket) => {
             const decoded = jwt.verify(user, process.env.JWT_KEY);
             FromUser = decoded.username;
 
-            chat.find({ "User": { $all: [FromUser.toString()] } })
+            chat.find({ "User": { "$all": [FromUser.toString()] } })
                 .exec()
                 .then(re1 => {
                     if (re1.length >= 1) {
@@ -34,9 +34,7 @@ module.exports.OnSocket = (io, socket) => {
                 })
                 .catch(err => {
                     console.log("loiiiiiiiiiiiiii roiiiiiiiiiii");
-                })
-
-
+                });
 
             if (UserConnect.length !== 0) {
                 const found = UserConnect.filter(el => el.username === FromUser).length;
