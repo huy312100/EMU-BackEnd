@@ -387,7 +387,13 @@ module.exports.OnSocket = (io, socket) => {
                             "chatContext": { "from": socket.username, "text": user[2], "time": timestamp }
                         }
 
-                        Room.push(temp);
+                        if (Room === undefined) {
+                            Room.push(temp);
+                            //UserConnect.push(temp);
+                        }
+                        else{
+                            Room =temp;
+                        }
                         console.log(Room);
                     }
                     //chua emit
@@ -401,9 +407,12 @@ module.exports.OnSocket = (io, socket) => {
                         "chatContext": { "from": socket.username, "text": user[2], "time": timestamp }
                     }
                     console.log(temp);
-                    if (Room === undefined) {
-                        Room = temp;
+                    if (Room !== undefined) {
+                        Room.push(temp);
                         //UserConnect.push(temp);
+                    }
+                    else{
+                        Room =temp;
                     }
                     
                     console.log(Room);
