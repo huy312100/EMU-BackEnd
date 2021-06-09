@@ -227,6 +227,10 @@ module.exports.OnSocket = (io, socket) => {
             //neu co user connect
             const clients = io.sockets.adapter.rooms.get(user[0].toString());
 
+            console.log(UserConnect);
+            console.log(user);
+            console.log(Room);
+
             //to get the number of clients in this room
             const numClients = clients ? clients.size : 0;
             //const RoomMessage = Room.some(el => el.idRoom === user[0]);
@@ -234,9 +238,9 @@ module.exports.OnSocket = (io, socket) => {
                 //user co connect ma ko co join room
                 const currentDate = new Date();
                 const timestamp = currentDate.getTime();
+
                 console.log("user co connect ma ko co join room");
-                //console.log(UserConnect);
-                //console.log(user);
+                
                 const founds = UserConnect.filter(el => el.username === user[1])[0];
                 var data = [socket.username, user[0].toString()];
                 //console.log(data);
