@@ -1509,16 +1509,16 @@ exports.FindChatUser = (req, res, next) => {
                                     "Anh": profiles.recordsets[0][0]["AnhSV"],
                                     "TypeRoom": "TwoPeople",
                                     "text": re1[i].chat[leng - 1].text,
-                                    "time": parseInt( re1[i].chat[leng - 1].time),
+                                    "time": re1[i].chat[leng - 1].time,
                                     "state": re1[i].chat[leng - 1].state,
                                 }
                                 if (results !== undefined) {
                                     results.push(temp);
                                 }
                                 else {
-                                    results = temp
+                                    results = temp;
                                 }
-                                //console.log(temp);
+                                //console.log(results);
                             }
                         }
                         else {
@@ -1531,7 +1531,9 @@ exports.FindChatUser = (req, res, next) => {
                         res.status(500).json(error);
                     }
                 }
-                console.log("1");
+                //results.sortBy()
+                //var sortedObjs = results.sortBy( results, "time" );
+                //console.log(sortedObjs);
                 res.status(200).json(results);
             } else {
                 res.status(200).json({ message: "Message is Empty" });
@@ -1541,7 +1543,7 @@ exports.FindChatUser = (req, res, next) => {
             res.status(500).json({ err: err });
         })
 
-    res.status(200).json(results);
+    //res.status(200).json(results);
 }
 
 exports.LoadMessage = (req, res, next) => {
@@ -1588,9 +1590,10 @@ exports.Update_State = (req, res, next) => {
     .exec()
     .then(re1=>{
         if(re1.length>=1){
+
         }
         else{
-            res.status(500).json({message:""})
+            res.status(500).json({message:"Yoy dont have message"});
         }
     })
     .catch(err=>{
