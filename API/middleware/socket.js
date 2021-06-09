@@ -456,14 +456,14 @@ module.exports.OnSocket = (io, socket) => {
 
     });
 
-    socket.on("Return-Chat",async (user) => {
+    socket.on("Return-Chat", async (user) => {
         if (Room.length >= 1) {
             const foundcount = Room.some(el => el.idRoom === user);
             if (foundcount) {
                 //co roomid trong room
                 const found = Room.find(el => el.idRoom === user);
                 var chattemp = found.chatContext;
-                console.log(chattemp)
+                console.log(chattemp);
                 for (var i = 0; i < chattemp.length; i++) {
                     if (parseInt(i) === parseInt(chattemp.length - 1)) {
                         //luu tin cuoi cung
@@ -498,6 +498,12 @@ module.exports.OnSocket = (io, socket) => {
                                 }
                             });
 
+                    }
+                }
+
+                for (var j = Room.length - 1; j >= 0; --j) {
+                    if (Room[j].idRoom === found.idRoom) {
+                        Room.splice(j, 1);
                     }
                 }
             }
