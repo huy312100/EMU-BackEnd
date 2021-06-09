@@ -24,7 +24,11 @@ module.exports.OnSocket = (io, socket) => {
                         for (var i = 0; i < re1.length; i++) {
                             var idroom = re1[i].__id.toString();
                             socket.join(idroom);
+                            console.log("Room id Start:",idroom)
                         }
+                    }
+                    else{
+                        console.log("khong tim thay roomid trong db")
                     }
                 })
                 .catch(err => {
