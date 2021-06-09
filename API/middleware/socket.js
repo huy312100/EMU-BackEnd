@@ -16,40 +16,57 @@ module.exports.OnSocket = (io, socket) => {
             const decoded = jwt.verify(user, process.env.JWT_KEY);
             FromUser = decoded.username;
             console.log(FromUser);
-            var tempstring = FromUser.toString();
-            chat.find({ "User": { "$all": [tempstring] } })
-                .exec()
-                .then(re1 => {
-                    if (re1.length >= 1) {
-                        if (re1[i].chat.length >= 1) {
+            if (FromUser.length >= 1) {
+                var tempstring = FromUser.toString();
+                chat.find({ "User": { $all: [FromUser.toString()] } })
+                    .exec()
+                    .then(re1 => {
+                        if (re1.length >= 1) {
                             for (var i = 0; i < re1.length; i++) {
-                                var idroom = re1[i].__id.toString();
-                                socket.join(idroom);
-                                console.log("Room id Start:", idroom)
+                                if (re1[i].chat.length >= 1) {
+                                    var idroom = re1[i].__id.toString();
+                                    socket.join(idroom);
+                                    console.log("Room id Start:", idroom)
+                                }
+
                             }
                         }
-                    }
-                    else {
-                        console.log("khong tim thay roomid trong db")
-                    }
-                })
-                .catch(err => {
-                    console.log("loiiiiiiiiiiiiii roiiiiiiiiiii");
-                });
+                        else {
+                            console.log("khong tim thay roomid trong db")
+                        }
+                    })
+                    .catch(err => {
+                        console.log("loiiiiiiiiiiiiii roiiiiiiiiiii", err);
+                    });
 
-            if (UserConnect.length !== 0) {
-                const found = UserConnect.filter(el => el.username === FromUser).length;
-                if (found >= 1) {
-                    var objIndex = UserConnect.findIndex(el => el.username === FromUser);
-                    socket.username = FromUser;
-                    var temp = {
-                        "idsocket": socketid,
-                        "username": FromUser
-                    };
-                    UserConnect[objIndex] = temp;
-                    //console.log("1");
+                if (UserConnect.length !== 0) {
+                    const found = UserConnect.filter(el => el.username === FromUser).length;
+                    if (found >= 1) {
+                        var objIndex = UserConnect.findIndex(el => el.username === FromUser);
+                        socket.username = FromUser;
+                        var temp = {
+                            "idsocket": socketid,
+                            "username": FromUser
+                        };
+                        UserConnect[objIndex] = temp;
+                        //console.log("1");
+                    } else {
+
+                        socket.username = FromUser;
+
+                        var temp = {
+                            "idsocket": socketid,
+                            "username": FromUser
+                        };
+
+                        if (UserConnect !== undefined) {
+                            UserConnect.push(temp);
+                        } else {
+                            UserConnect = temp;
+                        }
+                        //console.log("2");
+                    }
                 } else {
-
                     socket.username = FromUser;
 
                     var temp = {
@@ -62,22 +79,8 @@ module.exports.OnSocket = (io, socket) => {
                     } else {
                         UserConnect = temp;
                     }
-                    //console.log("2");
+                    //console.log("3");
                 }
-            } else {
-                socket.username = FromUser;
-
-                var temp = {
-                    "idsocket": socketid,
-                    "username": FromUser
-                };
-
-                if (UserConnect !== undefined) {
-                    UserConnect.push(temp);
-                } else {
-                    UserConnect = temp;
-                }
-                //console.log("3");
             }
         }
     });
