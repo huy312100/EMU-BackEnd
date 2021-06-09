@@ -17,7 +17,7 @@ module.exports.OnSocket = (io, socket) => {
             const decoded = jwt.verify(user, process.env.JWT_KEY);
             FromUser = decoded.username;
 
-            chat.find({ "User": { $all: [FromUser] } })
+            chat.find({ "User": { $all: [FromUser.toString()] } })
                 .exec()
                 .then(re1 => {
                     if (re1.length >= 1) {
@@ -230,7 +230,7 @@ module.exports.OnSocket = (io, socket) => {
         if (found >= 1) {
             //neu co user connect
             const clients = io.sockets.adapter.rooms.get(user[0].toString());
-
+            console.log("client: ",clients);
             console.log(UserConnect);
             console.log("user:",user);
             console.log("room: ",Room);
