@@ -456,7 +456,7 @@ module.exports.OnSocket = (io, socket) => {
 
     });
 
-    socket.on("Return-Chat", (user) => {
+    socket.on("Return-Chat",async (user) => {
         if (Room.length >= 1) {
             const foundcount = Room.some(el => el.idRoom === user);
             if (foundcount) {
@@ -465,9 +465,9 @@ module.exports.OnSocket = (io, socket) => {
                 var chattemp = found.chatContext;
                 console.log(chattemp)
                 for (var i = 0; i < chattemp.length; i++) {
-                    if (i === (chattemp.length - 1)) {
+                    if (parseInt(i) === parseInt(chattemp.length - 1)) {
                         //luu tin cuoi cung
-                        chat.updateOne({
+                        await chat.updateOne({
                             _id: user
                             //"User": { $all: [UserOwner, chatmessage2.from] }
                         },
@@ -483,7 +483,7 @@ module.exports.OnSocket = (io, socket) => {
                             });
                     } else {
                         //luu tin nhan binh thuong
-                        chat.updateOne({
+                        await chat.updateOne({
                             _id: user
                             //"User": { $all: [UserOwner, chatmessage2.from] }
                         },
