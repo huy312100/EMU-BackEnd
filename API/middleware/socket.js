@@ -17,8 +17,8 @@ module.exports.OnSocket = (io, socket) => {
             FromUser = decoded.username;
             console.log(FromUser);
             if (FromUser.length >= 1) {
-                var tempstring = FromUser;
-                chat.find({ "User": { $all: [tempstring.toString()] } })
+                var tempstring = String( FromUser);
+                chat.find({ "User": { $all: [tempstring] } })
                     .exec()
                     .then(re1 => {
                         if (re1.length >= 1) {
