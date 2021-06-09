@@ -305,46 +305,47 @@ module.exports.OnSocket = (io, socket) => {
                 if (Room.length !== 0) {
                     const currentDate = new Date();
                     const timestamp = currentDate.getTime();
-                    const found2 = Room.filter(el => el.idRoom === user[0])[0];
-                    if (found2.idRoom !== undefined) {
+                    var checkfound = Room.some(el => el.idRoom === user[0]);
+                    
+                    if (checkfound) {
                         //room da co trong mang
+                        const found2 = Room.filter(el => el.idRoom === user[0])[0];
                         if (found2.chatContext.length >= 10) {
                             //save into database
-                            var Chat = new chat({
-                                __id: user[0],
-                                chat: []
-                            });
+                            // var Chat = new chat({
+                            //     __id: user[0],
+                            //     chat: []
+                            // });
 
-                            for (var i = o; i < found2.chatContext.length; i++) {
-                                var chatmessage = Chat.chat;
-                                chatmessage = {
-                                    from: found2.chatContext[i].from,
-                                    text: found2.chatContext[i], text,
-                                    time: found2.chatContext[i].time
-                                }
-                                if (Chat.chat !== undefined) {
-                                    Chat.chat.push(chatmessage);
-                                }
-                                else {
-                                    Chat.chat = chatmessage;
-                                }
-                            }
+                            // for (var i = o; i < found2.chatContext.length; i++) {
+                            //     var chatmessage = Chat.chat;
+                            //     chatmessage = {
+                            //         from: found2.chatContext[i].from,
+                            //         text: found2.chatContext[i], text,
+                            //         time: found2.chatContext[i].time
+                            //     }
+                            //     if (Chat.chat !== undefined) {
+                            //         Chat.chat.push(chatmessage);
+                            //     }
+                            //     else {
+                            //         Chat.chat = chatmessage;
+                            //     }
+                            // }
 
-                            chat.updateOne({
-                                //_id: idRoomObject
-                                "User": { $all: [socket.username, user[1].toString()] }
-                            },
-                                {
-                                    $push: { chat: Chat.chat }
-                                }, (err, doc) => {
-                                    if (err) {
-                                        console.log("error ne", err);
-                                    }
-                                    else {
-                                        console.log("Updated Docs : ", doc);
-                                    }
-                                });
-
+                            // chat.updateOne({
+                            //     //_id: idRoomObject
+                            //     "User": { $all: [socket.username, user[1].toString()] }
+                            // },
+                            //     {
+                            //         $push: { chat: Chat.chat }
+                            //     }, (err, doc) => {
+                            //         if (err) {
+                            //             console.log("error ne", err);
+                            //         }
+                            //         else {
+                            //             console.log("Updated Docs : ", doc);
+                            //         }
+                            //     });
 
 
                             //chua emit
@@ -354,9 +355,9 @@ module.exports.OnSocket = (io, socket) => {
                             for (var j = 0; j < Room.length; j++) {
                                 if (user[0] === Room[j].idRoom) {
                                     var temp = {
-                                        "from": socket.username, "text": user[3], "time": timestamp
+                                        "from": socket.username, "text": user[2], "time": timestamp
                                     }
-                                    Room[i].chatContext.push(temp);
+                                    Room[j].chatContext.push(temp);
                                 }
                             }
                         }
@@ -366,7 +367,7 @@ module.exports.OnSocket = (io, socket) => {
                         //tao room moi
                         var temp = {
                             "idRoom": user[0],
-                            "chatContext": { "from": socket.username, "text": user[3], "time": timestamp }
+                            "chatContext": { "from": socket.username, "text": user[2], "time": timestamp }
                         }
 
                         Room.push(temp);
@@ -414,6 +415,60 @@ module.exports.OnSocket = (io, socket) => {
             //io.in(user[0].toString()).emit("Private-Message", user);
         }
 
+    });
+
+    socket.on("Return-Chat", (user) => {
+        if(Room.length >=1){
+            const foundcount = Room.some(el => el.idRoom === user);
+            if(foundcount){
+                //co roomid trong room
+                const found = Room.find(el => el.idRoom === user);
+                var chattemp = found.chatContext;
+                console.log(chattemp)
+                for(var i=0; i<chattemp.length;i++){
+                    if(i===(chattemp.length -1))
+                    {
+                        //luu tin cuoi cung
+                        chat.updateOne({
+                            _id: user
+                            //"User": { $all: [UserOwner, chatmessage2.from] }
+                        },
+                            {
+                                $push: { chat: { from: chattemp[i].from, text: chattemp[i].text, time: chattemp[i].time, state :"true"} }
+                            }, (err, doc) => {
+                                if (err) {
+                                    console.log("error ne", err);
+                                }
+                                else {
+                                    console.log("Updated Docs : ", doc);
+                                }
+                            });
+                    }else{
+                        //luu tin nhan binh thuong
+                        chat.updateOne({
+                            _id: user
+                            //"User": { $all: [UserOwner, chatmessage2.from] }
+                        },
+                            {
+                                $push: { chat: { from: chattemp[i].from, text: chattemp[i].text, time: chattemp[i].time } }
+                            }, (err, doc) => {
+                                if (err) {
+                                    console.log("error ne", err);
+                                }
+                                else {
+                                    console.log("Updated Docs : ", doc);
+                                }
+                            });
+
+                    }
+                }
+            }
+            else{
+                //khong co roomid torng room
+            }
+        }
+        
+        
     });
 
     console.log('a user connecteddddddddddddddddddddddddddddddddddddddddddddddd');
