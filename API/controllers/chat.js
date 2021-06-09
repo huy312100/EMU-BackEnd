@@ -1476,7 +1476,7 @@ exports.FindChatAwait = (req, res, next) => {
         })
 };
 
-exports.FindChatUser = async (req, res, next) => {
+exports.FindChatUser = (req, res, next) => {
     
     chat.find({ "User": { $all: [req.userData.username] } })
         .exec()
@@ -1509,7 +1509,7 @@ exports.FindChatUser = async (req, res, next) => {
                                     "Anh": profiles.recordsets[0][0]["AnhSV"],
                                     "TypeRoom": "TwoPeople",
                                     "text": re1[i].chat[leng - 1].text,
-                                    "time": re1[i].chat[leng - 1].time,
+                                    "time": parseInt( re1[i].chat[leng - 1].time),
                                     "state": re1[i].chat[leng - 1].state,
                                 }
                                 if (results !== undefined) {
@@ -1544,7 +1544,7 @@ exports.FindChatUser = async (req, res, next) => {
     res.status(200).json(results);
 }
 
-exports.LoadMessage = async (req, res, next) => {
+exports.LoadMessage = (req, res, next) => {
     chat.find({_id:req.body.IDRoom})
     .exec()
     .then(re1=>{
@@ -1580,5 +1580,20 @@ exports.LoadMessage = async (req, res, next) => {
     })
     .catch(err=>{
         res.status(500).json({err:err});
+    })
+};
+
+exports.Update_State = (req, res, next) => {
+    chat.find({_id:req.body.IDRoom})
+    .exec()
+    .then(re1=>{
+        if(re1.length>=1){
+        }
+        else{
+            res.status(500).json({message:""})
+        }
+    })
+    .catch(err=>{
+        res.status(500).json({err :err});
     })
 };
