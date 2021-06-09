@@ -465,41 +465,52 @@ module.exports.OnSocket = (io, socket) => {
                 var chattemp = found.chatContext;
                 console.log(chattemp);
                 for (var i = 0; i < chattemp.length; i++) {
-                    if (parseInt(i) === parseInt(chattemp.length - 1)) {
-                        //luu tin cuoi cung
-                        await chat.updateOne({
-                            _id: user
-                            //"User": { $all: [UserOwner, chatmessage2.from] }
-                        },
-                            {
-                                $push: { chat: { from: chattemp[i].from, text: chattemp[i].text, time: chattemp[i].time, state: "true" } }
-                            }, (err, doc) => {
-                                if (err) {
-                                    console.log("error ne", err);
-                                }
-                                else {
-                                    console.log("Updated Docs : ", doc);
-                                }
-                            });
-                    } else {
-                        //luu tin nhan binh thuong
-                        await chat.updateOne({
-                            _id: user
-                            //"User": { $all: [UserOwner, chatmessage2.from] }
-                        },
-                            {
-                                $push: { chat: { from: chattemp[i].from, text: chattemp[i].text, time: chattemp[i].time } }
-                            }, (err, doc) => {
-                                if (err) {
-                                    console.log("error ne", err);
-                                }
-                                else {
-                                    console.log("Updated Docs : ", doc);
-                                }
-                            });
 
-                    }
-                }
+                    //luu tin nhan binh thuong
+                    await chat.updateOne({
+                        _id: user
+                        //"User": { $all: [UserOwner, chatmessage2.from] }
+                    },
+                        {
+                            $push: { chat: { from: chattemp[i].from, text: chattemp[i].text, time: chattemp[i].time } }
+                        }, (err, doc) => {
+                            if (err) {
+                                console.log("error ne", err);
+                            }
+                            else {
+                                console.log("Updated Docs : ", doc);
+                            }
+                        });
+
+
+                };
+
+                await chat.find({ _id: user })
+                    .exec()
+                    .then((re1) => {
+                        if (re1.length >= 1) {
+                            var MessageState = re1[0].chat[re1[0].chat.length - 1];
+
+                            chat.updateOne({
+                                "_id": re1[0]._id,
+                                "chat._id": MessageState._id
+                            },
+                                {
+                                    $set: { "chat.$.state": "true" }
+                                }
+                                , (err, doc) => {
+                                    if (err) {
+                                        console.log("err", err);
+                                    } else {
+                                        console.log("doc:", doc);
+                                    }
+                                });
+
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
 
                 for (var j = Room.length - 1; j >= 0; --j) {
                     if (Room[j].idRoom === found.idRoom) {
