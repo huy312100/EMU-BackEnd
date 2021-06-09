@@ -229,47 +229,53 @@ module.exports.OnSocket = (io, socket) => {
                 awaitMessage.find({ OwnUser: user[1] })
                     .exec()
                     .then(re1 => {
-                        if (re1.length >= 1) {
-                            //neu co chi can push vo
-                            const fromuserleng = re1[0].awaittext.some(el => el.from === socket.username);
-                            if (fromuserleng) {
-                                socket.emit("Request-Accept", "message_await");
+                        if (socket.username !== undefined) {
+                            if (re1.length >= 1) {
+                                //neu co chi can push vo
+                                const fromuserleng = re1[0].awaittext.some(el => el.from === socket.username);
+
+                                if (fromuserleng) {
+                                    socket.emit("Request-Accept", "message_await");
+                                }
+                                else {
+                                    awaitMessage.updateOne({
+                                        _id: re1[0]._id
+                                    },
+                                        {
+                                            $push: { awaittext: { idChatRoom: user[0], from: socket.username, text: user[2], time: timestamp } }
+                                        }, (err, doc) => {
+                                            if (err) {
+                                                console.log("error ne", err);
+                                            }
+                                            else {
+                                                console.log("Updated Docs : ", doc);
+                                            }
+                                        });
+
+                                    io.to(founds.idsocket).emit("Request-Accept", "sended");
+
+                                }
                             }
                             else {
-                                awaitMessage.updateOne({
-                                    _id: re1[0]._id
-                                },
-                                    {
-                                        $push: { awaittext: { idChatRoom: user[0], from: socket.username, text: user[2], time: timestamp } }
-                                    }, (err, doc) => {
-                                        if (err) {
-                                            console.log("error ne", err);
-                                        }
-                                        else {
-                                            console.log("Updated Docs : ", doc);
-                                        }
-                                    });
-
-                                io.to(founds.idsocket).emit("Request-Accept", "sended");
-
+                                //chua co trong db
+                                const AwaitMessages = new awaitMessage({
+                                    _id: new mongoose.Types.ObjectId(),
+                                    OwnUser: user[1],
+                                    awaittext: { idChatRoom: user[0], from: socket.username, text: user[2], time: timestamp }
+                                })
+                                console.log(AwaitMessages);
+                                AwaitMessages.save()
+                                    .then((re2) => {
+                                        io.to(founds.idsocket).emit("Request-Accept", "sended");
+                                    })
+                                    .catch(err => {
+                                        console.log(err);
+                                        socket.emit("Request-Accept", "error");
+                                    })
                             }
                         }
-                        else {
-                            //chua co trong db
-                            const AwaitMessages = new awaitMessage({
-                                _id: new mongoose.Types.ObjectId(),
-                                OwnUser: user[1],
-                                awaittext: { idChatRoom: user[0], from: socket.username, text: user[2], time: timestamp }
-                            })
-                            console.log(AwaitMessages);
-                            AwaitMessages.save()
-                                .then((re2) => {
-                                    io.to(founds.idsocket).emit("Request-Accept", "sended");
-                                })
-                                .catch(err => {
-                                    console.log(err);
-                                    socket.emit("Request-Accept", "error");
-                                })
+                        else{
+                            socket.emit("Request-Accept", "error");
                         }
                     })
                     .catch(err => {
