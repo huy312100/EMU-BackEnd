@@ -240,7 +240,7 @@ module.exports.OnSocket = (io, socket) => {
                                     _id: re1[0]._id
                                 },
                                     {
-                                        $push: { awaittext: { idChatRoom: user[0], from: found.username, text: user[2], time: timestamp } }
+                                        $push: { awaittext: { idChatRoom: user[0], from: socket.username, text: user[2], time: timestamp } }
                                     }, (err, doc) => {
                                         if (err) {
                                             console.log("error ne", err);
