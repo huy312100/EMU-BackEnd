@@ -1509,7 +1509,7 @@ exports.FindChatUser = (req, res, next) => {
                                     "Anh": profiles.recordsets[0][0]["AnhSV"],
                                     "TypeRoom": "TwoPeople",
                                     "text": re1[i].chat[leng - 1].text,
-                                    "time": re1[i].chat[leng - 1].time,
+                                    "time": parseInt( re1[i].chat[leng - 1].time),
                                     "state": re1[i].chat[leng - 1].state,
                                 }
                                 if (results !== undefined) {
@@ -1549,18 +1549,39 @@ exports.FindChatUser = (req, res, next) => {
 exports.LoadMessage = (req, res, next) => {
     chat.find({_id:req.body.IDRoom})
     .exec()
-    .then(re1=>{
+    .then(async( re1)=>{
         if(re1.length>=1){
             var results =[];
             var listchat = re1[0].chat;
             var startpage = (re1.length-1) - (20*req.body.page);
             var endpage = (re1.length-1) - (20*req.body.page) -20;
+
             if(parseInt(listchat.length/20)<parseInt(req.body.page))
             {
                 res.status(500).json({message:"page not found"});
             }
-            console.log(startpage);
-            console.log(endpage);
+
+            var MessageState = re1[0].chat[re1[0].chat.length -1];
+            console.log(MessageState)
+            if(MessageState.from !== req.userData.username){
+                await chat.updateOne({
+                    "_id": re1[0]._id,
+                    "chat._id": MessageState._id
+                },
+                {
+                    $set: { "chat.$.state": "true" } }
+                ,(err,doc)=>{
+                    if(err){
+                        console.log("err",err);
+                    }else{
+                        console.log("doc:",doc);
+                    }
+                    
+                });
+            }
+
+            //console.log(startpage);
+            //console.log(endpage);
             for(var i = startpage;i>endpage;i--){
                 if(listchat[i] === undefined)
                 {
