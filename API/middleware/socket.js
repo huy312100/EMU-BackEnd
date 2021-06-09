@@ -11,37 +11,55 @@ const Room = [];
 module.exports.OnSocket = (io, socket) => {
     var socketid = socket.id
     socket.on("Start", (user) => {
-        var FromUser;
-        const decoded = jwt.verify(user, process.env.JWT_KEY);
-        FromUser = decoded.username;
+        if (user !== undefined) {
+            var FromUser;
+            const decoded = jwt.verify(user, process.env.JWT_KEY);
+            FromUser = decoded.username;
 
-        chat.find({ "User": { $all: [FromUser] } })
-        .exec()
-        .then(re1 => {
-            if (re1.length >= 1) {
-                for (var i = 0; i < re1.length; i++) {
-                    var idroom = re1[i].__id.toString();
-                    socket.join(idroom);
+            chat.find({ "User": { $all: [FromUser] } })
+                .exec()
+                .then(re1 => {
+                    if (re1.length >= 1) {
+                        for (var i = 0; i < re1.length; i++) {
+                            var idroom = re1[i].__id.toString();
+                            socket.join(idroom);
+                        }
+                    }
+                })
+                .catch(err => {
+
+                })
+
+
+
+            if (UserConnect.length !== 0) {
+                const found = UserConnect.filter(el => el.username === FromUser).length;
+                if (found >= 1) {
+                    var objIndex = UserConnect.findIndex(el => el.username === FromUser);
+                    socket.username = FromUser;
+                    var temp = {
+                        "idsocket": socketid,
+                        "username": FromUser
+                    };
+                    UserConnect[objIndex] = temp;
+                    //console.log("1");
+                } else {
+
+                    socket.username = FromUser;
+
+                    var temp = {
+                        "idsocket": socketid,
+                        "username": FromUser
+                    };
+
+                    if (UserConnect !== undefined) {
+                        UserConnect.push(temp);
+                    } else {
+                        UserConnect = temp;
+                    }
+                    //console.log("2");
                 }
-            }
-        })
-        .catch(err=>{
-
-        })
-
-        if (UserConnect.length !== 0) {
-            const found = UserConnect.filter(el => el.username === FromUser).length;
-            if (found >= 1) {
-                var objIndex = UserConnect.findIndex(el => el.username === FromUser);
-                socket.username = FromUser;
-                var temp = {
-                    "idsocket": socketid,
-                    "username": FromUser
-                };
-                UserConnect[objIndex] = temp;
-                //console.log("1");
             } else {
-
                 socket.username = FromUser;
 
                 var temp = {
@@ -54,24 +72,9 @@ module.exports.OnSocket = (io, socket) => {
                 } else {
                     UserConnect = temp;
                 }
-                //console.log("2");
+                //console.log("3");
             }
-        } else {
-            socket.username = FromUser;
-
-            var temp = {
-                "idsocket": socketid,
-                "username": FromUser
-            };
-
-            if (UserConnect !== undefined) {
-                UserConnect.push(temp);
-            } else {
-                UserConnect = temp;
-            }
-            //console.log("3");
         }
-
     });
     var FromUser
     socket.on("Create-Room", (user) => {
@@ -240,7 +243,7 @@ module.exports.OnSocket = (io, socket) => {
                 const timestamp = currentDate.getTime();
 
                 console.log("user co connect ma ko co join room");
-                
+
                 const founds = UserConnect.filter(el => el.username === user[1])[0];
                 var data = [socket.username, user[0].toString()];
                 //console.log(data);
@@ -292,7 +295,7 @@ module.exports.OnSocket = (io, socket) => {
                                     })
                             }
                         }
-                        else{
+                        else {
                             socket.emit("Request-Accept", "error");
                         }
                     })
@@ -310,7 +313,7 @@ module.exports.OnSocket = (io, socket) => {
                     const currentDate = new Date();
                     const timestamp = currentDate.getTime();
                     var checkfound = Room.some(el => el.idRoom === user[0]);
-                    
+
                     if (checkfound) {
                         //room da co trong mang
                         const found2 = Room.filter(el => el.idRoom === user[0])[0];
@@ -424,23 +427,22 @@ module.exports.OnSocket = (io, socket) => {
     });
 
     socket.on("Return-Chat", (user) => {
-        if(Room.length >=1){
+        if (Room.length >= 1) {
             const foundcount = Room.some(el => el.idRoom === user);
-            if(foundcount){
+            if (foundcount) {
                 //co roomid trong room
                 const found = Room.find(el => el.idRoom === user);
                 var chattemp = found.chatContext;
                 console.log(chattemp)
-                for(var i=0; i<chattemp.length;i++){
-                    if(i===(chattemp.length -1))
-                    {
+                for (var i = 0; i < chattemp.length; i++) {
+                    if (i === (chattemp.length - 1)) {
                         //luu tin cuoi cung
                         chat.updateOne({
                             _id: user
                             //"User": { $all: [UserOwner, chatmessage2.from] }
                         },
                             {
-                                $push: { chat: { from: chattemp[i].from, text: chattemp[i].text, time: chattemp[i].time, state :"true"} }
+                                $push: { chat: { from: chattemp[i].from, text: chattemp[i].text, time: chattemp[i].time, state: "true" } }
                             }, (err, doc) => {
                                 if (err) {
                                     console.log("error ne", err);
@@ -449,7 +451,7 @@ module.exports.OnSocket = (io, socket) => {
                                     console.log("Updated Docs : ", doc);
                                 }
                             });
-                    }else{
+                    } else {
                         //luu tin nhan binh thuong
                         chat.updateOne({
                             _id: user
@@ -469,12 +471,12 @@ module.exports.OnSocket = (io, socket) => {
                     }
                 }
             }
-            else{
+            else {
                 //khong co roomid torng room
             }
         }
-        
-        
+
+
     });
 
     console.log('a user connecteddddddddddddddddddddddddddddddddddddddddddddddd');
