@@ -163,7 +163,7 @@ module.exports.OnSocket = (io, socket) => {
                     else {
                         const FromUserDelete = re1[0].awaittext.filter(el => el.idChatRoom === data)
                         if (FromUserDelete.length >= 1) {
-                            var chatmessage2 = FromUserDelete;
+                            var chatmessage2 = re1[0].awaittext.filter(el => el.idChatRoom === data)[0];
                             var UserOwner = re1[0].OwnUser;
                             awaitMessage.updateOne({
                                 _id: re1[0]._id
