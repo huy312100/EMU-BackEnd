@@ -15,6 +15,20 @@ module.exports.OnSocket = (io, socket) => {
         const decoded = jwt.verify(user, process.env.JWT_KEY);
         FromUser = decoded.username;
 
+        chat.find({ "User": { $all: [FromUser] } })
+        .exec()
+        .then(re1 => {
+            if (re1.length >= 1) {
+                for (var i = 0; i < re1.length; i++) {
+                    var idroom = re1[i].__id.toString();
+                    socket.join(idroom);
+                }
+            }
+        })
+        .catch(err=>{
+
+        })
+
         if (UserConnect.length !== 0) {
             const found = UserConnect.filter(el => el.username === FromUser).length;
             if (found >= 1) {
@@ -220,7 +234,7 @@ module.exports.OnSocket = (io, socket) => {
                 //user co connect ma ko co join room
                 const currentDate = new Date();
                 const timestamp = currentDate.getTime();
-                //console.log("user co connect ma ko co join room");
+                console.log("user co connect ma ko co join room");
                 //console.log(UserConnect);
                 //console.log(user);
                 const founds = UserConnect.filter(el => el.username === user[1])[0];
@@ -285,10 +299,10 @@ module.exports.OnSocket = (io, socket) => {
             }
 
             else {
+                console.log("neu co userconnect ma da join room");
                 //user connect ma da join room
                 //Room.push({ idRoom: user[0], chatcontext: [] });
                 if (Room.length !== 0) {
-
                     const currentDate = new Date();
                     const timestamp = currentDate.getTime();
                     const found2 = Room.filter(el => el.idRoom === user[0])[0];
@@ -362,6 +376,8 @@ module.exports.OnSocket = (io, socket) => {
                 }
                 else {
                     //tao room dau tien
+                    const currentDate = new Date();
+                    const timestamp = currentDate.getTime();
                     var temp = {
                         "idRoom": user[0],
                         "chatContext": { "from": socket.username, "text": user[3], "time": timestamp }
@@ -373,6 +389,7 @@ module.exports.OnSocket = (io, socket) => {
             }
         } else {
             //neu ko co userconnect
+
             console.log("neu ko co userconnect");
             const currentDate = new Date();
             const timestamp = currentDate.getTime();

@@ -1506,6 +1506,7 @@ exports.FindChatUser = (req, res, next) => {
                                 var temp = {
                                     "idRoom": re1[i]._id,
                                     "name": profiles.recordsets[0][0]["HoTen"],
+                                    "Email": req.userData.username,
                                     "Anh": profiles.recordsets[0][0]["AnhSV"],
                                     "TypeRoom": "TwoPeople",
                                     "text": re1[i].chat[leng - 1].text,
