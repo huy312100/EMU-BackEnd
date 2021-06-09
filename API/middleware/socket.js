@@ -15,16 +15,16 @@ module.exports.OnSocket = (io, socket) => {
         if (user !== undefined) {
             const decoded = jwt.verify(user, process.env.JWT_KEY);
             FromUser = decoded.username;
-            console.log(FromUser);
+            //console.log(FromUser);
             if (FromUser.length >= 1) {
-                FromUser = "" + FromUser;
-                chat.find({ "User": { "$all": [FromUser] } })
+                //FromUser = "" + FromUser;
+                chat.find({ "User": { "$all": [FromUser.toString()] } })
                     .exec()
                     .then(re1 => {
                         if (re1.length >= 1) {
                             for (var i = 0; i < re1.length; i++) {
                                 if (re1[i].chat.length >= 1) {
-                                    var idroom = ""+ re1[i].__id;
+                                    var idroom = re1[i]._id.toString();
                                     socket.join(idroom);
                                     console.log("Room id Start:", idroom)
                                 }
