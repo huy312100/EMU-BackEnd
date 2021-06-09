@@ -373,6 +373,7 @@ module.exports.OnSocket = (io, socket) => {
                                     var temp = {
                                         "from": socket.username, "text": user[2], "time": timestamp
                                     }
+
                                     Room[j].chatContext.push(temp);
                                 }
                             }
@@ -382,19 +383,23 @@ module.exports.OnSocket = (io, socket) => {
                     }
                     else {
                         //tao room moi
+                        const currentDate2 = new Date();
+                        const timestamp2 = currentDate2.getTime();
                         var temp = {
                             "idRoom": user[0],
-                            "chatContext": { "from": socket.username, "text": user[2], "time": timestamp }
+                            "chatContext": []
                         }
 
-                        if (Room === undefined) {
+                        var temp2 = { "from": socket.username, "text": user[2], "time": timestamp2 }
+                        temp.chatContext.push(temp2)
+                        console.log(temp);
+                        if (Room !== undefined) {
                             Room.push(temp);
                             //UserConnect.push(temp);
                         }
-                        else{
-                            Room =temp;
+                        else {
+                            Room = temp;
                         }
-                        console.log(Room);
                     }
                     //chua emit
                 }
@@ -404,17 +409,20 @@ module.exports.OnSocket = (io, socket) => {
                     const timestamp = currentDate.getTime();
                     var temp = {
                         "idRoom": user[0],
-                        "chatContext": { "from": socket.username, "text": user[2], "time": timestamp }
+                        "chatContext": []
                     }
+
+                    var temp2 = { "from": socket.username, "text": user[2], "time": timestamp }
+                    temp.chatContext.push(temp2)
                     console.log(temp);
                     if (Room !== undefined) {
                         Room.push(temp);
                         //UserConnect.push(temp);
                     }
-                    else{
-                        Room =temp;
+                    else {
+                        Room = temp;
                     }
-                    
+
                     console.log(Room);
                 }
                 //chua emit
