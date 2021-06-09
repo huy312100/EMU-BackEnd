@@ -1547,6 +1547,8 @@ exports.FindChatUser = (req, res, next) => {
 }
 
 exports.LoadMessage = (req, res, next) => {
+    
+
     chat.find({_id:req.body.IDRoom})
     .exec()
     .then(async( re1)=>{
@@ -1576,7 +1578,6 @@ exports.LoadMessage = (req, res, next) => {
                     }else{
                         console.log("doc:",doc);
                     }
-                    
                 });
             }
 
