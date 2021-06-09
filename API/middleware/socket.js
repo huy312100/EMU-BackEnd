@@ -13,7 +13,7 @@ module.exports.OnSocket = (io, socket) => {
     var socketid = socket.id
     socket.on("Start", (user) => {
         if (user !== undefined) {
-            
+
             const decoded = jwt.verify(user, process.env.JWT_KEY);
             FromUser = decoded.username;
 
@@ -21,13 +21,15 @@ module.exports.OnSocket = (io, socket) => {
                 .exec()
                 .then(re1 => {
                     if (re1.length >= 1) {
-                        for (var i = 0; i < re1.length; i++) {
-                            var idroom = re1[i].__id.toString();
-                            socket.join(idroom);
-                            console.log("Room id Start:",idroom)
+                        if (re1[i].chat.length >= 1) {
+                            for (var i = 0; i < re1.length; i++) {
+                                var idroom = re1[i].__id.toString();
+                                socket.join(idroom);
+                                console.log("Room id Start:", idroom)
+                            }
                         }
                     }
-                    else{
+                    else {
                         console.log("khong tim thay roomid trong db")
                     }
                 })
@@ -234,15 +236,15 @@ module.exports.OnSocket = (io, socket) => {
         if (found >= 1) {
             //neu co user connect
             const clients = io.sockets.adapter.rooms.get(user[0].toString());
-            console.log("client: ",clients);
+            console.log("client: ", clients);
             console.log(UserConnect);
-            console.log("user:",user);
-            console.log("room: ",Room);
+            console.log("user:", user);
+            console.log("room: ", Room);
 
             //to get the number of clients in this room
             const numClients = clients ? clients.size : 0;
             //const RoomMessage = Room.some(el => el.idRoom === user[0]);
-            console.log("room client: ",numClients);
+            console.log("room client: ", numClients);
             if (numClients <= 1) {
                 //user co connect ma ko co join room
                 const currentDate = new Date();
