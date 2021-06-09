@@ -1548,57 +1548,57 @@ exports.FindChatUser = (req, res, next) => {
 }
 
 exports.LoadMessage = async (req, res, next) => {
+    // await chat.find({_id:req.body.IDRoom})
+    // .exec()
+    // .then(( re1)=>{
+    //     if(re1.length>=1){
+    //         var listchat = re1[0].chat;
+
+    //         if(parseInt(listchat.length/20)<parseInt(req.body.page))
+    //         {
+    //             res.status(500).json({message:"page not found"});
+    //         }
+
+    //         var MessageState = re1[0].chat[re1[0].chat.length -1];
+    //         console.log(MessageState)
+    //         if(MessageState.from !== req.userData.username){
+    //             chat.updateOne({
+    //                 "_id": re1[0]._id,
+    //                 "chat._id": MessageState._id
+    //             },
+    //             {
+    //                 $set: { "chat.$.state": "true" } }
+    //             ,(err,doc)=>{
+    //                 if(err){
+    //                     console.log("err",err);
+    //                 }else{
+    //                     console.log("doc:",doc);
+    //                 }
+    //             });
+    //         }
+    //     }
+    // })
+    // .catch(err=>{
+    //     res.status(500).json({err:err});
+    // });
+
+
     await chat.find({_id:req.body.IDRoom})
-    .exec()
-    .then(( re1)=>{
-        if(re1.length>=1){
-            var listchat = re1[0].chat;
-
-            if(parseInt(listchat.length/20)<parseInt(req.body.page))
-            {
-                res.status(500).json({message:"page not found"});
-            }
-
-            var MessageState = re1[0].chat[re1[0].chat.length -1];
-            console.log(MessageState)
-            if(MessageState.from !== req.userData.username){
-                chat.updateOne({
-                    "_id": re1[0]._id,
-                    "chat._id": MessageState._id
-                },
-                {
-                    $set: { "chat.$.state": "true" } }
-                ,(err,doc)=>{
-                    if(err){
-                        console.log("err",err);
-                    }else{
-                        console.log("doc:",doc);
-                    }
-                });
-            }
-        }
-    })
-    .catch(err=>{
-        res.status(500).json({err:err});
-    });
-
-
-    chat.find({_id:req.body.IDRoom})
     .exec()
     .then(async( re1)=>{
         if(re1.length>=1){
             var results =[];
             var listchat = re1[0].chat;
-            var startpage = (re1.length-1) - (20*req.body.page);
-            var endpage = (re1.length-1) - (20*req.body.page) -20;
+            var startpage = (re1[0].chat.length-1) - (20*parseInt( req.body.page));
+            var endpage = (re1[0].chat.length-1) - (20**parseInt(req.body.page)) -20;
 
             if(parseInt(listchat.length/20)<parseInt(req.body.page))
             {
                 res.status(500).json({message:"page not found"});
             }
-            
-            //console.log(startpage);
-            //console.log(endpage);
+            console.log(re1[0].chat.length-1);
+            console.log(startpage);
+            console.log(endpage);
             for(var i = startpage;i>endpage;i--){
                 if(listchat[i] === undefined)
                 {
@@ -1610,7 +1610,7 @@ exports.LoadMessage = async (req, res, next) => {
                 else{
                     results =listchat[i];
                 }
-                console.log(listchat[i]);
+                //console.log(listchat[i]);
             }
             console.log("1");
             res.status(200).json(results);
