@@ -9,10 +9,11 @@ const UserConnect = [];
 const Room = [];
 
 module.exports.OnSocket = (io, socket) => {
+    var FromUser;
     var socketid = socket.id
     socket.on("Start", (user) => {
         if (user !== undefined) {
-            var FromUser;
+            
             const decoded = jwt.verify(user, process.env.JWT_KEY);
             FromUser = decoded.username;
 
@@ -231,12 +232,13 @@ module.exports.OnSocket = (io, socket) => {
             const clients = io.sockets.adapter.rooms.get(user[0].toString());
 
             console.log(UserConnect);
-            console.log(user);
-            console.log(Room);
+            console.log("user:",user);
+            console.log("room: ",Room);
 
             //to get the number of clients in this room
             const numClients = clients ? clients.size : 0;
             //const RoomMessage = Room.some(el => el.idRoom === user[0]);
+            console.log("room client: ",numClients);
             if (numClients <= 1) {
                 //user co connect ma ko co join room
                 const currentDate = new Date();
