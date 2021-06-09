@@ -134,7 +134,7 @@ module.exports.OnSocket = (io, socket) => {
 
                     if (re1[0].awaittext.length <= 1) {
                         var chatmessage2 = re1[0].awaittext[0];
-
+                        var UserOwner = re1[0].OwnUser;
                         awaitMessage.findOneAndRemove({ _id: re1[0]._id })
                             .exec()
                             .then(re1 => {
@@ -146,10 +146,10 @@ module.exports.OnSocket = (io, socket) => {
                             });
                         chat.updateOne({
                             //_id: idRoomObject
-                            "User": { $all: [socket.username, user[1].toString()] }
+                            "User": { $all: [UserOwner, chatmessage2.from] }
                         },
                             {
-                                $push: { chat: { from: socket.username, text: user[2], time: timestamp } }
+                                $push: { chat: { from: chatmessage2.from, text: chatmessage2.text, time: chatmessage2.time } }
                             }, (err, doc) => {
                                 if (err) {
                                     console.log("error ne", err);
@@ -158,16 +158,13 @@ module.exports.OnSocket = (io, socket) => {
                                     console.log("Updated Docs : ", doc);
                                 }
                             });
-                        // var chatcontext = new chat({
-                        //     _id: new mongoose.Types.ObjectId(),
-                        //     chat:{from:chatmessage2.from,text:chatmessage2.text,time:chatmessage2.time,state:chatmessage2.}
-                        // })
 
                     }
                     else {
                         const FromUserDelete = re1[0].awaittext.filter(el => el.idChatRoom === data)
                         if (FromUserDelete.length >= 1) {
-                            console.log(FromUserDelete);
+                            var chatmessage2 = FromUserDelete;
+                            var UserOwner = re1[0].OwnUser;
                             awaitMessage.updateOne({
                                 _id: re1[0]._id
                             },
@@ -183,6 +180,22 @@ module.exports.OnSocket = (io, socket) => {
                                         console.log("Updated Docs : ", doc);
                                     }
                                 });
+
+
+                            chat.updateOne({
+                                //_id: idRoomObject
+                                "User": { $all: [UserOwner, chatmessage2.from] }
+                            },
+                                {
+                                    $push: { chat: { from: chatmessage2.from, text: chatmessage2.text, time: chatmessage2.time } }
+                                }, (err, doc) => {
+                                    if (err) {
+                                        console.log("error ne", err);
+                                    }
+                                    else {
+                                        console.log("Updated Docs : ", doc);
+                                    }
+                                });
                         }
                     }
                 }
@@ -193,6 +206,7 @@ module.exports.OnSocket = (io, socket) => {
     })
 
     socket.on("Private-Message", (user) => {
+
         const found = UserConnect.filter(el => el.username === user[1]).length;
 
         if (found >= 1) {
