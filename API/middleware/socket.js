@@ -230,7 +230,7 @@ module.exports.OnSocket = (io, socket) => {
             });
     })
 
-    socket.on("Private-Message", async(user) => {
+    socket.on("Private-Message", async (user) => {
 
         const found = UserConnect.filter(el => el.username === user[1]).length;
 
@@ -400,11 +400,11 @@ module.exports.OnSocket = (io, socket) => {
                                             Room.splice(j, 1);
                                         }
                                     }
+                                    //chua emit
+                                    data = [user[0], user[1], user[2], timestamp];
+                                    io.to(founds.idsocket).emit("Private-Message-To-Client", data);
                                 }
 
-                                //chua emit
-                                data = [user[0], user[1], user[2], timestamp];
-                                io.to(founds.idsocket).emit("Private-Message-To-Client", data);
                             }
                             else {
                                 //tiep tuc push bao room
@@ -418,10 +418,11 @@ module.exports.OnSocket = (io, socket) => {
                                     }
                                 }
                                 console.log(Room);
+                                //chua emit
+                                data = [user[0], user[1], user[2], timestamp];
+                                io.to(founds.idsocket).emit("Private-Message-To-Client", data);
                             }
-                            //chua emit
-                            data = [user[0], user[1], user[2], timestamp];
-                            io.to(founds.idsocket).emit("Private-Message-To-Client", data);
+
                         }
                         else {
                             //tao room moi
@@ -443,10 +444,11 @@ module.exports.OnSocket = (io, socket) => {
                                 Room = temp;
                             }
                         }
+                        //da emit
+                        data = [user[0], user[1], user[2], timestamp];
+                        io.to(founds.idsocket).emit("Private-Message-To-Client", data);
                     }
-                    //da emit
-                    data = [user[0], user[1], user[2], timestamp];
-                    io.to(founds.idsocket).emit("Private-Message-To-Client", data);
+
                 }
                 else {
                     //tao room dau tien
@@ -469,10 +471,11 @@ module.exports.OnSocket = (io, socket) => {
                     }
 
                     console.log(Room);
+                    //da emit
+                    data = [user[0], user[1], user[2], timestamp];
+                    io.to(founds.idsocket).emit("Private-Message-To-Client", data);
                 }
-                //da emit
-                data = [user[0], user[1], user[2], timestamp];
-                io.to(founds.idsocket).emit("Private-Message-To-Client", data);
+
             }
         } else {
             //neu ko co userconnect
@@ -571,7 +574,7 @@ module.exports.OnSocket = (io, socket) => {
 
     });
 
-    
+
 
     console.log('a user connecteddddddddddddddddddddddddddddddddddddddddddddddd');
     socket.on('disconnect', () => {
