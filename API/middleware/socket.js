@@ -230,7 +230,7 @@ module.exports.OnSocket = (io, socket) => {
             });
     })
 
-    socket.on("Private-Message", (user) => {
+    socket.on("Private-Message", async(user) => {
 
         const found = UserConnect.filter(el => el.username === user[1]).length;
 
@@ -318,6 +318,8 @@ module.exports.OnSocket = (io, socket) => {
                 console.log("neu co userconnect ma da join room");
                 //user connect ma da join room
                 //Room.push({ idRoom: user[0], chatcontext: [] });
+                const founds = UserConnect.filter(el => el.username === user[1])[0];
+
                 if (Room.length >= 1) {
                     const currentDate = new Date();
                     const timestamp = currentDate.getTime();
@@ -327,47 +329,9 @@ module.exports.OnSocket = (io, socket) => {
                         //room da co trong mang
                         const found2 = Room.filter(el => el.idRoom === user[0])[0];
                         if (found2.chatContext.length >= 10) {
-                            //save into database
-                            // var Chat = new chat({
-                            //     __id: user[0],
-                            //     chat: []
-                            // });
+                            //save in to db
 
-                            // for (var i = o; i < found2.chatContext.length; i++) {
-                            //     var chatmessage = Chat.chat;
-                            //     chatmessage = {
-                            //         from: found2.chatContext[i].from,
-                            //         text: found2.chatContext[i], text,
-                            //         time: found2.chatContext[i].time
-                            //     }
-                            //     if (Chat.chat !== undefined) {
-                            //         Chat.chat.push(chatmessage);
-                            //     }
-                            //     else {
-                            //         Chat.chat = chatmessage;
-                            //     }
-                            // }
-
-                            // chat.updateOne({
-                            //     //_id: idRoomObject
-                            //     "User": { $all: [socket.username, user[1].toString()] }
-                            // },
-                            //     {
-                            //         $push: { chat: Chat.chat }
-                            //     }, (err, doc) => {
-                            //         if (err) {
-                            //             console.log("error ne", err);
-                            //         }
-                            //         else {
-                            //             console.log("Updated Docs : ", doc);
-                            //         }
-                            //     });
-
-
-                            //chua emit
-                        }
-                        else {
-                            //tiep tuc push bao room
+                            //luu vao room truoc
                             for (var j = 0; j < Room.length; j++) {
                                 if (user[0] === Room[j].idRoom) {
                                     var temp = {
@@ -377,31 +341,112 @@ module.exports.OnSocket = (io, socket) => {
                                     Room[j].chatContext.push(temp);
                                 }
                             }
-                            console.log(Room);
-                        }
-                        //chua emit
-                    }
-                    else {
-                        //tao room moi
-                        const currentDate2 = new Date();
-                        const timestamp2 = currentDate2.getTime();
-                        var temp = {
-                            "idRoom": user[0],
-                            "chatContext": []
-                        }
 
-                        var temp2 = { "from": socket.username, "text": user[2], "time": timestamp2 }
-                        temp.chatContext.push(temp2)
-                        console.log(temp);
-                        if (Room !== undefined) {
-                            Room.push(temp);
-                            //UserConnect.push(temp);
+                            //save into db
+                            if (Room.length >= 1) {
+                                const foundcount = Room.some(el => el.idRoom === user[0]);
+                                if (foundcount) {
+                                    //co roomid trong room
+                                    const found = Room.find(el => el.idRoom === user[0]);
+                                    var chattemp = found.chatContext;
+                                    console.log(chattemp);
+                                    for (var i = 0; i < chattemp.length; i++) {
+                                        //luu tin nhan binh thuong
+                                        chat.updateOne({
+                                            _id: user[0]
+                                            //"User": { $all: [UserOwner, chatmessage2.from] }
+                                        },
+                                            {
+                                                $push: { chat: { from: chattemp[i].from, text: chattemp[i].text, time: chattemp[i].time } }
+                                            }, (err, doc) => {
+                                                if (err) {
+                                                    console.log("error ne", err);
+                                                }
+                                                else {
+                                                    console.log("Updated Docs : ", doc);
+                                                }
+                                            });
+                                    };
+
+                                    await chat.find({ _id: user[0] })
+                                        .exec()
+                                        .then((re4) => {
+                                            if (re4.length >= 1) {
+                                                var MessageState = re4[0].chat[re4[0].chat.length - 1];
+
+                                                chat.updateOne({
+                                                    "_id": re4[0]._id,
+                                                    "chat._id": MessageState._id
+                                                },
+                                                    {
+                                                        $set: { "chat.$.state": "true" }
+                                                    }
+                                                    , (err, doc) => {
+                                                        if (err) {
+                                                            console.log("err", err);
+                                                        } else {
+                                                            console.log("doc:", doc);
+                                                        }
+                                                    });
+
+                                            }
+                                        })
+                                        .catch(err => {
+                                            console.log(err);
+                                        });
+
+                                    for (var j = Room.length - 1; j >= 0; --j) {
+                                        if (Room[j].idRoom === found.idRoom) {
+                                            Room.splice(j, 1);
+                                        }
+                                    }
+                                }
+
+                                //chua emit
+                                data = [user[0], user[1], user[2], timestamp];
+                                io.to(founds.idsocket).emit("Private-Message-To-Client", data);
+                            }
+                            else {
+                                //tiep tuc push bao room
+                                for (var j = 0; j < Room.length; j++) {
+                                    if (user[0] === Room[j].idRoom) {
+                                        var temp = {
+                                            "from": socket.username, "text": user[2], "time": timestamp
+                                        }
+
+                                        Room[j].chatContext.push(temp);
+                                    }
+                                }
+                                console.log(Room);
+                            }
+                            //chua emit
+                            data = [user[0], user[1], user[2], timestamp];
+                            io.to(founds.idsocket).emit("Private-Message-To-Client", data);
                         }
                         else {
-                            Room = temp;
+                            //tao room moi
+                            const currentDate2 = new Date();
+                            const timestamp2 = currentDate2.getTime();
+                            var temp = {
+                                "idRoom": user[0],
+                                "chatContext": []
+                            }
+
+                            var temp2 = { "from": socket.username, "text": user[2], "time": timestamp2 }
+                            temp.chatContext.push(temp2)
+                            console.log(temp);
+                            if (Room !== undefined) {
+                                Room.push(temp);
+                                //UserConnect.push(temp);
+                            }
+                            else {
+                                Room = temp;
+                            }
                         }
                     }
-                    //chua emit
+                    //da emit
+                    data = [user[0], user[1], user[2], timestamp];
+                    io.to(founds.idsocket).emit("Private-Message-To-Client", data);
                 }
                 else {
                     //tao room dau tien
@@ -425,7 +470,9 @@ module.exports.OnSocket = (io, socket) => {
 
                     console.log(Room);
                 }
-                //chua emit
+                //da emit
+                data = [user[0], user[1], user[2], timestamp];
+                io.to(founds.idsocket).emit("Private-Message-To-Client", data);
             }
         } else {
             //neu ko co userconnect
@@ -523,6 +570,8 @@ module.exports.OnSocket = (io, socket) => {
 
 
     });
+
+    
 
     console.log('a user connecteddddddddddddddddddddddddddddddddddddddddddddddd');
     socket.on('disconnect', () => {

@@ -1596,9 +1596,9 @@ exports.LoadMessage = async (req, res, next) => {
             {
                 res.status(500).json({message:"page not found"});
             }
-            console.log(re1[0].chat.length-1);
-            console.log(startpage);
-            console.log(endpage);
+            //console.log(re1[0].chat.length-1);
+            //console.log(startpage);
+            //console.log(endpage);
             for(var i = startpage;i>endpage;i--){
                 if(listchat[i] === undefined)
                 {
