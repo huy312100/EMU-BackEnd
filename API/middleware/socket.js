@@ -345,7 +345,7 @@ module.exports.OnSocket = (io, socket) => {
                             const found4 = Room.find(el => el.idRoom === user[0]);
                             var chattemp = found4.chatContext;
                             //console.log(chattemp);
-                            for (var i = 0; i < chattemp.length; i++) {
+                            //for (var i = 0; i < chattemp.length; i++) {
 
                                 //luu tin nhan binh thuong
                                 chat.updateOne({
@@ -353,7 +353,7 @@ module.exports.OnSocket = (io, socket) => {
                                     //"User": { $all: [UserOwner, chatmessage2.from] }
                                 },
                                     {
-                                        $push: { chat: { from: chattemp[i].from, text: chattemp[i].text, time: chattemp[i].time } }
+                                        $push: { chat: { $each: chattemp} }
                                     }, (err, doc) => {
                                         if (err) {
                                             console.log("error ne", err);
@@ -362,7 +362,7 @@ module.exports.OnSocket = (io, socket) => {
                                             console.log("Updated Docs : ", doc);
                                         }
                                     });
-                            };
+                            //};
 
                             await chat.find({ _id: user[0] })
                                 .exec()
