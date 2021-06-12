@@ -39,6 +39,25 @@ module.exports.OnSocket = (io, socket) => {
                         console.log("loiiiiiiiiiiiiii roiiiiiiiiiii", err);
                     });
 
+                awaitMessage.find({})
+                    .exec()
+                    .then(re2 => {
+                        if (re2.length >= 1) {
+                            for (var j = 0; j > re2.length; j++) {
+                                const awaitmessagefoundcount = re2[i].awaittext.some(el => el.from === FromUser);
+                                if (awaitmessagefoundcount) {
+                                    const awaitmessagefound = re2[i].awaittext.find(el => el.from === FromUser);
+                                    var idroom2 = awaitmessagefound._id.toString();
+                                    socket.join(idroom2);
+                                    console.log("Room id Start:", idroom2);
+                                }
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        console.log("loiiiiiiiiii lan 2222222222222", err);
+                    })
+
                 if (UserConnect.length !== 0) {
                     const found = UserConnect.filter(el => el.username === FromUser).length;
                     if (found >= 1) {
@@ -254,7 +273,6 @@ module.exports.OnSocket = (io, socket) => {
                 console.log("user co connect ma ko co join room");
 
                 const founds = UserConnect.filter(el => el.username === user[1])[0];
-                var data = [socket.username, user[0].toString()];
                 //console.log(data);
                 awaitMessage.find({ OwnUser: user[1] })
                     .exec()
@@ -475,27 +493,93 @@ module.exports.OnSocket = (io, socket) => {
                 }
             }
         } else {
-            //neu ko co userconnect
+            //neu khong co user connect
+            const clients = io.sockets.adapter.rooms.get(user[0].toString());
+            //to get the number of clients in this room
+            const numClients = clients ? clients.size : 0;
+            if (numClients <= 1) {
+                //user khong co connect ma ko co join room
+                console.log("neu ko co userconnect ma khong join room");
+                const currentDate = new Date();
+                const timestamp = currentDate.getTime();
 
-            console.log("neu ko co userconnect");
-            const currentDate = new Date();
-            const timestamp = currentDate.getTime();
-            //var idRoomObject = mongoose.Types.ObjectId(user[0].toString());
+                awaitMessage.find({ OwnUser: user[1] })
+                    .exec()
+                    .then(re1 => {
+                        if (socket.username !== undefined) {
+                            if (re1.length >= 1) {
+                                //neu co chi can push vo
+                                const fromuserleng = re1[0].awaittext.some(el => el.from === socket.username);
 
-            chat.updateOne({
-                //_id: idRoomObject
-                "User": { $all: [socket.username, user[1].toString()] }
-            },
-                {
-                    $push: { chat: { from: socket.username, text: user[2], time: timestamp } }
-                }, (err, doc) => {
-                    if (err) {
-                        console.log("error ne", err);
-                    }
-                    else {
-                        console.log("Updated Docs : ", doc);
-                    }
-                });
+                                if (fromuserleng) {
+                                    socket.emit("Request-Accept", "message_await");
+                                }
+                                else {
+                                    awaitMessage.updateOne({
+                                        _id: re1[0]._id
+                                    },
+                                        {
+                                            $push: { awaittext: { idChatRoom: user[0], from: socket.username, text: user[2], time: timestamp } }
+                                        }, (err, doc) => {
+                                            if (err) {
+                                                console.log("error ne", err);
+                                            }
+                                            else {
+                                                console.log("Updated Docs : ", doc);
+                                            }
+                                        });
+
+                                    //io.to(founds.idsocket).emit("Request-Accept", "sended");
+
+                                }
+                            }
+                            else {
+                                //chua co trong db
+                                const AwaitMessages = new awaitMessage({
+                                    _id: new mongoose.Types.ObjectId(),
+                                    OwnUser: user[1],
+                                    awaittext: { idChatRoom: user[0], from: socket.username, text: user[2], time: timestamp }
+                                })
+                                console.log(AwaitMessages);
+                                AwaitMessages.save()
+                                    .then((re2) => {
+                                        //io.to(founds.idsocket).emit("Request-Accept", "sended");
+                                    })
+                                    .catch(err => {
+                                        console.log(err);
+                                        socket.emit("Request-Accept", "error");
+                                    })
+                            }
+                        }
+                        else {
+                            socket.emit("Request-Accept", "error");
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        socket.emit("Request-Accept", "error");
+                    });
+            }
+            else {
+                console.log("neu ko co userconnect ma da join room");
+                const currentDate = new Date();
+                const timestamp = currentDate.getTime();
+
+                chat.updateOne({
+                    //_id: idRoomObject
+                    "User": { $all: [socket.username, user[1].toString()] }
+                },
+                    {
+                        $push: { chat: { from: socket.username, text: user[2], time: timestamp } }
+                    }, (err, doc) => {
+                        if (err) {
+                            console.log("error ne", err);
+                        }
+                        else {
+                            console.log("Updated Docs : ", doc);
+                        }
+                    });
+            }
             //var usersend =[user[0]]
             //socket.emit("Private-Message-Send-Client", user);
             //io.in(user[0].toString()).emit("Private-Message", user);
