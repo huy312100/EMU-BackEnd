@@ -347,21 +347,21 @@ module.exports.OnSocket = (io, socket) => {
                             //console.log(chattemp);
                             //for (var i = 0; i < chattemp.length; i++) {
 
-                                //luu tin nhan binh thuong
-                                chat.updateOne({
-                                    _id: user[0]
-                                    //"User": { $all: [UserOwner, chatmessage2.from] }
-                                },
-                                    {
-                                        $push: { chat: { $each: chattemp} }
-                                    }, (err, doc) => {
-                                        if (err) {
-                                            console.log("error ne", err);
-                                        }
-                                        else {
-                                            console.log("Updated Docs : ", doc);
-                                        }
-                                    });
+                            //luu tin nhan binh thuong
+                            chat.updateOne({
+                                _id: user[0]
+                                //"User": { $all: [UserOwner, chatmessage2.from] }
+                            },
+                                {
+                                    $push: { chat: { $each: chattemp } }
+                                }, (err, doc) => {
+                                    if (err) {
+                                        console.log("error ne", err);
+                                    }
+                                    else {
+                                        console.log("Updated Docs : ", doc);
+                                    }
+                                });
                             //};
 
                             await chat.find({ _id: user[0] })
@@ -511,24 +511,24 @@ module.exports.OnSocket = (io, socket) => {
                 const found = Room.find(el => el.idRoom === user);
                 var chattemp = found.chatContext;
                 console.log(chattemp);
-                for (var i = 0; i < chattemp.length; i++) {
+                //for (var i = 0; i < chattemp.length; i++) {
 
-                    //luu tin nhan binh thuong
-                    chat.updateOne({
-                        _id: user
-                        //"User": { $all: [UserOwner, chatmessage2.from] }
-                    },
-                        {
-                            $push: { chat: { from: chattemp[i].from, text: chattemp[i].text, time: chattemp[i].time } }
-                        }, (err, doc) => {
-                            if (err) {
-                                console.log("error ne", err);
-                            }
-                            else {
-                                console.log("Updated Docs : ", doc);
-                            }
-                        });
-                };
+                //luu tin nhan binh thuong
+                chat.updateOne({
+                    _id: user
+                    //"User": { $all: [UserOwner, chatmessage2.from] }
+                },
+                    {
+                        $push: { chat: { $each: chattemp } }
+                    }, (err, doc) => {
+                        if (err) {
+                            console.log("error ne", err);
+                        }
+                        else {
+                            console.log("Updated Docs : ", doc);
+                        }
+                    });
+                //};
 
                 await chat.find({ _id: user })
                     .exec()
