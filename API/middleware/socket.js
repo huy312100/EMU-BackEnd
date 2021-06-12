@@ -414,7 +414,7 @@ module.exports.OnSocket = (io, socket) => {
                                     Room[j].chatContext.push(temp);
                                 }
                             }
-                            console.log(Room);
+                            console.log(Room[0].chatContext);
                             //chua emit
                             data = [user[0], user[1], user[2], timestamp];
                             io.to(founds.idsocket).emit("Private-Message-To-Client", data);
@@ -441,7 +441,7 @@ module.exports.OnSocket = (io, socket) => {
                         else {
                             Room = temp;
                         }
-                        console.log(Room);
+                        console.log(Room[0].chatContext);
                         //da emit
                         data = [user[0], user[1], user[2], timestamp];
                         io.to(founds.idsocket).emit("Private-Message-To-Client", data);
@@ -468,7 +468,7 @@ module.exports.OnSocket = (io, socket) => {
                         Room = temp;
                     }
 
-                    console.log(Room);
+                    console.log(Room[0].chatContext);
                     //da emit
                     data = [user[0], user[1], user[2], timestamp];
                     io.to(founds.idsocket).emit("Private-Message-To-Client", data);
@@ -570,7 +570,7 @@ module.exports.OnSocket = (io, socket) => {
 
 
     });
-    
+
     console.log('a user connecteddddddddddddddddddddddddddddddddddddddddddddddd');
     socket.on('disconnect', () => {
         console.log('user disconnected');
