@@ -110,6 +110,37 @@ exports.Post_Account_Signup = (req, res, next) => {
     });
 };
 
+exports.Post_Token_Notification = (req,res,next)=>{
+  Account.find({ username: req.userData.username })
+  .exec()
+  .then(re1=>{
+    if(re1.length>=1){
+      Account.updateOne({
+        _id: re1[0]._id
+        //"User": { $all: [UserOwner, chatmessage2.from] }
+    },
+        {
+            $push: { tokenNotifition: req.boody.TokenNotification }
+        }, (err, doc) => {
+            if (err) {
+              res.status(500).json({ error: err });
+            }
+            else {
+              res.status(200).json({ message: "Token Notification is pushed" });
+            }
+        });
+    }
+    else{
+      res.status(401).json({
+        message: "Auth failed"
+      });
+    }
+  })
+  .catch(err =>{
+    res.status(500).json({ error: err });
+  })
+};
+
 exports.Change_Password = async (req, res, next) => {
   await Account.find({ username: req.userData.username })
     .exec()
