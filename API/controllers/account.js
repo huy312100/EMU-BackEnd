@@ -115,25 +115,25 @@ exports.Post_Token_Notification = (req, res, next) => {
     .exec()
     .then(re1 => {
       if (re1.length >= 1) {
-        if (re1[0].tokenNotifition !== undefined) {
+        if (re1[0].tokenNotifition === undefined) {
           Account.updateOne({
             _id: re1[0]._id
             //"User": { $all: [UserOwner, chatmessage2.from] }
           },
             {
-              $push: { tokenNotifition: req.boody.TokenNotification }
+              $set: { tokenNotifition: req.body.TokenNotification }
             }, (err, doc) => {
               if (err) {
                 res.status(500).json({ error: err });
               }
-              else {
+              if(doc) {
+                //console.log(doc);
                 res.status(200).json({ message: "Token Notification is pushed" });
               }
             });
         }else{
           res.status(200).json({ message: "Token Notification is pushed" });
         }
-
       }
       else {
         res.status(401).json({
