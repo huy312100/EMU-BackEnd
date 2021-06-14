@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const Config = require("../middleware/rdbconfig");
 const sql = require("mssql");
 const puppeteer = require("puppeteer");
+const newsUniversity = require("../models/newsUniversity");
+const newsFaculty = require("../models/newsFaculty");
 
 exports.Get_Info_University = async (req, res, next) => {
     try {
@@ -28,9 +30,9 @@ exports.Get_Info_University = async (req, res, next) => {
 };
 
 exports.Get_News_University = async (req, res, next) => {
-    async function autoScroll(page, finishTime){
+    async function autoScroll(page, finishTime) {
         await page.evaluate(async (finishTime) => {
-      
+
             await new Promise((resolve, reject) => {
                 var totalHeight = 0;
                 var distance = 100;
@@ -38,30 +40,30 @@ exports.Get_News_University = async (req, res, next) => {
                     var scrollHeight = document.body.scrollHeight;
                     window.scrollBy(0, distance);
                     totalHeight += distance;
-      
-                    if(totalHeight >= scrollHeight || new Date().getTime() > finishTime){
-      
+
+                    if (totalHeight >= scrollHeight || new Date().getTime() > finishTime) {
+
                         clearInterval(timer);
                         resolve();
                     }
-      
+
                 }, 120);
             });
         }, finishTime);
-      }
-    
-    async function getMainPageNews(url){   
-        list_page = ['hcmut.edu.vn','hcmus.edu.vn','hcmussh.edu.vn','hcmiu.edu.vn','uit.edu.vn','uel.edu.vn','agu.edu.vn']
+    }
+
+    async function getMainPageNews(url) {
+        list_page = ['hcmut.edu.vn', 'hcmus.edu.vn', 'hcmussh.edu.vn', 'hcmiu.edu.vn', 'uit.edu.vn', 'uel.edu.vn', 'agu.edu.vn']
         let index = 0;
-        for (var i =0;i< list_page.length;i++){
-            if (url.includes(list_page[i])){
+        for (var i = 0; i < list_page.length; i++) {
+            if (url.includes(list_page[i])) {
                 index = i;
                 break;
             }
         }
-        selector_url ="";
+        selector_url = "";
         selector_date = "";
-        switch (index){
+        switch (index) {
             case 0:
                 selector_url = ".style1_ex1"
                 selector_date = ".date"
@@ -77,43 +79,45 @@ exports.Get_News_University = async (req, res, next) => {
                     const page = await browser.newPage()
                     await page.goto(url)
                     let articles = []
-                    let urls = await page.evaluate(async ({selector_url,selector_date}) =>  {
+                    let urls = await page.evaluate(async ({ selector_url, selector_date }) => {
                         let items = await document.querySelectorAll(selector_url)
                         let links = []
-                        for (var i = 0; i<items.length; ++i) {
+                        for (var i = 0; i < items.length; ++i) {
                             let head = items[i].getAttribute("href")
                             links.push({
-                              link: head,
-                              selector_date: selector_date
+                                link: head,
+                                selector_date: selector_date
                             });
                         };
                         return links
-                    },{selector_url,selector_date})
-                    let pagePromise = (link,selector_date) => new Promise(async(resolve) => {
+                    }, { selector_url, selector_date })
+                    let pagePromise = (link, selector_date) => new Promise(async (resolve) => {
                         let dataObj = {}
                         let newPage = await browser.newPage()
                         await newPage.goto(link)
-                        let date = await newPage.evaluate(({selector_date}) => {
+                        let date = await newPage.evaluate(({ selector_date }) => {
                             let element = document.querySelector(selector_date)
                             if (element) {
-                                return element.innerText}
-                              return ''
-                        },{selector_date})
-                        date = date.split(" ")[3] + " " + date.split(" ")[4].slice(0,-1)
+                                return element.innerText
+                            }
+                            return ''
+                        }, { selector_date })
+                        date = date.split(" ")[3] + " " + date.split(" ")[4].slice(0, -1)
                         dataObj['Title'] = await newPage.title()
                         dataObj['Link'] = await newPage.url()
                         dataObj['Date'] = await date
                         resolve(dataObj)
                         await newPage.close();
-                    },{selector_date})
-                    for(var i =0;i< urls.length;i++){
-                        let currentPageData = await pagePromise(urls[i].link,urls[i].selector_date);
+                    }, { selector_date })
+                    for (var i = 0; i < urls.length; i++) {
+                        let currentPageData = await pagePromise(urls[i].link, urls[i].selector_date);
                         articles.push(
-                        {
-                            Title: currentPageData.Title,
-                            Link: currentPageData.Link,
-                            Date: currentPageData.Date
-                        });} 
+                            {
+                                Title: currentPageData.Title,
+                                Link: currentPageData.Link,
+                                Date: currentPageData.Date
+                            });
+                    }
                     await page.close()
                     await browser.close()
                     return articles
@@ -132,27 +136,26 @@ exports.Get_News_University = async (req, res, next) => {
                     });
                     const page = await browser.newPage()
                     await page.goto(url)
-                    const articles = await page.evaluate(({selector_url,selector_date}) => {
+                    const articles = await page.evaluate(({ selector_url, selector_date }) => {
                         let items = document.querySelectorAll(selector_url)
                         let dates = document.querySelectorAll(selector_date)
                         let links = []
-                        for (var i = 0, j =0;i< items.length, j< dates.length, i<= 15, j<= 15;i++, j++)
-                        {
-                          title_post = items[i].innerText
-                          url_post = items[i].getAttribute("href")
-                          date_post = dates[j].innerText.split(" ")[1].slice(0,-1)
+                        for (var i = 0, j = 0; i < items.length, j < dates.length, i <= 15, j <= 15; i++, j++) {
+                            title_post = items[i].innerText
+                            url_post = items[i].getAttribute("href")
+                            date_post = dates[j].innerText.split(" ")[1].slice(0, -1)
                             links.push({
-                              Title: title_post,
-                              Link: url_post,
-                              Date: date_post
+                                Title: title_post,
+                                Link: url_post,
+                                Date: date_post
                             })
                         }
                         return links;
-                      },{selector_url,selector_date})
-                      await page.close()
-                      await browser.close()
-                      console.log(articles)
-                      return articles;
+                    }, { selector_url, selector_date })
+                    await page.close()
+                    await browser.close()
+                    console.log(articles)
+                    return articles;
                 }
             case 2:
                 selector_url = ".d-flex.flex-column.justify-content-between"
@@ -170,13 +173,12 @@ exports.Get_News_University = async (req, res, next) => {
                     await page.waitForTimeout(2000)
                     const finishTime = new Date().getTime() + (10 * 1000)
                     await autoScroll(page, finishTime)
-                    const articles = await page.evaluate(({selector_url}) => {
-                        let items =  document.querySelectorAll(selector_url)
+                    const articles = await page.evaluate(({ selector_url }) => {
+                        let items = document.querySelectorAll(selector_url)
                         let links = []
-                        for (var i = 0;i< items.length, i<= 10;i++)
-                        {
+                        for (var i = 0; i < items.length, i <= 10; i++) {
                             title_post = items[i].querySelector("div.text.mb-2 > a > h4").innerText
-                            url_post = "https://hcmussh.edu.vn/"+ items[i].querySelector("div.text.mb-2 > a").getAttribute("href")
+                            url_post = "https://hcmussh.edu.vn/" + items[i].querySelector("div.text.mb-2 > a").getAttribute("href")
                             date_post = items[i].querySelector("div:nth-child(3) > a").innerText.trimStart()
                             links.push({
                                 Title: title_post,
@@ -184,8 +186,8 @@ exports.Get_News_University = async (req, res, next) => {
                                 Date: date_post
                             });
                         }
-                    return links
-                    },{selector_url})
+                        return links
+                    }, { selector_url })
                     await page.close()
                     await browser.close()
                     console.log(articles)
@@ -205,26 +207,25 @@ exports.Get_News_University = async (req, res, next) => {
                     });
                     const page = await browser.newPage()
                     await page.goto(url)
-                    const articles = await page.evaluate(({selector_url,selector_date}) => {
+                    const articles = await page.evaluate(({ selector_url, selector_date }) => {
                         let items = document.querySelectorAll(selector_url)
                         let dates = document.querySelectorAll(selector_date)
                         let links = []
-                        for (var i = 0, j =0;i< items.length, j< dates.length;i++, j++)
-                        {
-                          title_post = items[i].innerText
-                          url_post = items[i].getAttribute("href")
-                          date_post = dates[j].querySelector("div.month").innerText + " " + dates[j].querySelector("div.day").innerText
+                        for (var i = 0, j = 0; i < items.length, j < dates.length; i++, j++) {
+                            title_post = items[i].innerText
+                            url_post = items[i].getAttribute("href")
+                            date_post = dates[j].querySelector("div.month").innerText + " " + dates[j].querySelector("div.day").innerText
                             links.push({
-                              Title: title_post,
-                              Link: url_post,
-                              Date: date_post
+                                Title: title_post,
+                                Link: url_post,
+                                Date: date_post
                             })
                         }
                         return links;
-                      },{selector_url,selector_date})
-                      await page.close()
-                      await browser.close()
-                      return articles;
+                    }, { selector_url, selector_date })
+                    await page.close()
+                    await browser.close()
+                    return articles;
                 }
             case 4:
                 selector_url = "div.post-title h2 a";
@@ -239,27 +240,27 @@ exports.Get_News_University = async (req, res, next) => {
                         ignoreHTTPSErrors: true
                     });
                     const page = await browser.newPage();
-                    await page.goto(url,{waitUntil: 'networkidle2'});
-                    const articles = await page.evaluate(({url, selector_url,selector_date}) => {
-                    let items = document.querySelectorAll(selector_url);
-                    let dates = document.querySelectorAll(selector_date);
-                    let links = [];
-                    for (var i = 0, j =0;i< items.length, j< dates.length;i++, j++){
-                        title_post = items[i].innerText
-                        url_post = items[i].getAttribute("href")
-                        date_post = dates[j].innerText.trimStart()
-                        links.push({
-                            Title: title_post,
-                            Link: url_post,
-                            Date: date_post
-                        });
-                    }
-                    return links;
-                      },{url,selector_url,selector_date});
-                      await page.close();
-                      await browser.close();
-                      console.log(articles)
-                      return articles;
+                    await page.goto(url, { waitUntil: 'networkidle2' });
+                    const articles = await page.evaluate(({ url, selector_url, selector_date }) => {
+                        let items = document.querySelectorAll(selector_url);
+                        let dates = document.querySelectorAll(selector_date);
+                        let links = [];
+                        for (var i = 0, j = 0; i < items.length, j < dates.length; i++, j++) {
+                            title_post = items[i].innerText
+                            url_post = items[i].getAttribute("href")
+                            date_post = dates[j].innerText.trimStart()
+                            links.push({
+                                Title: title_post,
+                                Link: url_post,
+                                Date: date_post
+                            });
+                        }
+                        return links;
+                    }, { url, selector_url, selector_date });
+                    await page.close();
+                    await browser.close();
+                    console.log(articles)
+                    return articles;
                 }
             case 5:
                 selector_url = ".title_topicdisplay"
@@ -274,24 +275,23 @@ exports.Get_News_University = async (req, res, next) => {
                         ignoreHTTPSErrors: true
                     });
                     const page = await browser.newPage()
-                    await page.goto(url,{waitUntil: 'networkidle2'})
-                    const articles = await page.evaluate(({selector_url,selector_date}) => {
-                    let items = document.querySelectorAll(selector_url)
-                    let dates = document.querySelectorAll(selector_date)
-                    let links = []
-                    for (var i = 0, j =0;i< items.length, j< dates.length;i++,j++)
-                    {
-                        title_post = items[i].innerText
-                        url_post = "https://www.uel.edu.vn/" + items[i].getAttribute("href")
-                        date_post = dates[j].innerText.slice(0,-1).substring(1);
-                        links.push({
-                            Title: title_post,
-                            Link: url_post,
-                            Date: date_post
-                        });
-                    }
-                    return links
-                    },{selector_url,selector_date})
+                    await page.goto(url, { waitUntil: 'networkidle2' })
+                    const articles = await page.evaluate(({ selector_url, selector_date }) => {
+                        let items = document.querySelectorAll(selector_url)
+                        let dates = document.querySelectorAll(selector_date)
+                        let links = []
+                        for (var i = 0, j = 0; i < items.length, j < dates.length; i++, j++) {
+                            title_post = items[i].innerText
+                            url_post = "https://www.uel.edu.vn/" + items[i].getAttribute("href")
+                            date_post = dates[j].innerText.slice(0, -1).substring(1);
+                            links.push({
+                                Title: title_post,
+                                Link: url_post,
+                                Date: date_post
+                            });
+                        }
+                        return links
+                    }, { selector_url, selector_date })
                     await page.close()
                     await browser.close()
                     console.log(articles)
@@ -310,24 +310,23 @@ exports.Get_News_University = async (req, res, next) => {
                         ignoreHTTPSErrors: true
                     });
                     const page = await browser.newPage();
-                    await page.goto(url,{waitUntil: 'networkidle2'});
-                    const articles = await page.evaluate(({url, selector_url,selector_date}) => {
-                    let items = document.querySelectorAll(selector_url);
-                    let dates = document.querySelectorAll(selector_date);
-                    let links = [];
-                    for (var i = 0, j =0;i< items.length, j< dates.length;i++,j++)
-                    {
-                        title_post = items[i].innerText
-                        url_post = "https://www.agu.edu.vn/"+items[j].getAttribute("href")
-                        date_post = dates[j].innerText
-                        links.push({
-                            Title: title_post,
-                            Link: url_post,
-                            Date: date_post
-                        });
-                    }
-                    return links;
-                    },{url,selector_url,selector_date});
+                    await page.goto(url, { waitUntil: 'networkidle2' });
+                    const articles = await page.evaluate(({ url, selector_url, selector_date }) => {
+                        let items = document.querySelectorAll(selector_url);
+                        let dates = document.querySelectorAll(selector_date);
+                        let links = [];
+                        for (var i = 0, j = 0; i < items.length, j < dates.length; i++, j++) {
+                            title_post = items[i].innerText
+                            url_post = "https://www.agu.edu.vn/" + items[j].getAttribute("href")
+                            date_post = dates[j].innerText
+                            links.push({
+                                Title: title_post,
+                                Link: url_post,
+                                Date: date_post
+                            });
+                        }
+                        return links;
+                    }, { url, selector_url, selector_date });
                     await page.close();
                     await browser.close();
                     //console.log(articles)
@@ -342,18 +341,46 @@ exports.Get_News_University = async (req, res, next) => {
 
         let facultys = await pool.request()
             .input('Email_User', sql.VarChar, req.userData.username)
-            .query("  select u.news from InfoSinhVien i, University_Faculty uf, University u where i.IDTruongKhoa =uf.ID and uf.MaTruong = u.MaTruong and i.Email = @Email_User")
+            .query("  select u.news,u.MaTruong from InfoSinhVien i, University_Faculty uf, University u where i.IDTruongKhoa =uf.ID and uf.MaTruong = u.MaTruong and i.Email = @Email_User")
 
         //console.log(facultys.recordsets[0]);
         if (facultys.recordsets[0]) {
-            var a = await getMainPageNews(facultys.recordsets[0][0].news);
-            console.log(a);
-            if (a !== undefined) {
-                res.status(200).json(a);
-            }
-            else {
-                res.status(500).json({ error: "err" });
-            }
+            newsUniversity.find({ universityCode: facultys.recordsets[0][0].MaTruong })
+                .exec()
+                .then(async(re1) => {
+                    if (re1.length >= 1) {
+                        res.status(200).json(re1[0].news);
+                    } else {
+                        var a = await getMainPageNews(facultys.recordsets[0][0].news);
+                        //console.log(a);
+                        if (a !== undefined) {
+                            const NewsUniversity = new newsUniversity({
+                                _id: new mongoose.Types.ObjectId(),
+                                universityCode: facultys.recordsets[0][0].MaTruong,
+                                news: []
+                            });
+                            await Array.prototype.push.apply(NewsUniversity.news, a);
+                            //console.log(NewsUniversity.news);
+                            NewsUniversity.save()
+                                .then()
+                                .catch(err => {
+                                    res.status(500).json({
+                                        error: err
+                                    });
+                                });
+
+                            res.status(200).json(a);
+                        }
+                        else {
+                            res.status(500).json({ error: "err" });
+                        }
+                    }
+                })
+                .catch(err => {
+                    res.status(500).json({
+                        error: err
+                    });
+                })
         }
         else {
             res.status(500).json();
@@ -1453,25 +1480,54 @@ exports.Get_News_Faculty = async (req, res, next) => {
         return articles;
 
     }
-
+    
     try {
         let pool = await sql.connect(Config);
         //let facultys = await pool.request().query("SELECT * from University");
 
         let facultys = await pool.request()
             .input('Email_User', sql.VarChar, req.userData.username)
-            .query("  select uf.news from InfoSinhVien i,University_Faculty uf where uf.ID= i.IDTruongKhoa and i.Email= @Email_User")
+            .query("  select uf.news,uf.MaTruong, uf.MaKhoa from InfoSinhVien i,University_Faculty uf where uf.ID= i.IDTruongKhoa and i.Email= @Email_User")
 
         //console.log(facultys.recordsets[0]);
         if (facultys.recordsets[0]) {
-            var a = await Crawl_Data(facultys.recordsets[0][0].news);
-            console.log(a);
-            if (a !== undefined) {
-                res.status(200).json(a);
-            }
-            else {
-                res.status(500).json({ error: "err" });
-            }
+            newsFaculty.find({$and:[{ universityCode: facultys.recordsets[0][0].MaTruong },{facultyCode:facultys.recordsets[0][0].MaKhoa}]})
+                .exec()
+                .then(async(re1) => {
+                    if (re1.length >= 1) {
+                        res.status(200).json(re1[0].news);
+                    } else {
+                        var a = await Crawl_Data(facultys.recordsets[0][0].news);
+                        //console.log(a);
+                        if (a !== undefined) {
+                            const NewsFaculty = new newsFaculty({
+                                _id: new mongoose.Types.ObjectId(),
+                                universityCode: facultys.recordsets[0][0].MaTruong,
+                                facultyCode:facultys.recordsets[0][0].MaKhoa,
+                                news: []
+                            });
+                            await Array.prototype.push.apply(NewsFaculty.news, a);
+                            //console.log(NewsUniversity.news);
+                            NewsFaculty.save()
+                                .then()
+                                .catch(err => {
+                                    res.status(500).json({
+                                        error: err
+                                    });
+                                });
+
+                            res.status(200).json(a);
+                        }
+                        else {
+                            res.status(500).json({ error: "err" });
+                        }
+                    }
+                })
+                .catch(err => {
+                    res.status(500).json({
+                        error: err
+                    });
+                })
         }
         else {
             res.status(500).json();
@@ -1481,6 +1537,4 @@ exports.Get_News_Faculty = async (req, res, next) => {
         //console.log(error);
         res.status(500).json(error);
     }
-
-
 };
