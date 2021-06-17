@@ -20,6 +20,7 @@ const calendarRouter = require("./API/routes/calendar");
 const chatRouter = require("./API/routes/chat");
 const checkChangeRouter = require("./API/routes/checkChange");
 const infoAndNewsRouter = require("./API/routes/infoAndnews");
+const notificationRouter = require("./API/routes/notification");
 
 //mongoose.connect("mongodb+srv://EMU:appEMU@cluster0.oktkb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
 mongoose.connect("mongodb+srv://EMU:appEMU@cluster0.oktkb.mongodb.net/EMU?retryWrites=true&w=majority",
@@ -28,21 +29,24 @@ mongoose.connect("mongodb+srv://EMU:appEMU@cluster0.oktkb.mongodb.net/EMU?retryW
   });
 mongoose.set('useFindAndModify', false);
 
+// var minutesDeadline = 1, the_interval_Deadline = minutesDeadline *60 * 1000;
+// setInterval(function() {
+//   checkChangeRouter.Check_Change_Deadline();
+// }, the_interval_Deadline);
 
-// var i = 0;
-// while (i < 100) {
-//   (function (i) {
-//     setTimeout(function () {
-//      //console.log(i);
-     
-//     }, 300 * i)
-//   })(i++)
-// }
+// var minutesCourses = 1, the_interval_Courses = minutesCourses * 60 * 1000;
+// setInterval(function() {
+//   checkChangeRouter.Check_Change_Courses();
+// }, the_interval_Courses);
+
+var minutesNews = 5, the_interval_News = minutesNews * 60 * 1000;
+setInterval(function() {
+  console.log("start");
+  checkChangeRouter.Check_Change_News();
+}, the_interval_News);
 
 
 app.use(morgan('dev'));
-
-
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -58,8 +62,8 @@ app.use("/studycourses", StudyCoursesRouter);
 app.use("/coursescontent", coursesContentRouter);
 app.use("/calendar", calendarRouter);
 app.use("/chat", chatRouter);
-app.use("/check",checkChangeRouter);
 app.use("/info", infoAndNewsRouter);
+app.use("/notification",notificationRouter);
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
