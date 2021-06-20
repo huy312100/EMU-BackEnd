@@ -17,6 +17,26 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
         .catch(err => {
             res.status(500).json({ error: err });
         })
+    
+    //await calendar.find({ "ListGuest": { "$all": {Email: [req.userData.username] } }})
+    await calendar.find({"ListGuest.Email": req.userData.username})
+    .exec()
+    .then(re2=>{
+        if(re2.length>=1){
+            for(var x=0;x<re2.length;x++){
+                if (listcalendar !== undefined) {
+                    listcalendar.push(re2[x]);
+                }
+                else {
+                    listcalendar = re2[x];
+                }
+            }
+        }
+    })
+    .catch(err=>{
+        console.log(err);
+        res.status(500).json({err:err});
+    })
 
     var url;
     CustomWeb.find({ $and: [{ typeUrl: "Moodle" }, { idUser: req.userData._id }] })

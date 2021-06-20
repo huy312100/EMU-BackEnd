@@ -10,9 +10,9 @@ router.get("/view",check_auth,profileController.View_Profile);
 
 router.post("/edit", check_auth,profileController.Edit_Profile);
 
-router.post("/findname",profileController.Find_name);
+router.post("/findname",check_auth,profileController.Find_name);
 
-router.post("/findinfofromfullname",profileController.Find_Info_From_Full_Name);
+router.post("/findinfofromfullname",check_auth,profileController.Find_Info_From_Full_Name);
 
 router.post("/editprofilepicture",check_auth,profileController.Edit_Profile_Picture);
 

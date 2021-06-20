@@ -596,6 +596,7 @@ module.exports.OnSocket = (io, socket) => {
                 var chattemp = found.chatContext;
                 console.log(chattemp);
                 //for (var i = 0; i < chattemp.length; i++) {
+                
 
                 //luu tin nhan binh thuong
                 chat.updateOne({
@@ -651,10 +652,9 @@ module.exports.OnSocket = (io, socket) => {
                 //khong co roomid torng room
             }
         }
-
-
     });
 
+    
     console.log('a user connecteddddddddddddddddddddddddddddddddddddddddddddddd');
     socket.on('disconnect', () => {
         console.log('user disconnected');
