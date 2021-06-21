@@ -82,6 +82,7 @@ exports.Get_One_Courses = async (req, res, next) => {
                                         var listLabels = CoursesContent.listLabel
 
                                         listLabels = {
+                                            IDOfListLabel: info[i].modules[j].id,
                                             name: info[i].modules[j].name,
                                             label: info[i].modules[j].description
                                         }
@@ -94,6 +95,7 @@ exports.Get_One_Courses = async (req, res, next) => {
                                     } else if (info[i].modules[j].modname === "resource") {
                                         var listresources = CoursesContent.listResource
                                         listresources = {
+                                            IDOfListResources: info[i].modules[j].id,
                                             name: info[i].modules[j].name,
                                             url: info[i].modules[j].url
                                         }
@@ -106,6 +108,7 @@ exports.Get_One_Courses = async (req, res, next) => {
                                     } else if (info[i].modules[j].modname === "url") {
                                         var listurls = CoursesContent.listUrl
                                         listurls = {
+                                            IDOfListUrl: info[i].modules[j].id,
                                             name: info[i].modules[j].name,
                                             url: info[i].modules[j].url
                                         }
@@ -118,6 +121,7 @@ exports.Get_One_Courses = async (req, res, next) => {
                                     } else if (info[i].modules[j].modname === "folder") {
                                         var listfolders = CoursesContent.listFolder
                                         listfolders = {
+                                            IDOfListFolder: info[i].modules[j].id,
                                             name: info[i].modules[j].name,
                                             url: info[i].modules[j].url
                                         }

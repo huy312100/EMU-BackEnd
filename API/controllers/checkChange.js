@@ -1,12 +1,13 @@
-const coursesContent = require("../models/coursesContent");
-const CustomWeb = require("../models/customweb");
-const studyCourses = require("../models/studyCourses");
-const currentStudyCourses = require("../models/currentStudyCourses");
 const newsUniversity = require("../models/newsUniversity");
 const newsFaculty = require("../models/newsFaculty");
 const notification = require("../models/notification");
 const Account = require("../models/account");
 const Config = require("../middleware/rdbconfig");
+const coursesContent = require("../models/coursesContent");
+const customweb = require("../models/customweb");
+const courses = require("../models/courses");
+const studyCourses = require("../models/studyCourses");
+const currentStudyCourses = require("../models/currentStudyCourses");
 
 const puppeteer = require("puppeteer");
 const request = require("request");
@@ -15,14 +16,1046 @@ const mongoose = require("mongoose");
 
 exports.check_Change_New_Courses = () => {
     console.log("new courses");
+
+    studyCourses.find({})
+    .exec()
+    .then(async (re1) => {
+        if (re1.length >= 1) {
+            for (var i = 0; i < re1.length; i++) {
+                var element = re1[i];
+                var tokenofCustomweb;
+                var IDAccount;
+                var urlofCustweb;
+                //console.log("51");
+                function Init4() {
+                    return new Promise(async (resolve) => {
+                        await customweb.find({ $and: [{ idUser: element.idUser }, { typeUrl: "Moodle" }] })
+                            .exec()
+                            .then((re2) => {
+                                if (re2.length >= 1) {
+                                    urlofCustweb = re2[0].url;
+                                    tokenofCustomweb = re2[0].token;
+                                    IDAccount = re2[0].idUser;
+                                    return resolve();
+                                }
+                            })
+                            .catch(err => {
+
+                            })
+
+                    });
+                };
+
+                await Init4().then(() => {
+                    //console.log("5");
+                });
+
+                var urlcourses = urlofCustweb.split(".edu.vn")[0] + ".edu.vn";
+                var url = urlcourses + "/webservice/rest/server.php?moodlewsrestformat=json&wsfunction=core_enrol_get_users_courses&wstoken=" + tokenofCustomweb + "&userid=" + element.idUserMoodle;
+                var options = {
+                    "method": "GET",
+                    "url": url,
+                    "headers": {
+                    }
+                };
+                console.log(url);
+                async function Init() {
+                    return new Promise((resolve) => {
+                        request(options, async function (error, response) {
+                            if (error) {
+                            }
+                            else {
+                                if (response.statusCode === 200) {
+                                    var info = JSON.parse(response.body);
+                                    console.log(element.idUserMoodle);
+                                    console.log(info.length);
+                                    console.log(element.listCourses.length);
+
+                                    if (info.length !== element.listCourses.length) {
+                                        var leng = parseInt(info.length) - parseInt(element.listCourses.length);
+                                        function Init6() {
+                                            return new Promise(async (resolve) => {
+                                                for (var j = leng - 1; j >= 0; j--) {
+                                                    //push vao dau studycourses
+                                                    var results = {
+                                                        "Title": "Môn học mới",
+                                                        "Data": info[j].fullname,
+                                                        "ListUser": []
+                                                    };
+                                                    var IDCouresesNew = info[j].id;
+
+                                                    var newcourses = {
+                                                        IDCourses: IDCouresesNew,
+                                                        name: info[j].fullname,
+                                                        category: info[j].category,
+                                                        startDate: info[j].startdate
+                                                    };
+                                                    studyCourses.updateOne({
+                                                        _id: element._id
+                                                    },
+                                                        {
+                                                            $push: { listCourses: { $each: [newcourses], $position: 0 } }
+                                                            //$push: { listCourses: newcourses, $position: 0 },
+
+                                                        }, (err, doc) => {
+                                                            if (err) {
+
+                                                            }
+                                                            else {
+
+                                                            }
+                                                        });
+
+                                                    if (info[j].category !== element.listCourses[0].category) {
+                                                        //mon hoc moi trong hoc ki moi
+                                                        //set lai currentStudyCourses
+                                                        currentStudyCourses.updateOne({
+                                                            idUser: IDAccount
+                                                        },
+                                                            {
+                                                                $set: { listCourses: newcourses }
+                                                            }, (err, doc) => {
+                                                                if (err) {
+
+                                                                }
+                                                                else {
+
+                                                                }
+                                                            });
+                                                    }
+                                                    else {
+                                                        // mon hoc moi trong hoc ki cu
+                                                        //push vao currentStudyCourses
+                                                        currentStudyCourses.updateOne({
+                                                            idUser: IDAccount
+                                                        },
+                                                            {
+                                                                $push: { listCourses: { $each: [newcourses], $position: 0 } }
+                                                                //$push: { listCourses: newcourses ,$position: 0}
+                                                            }, (err, doc) => {
+                                                                if (err) {
+
+                                                                }
+                                                                else {
+
+                                                                }
+                                                            });
+                                                    }
+                                                    //add colection courses
+                                                    courses.find({ IDCourses: IDCouresesNew, url: urlcourses })
+                                                        .exec()
+                                                        .then(re3 => {
+                                                            if (re3.length >= 1) {
+                                                                courses.updateOne({
+                                                                    _id: re3[0]._id
+                                                                },
+                                                                    {
+                                                                        $push: { listStudent: { IDUser: IDAccount, IDUserMoodle: element.idUserMoodle } }
+                                                                    }, (err, doc) => {
+                                                                        if (err) {
+
+                                                                        }
+                                                                        else {
+
+                                                                        }
+                                                                    });
+                                                            } else {
+                                                                const courses2 = new courses({
+                                                                    _id: new mongoose.Types.ObjectId(),
+                                                                    IDCourses: IDCouresesNew,
+                                                                    url: urlcourses,
+                                                                    IDUser: IDAccount,
+                                                                    IDUserInstead: element.idUserMoodle,
+                                                                    listStudent: { IDUser: IDAccount, IDUserMoodle: element.idUserMoodle }
+                                                                });
+                                                                courses2.save()
+                                                                    .then()
+                                                                    .catch(err => {
+                                                                        console.log(err);
+                                                                    });
+
+                                                                //couresess.push(courses)
+                                                                //console.log(courses)
+
+
+                                                            }
+                                                        })
+
+                                                    //add coleection coursescontent
+                                                    coursesContent.find({ $and: [{ urlm: urlcourses }, { IDCourses: info[j].id }] })
+                                                        .exec()
+                                                        .then((re4) => {
+                                                            console.log(re4.length)
+                                                            if (re4.length >= 1) {
+
+                                                            }
+                                                            else {
+                                                                //console.log("3")
+                                                                var CoursesContent = new coursesContent({
+                                                                    _id: new mongoose.Types.ObjectId(),
+                                                                    IDCourses: IDCouresesNew,
+                                                                    urlm: urlcourses,
+                                                                    listAssign: []
+                                                                });
+                                                                //console.log("3")
+
+                                                                var url2 = urlcourses + "/webservice/rest/server.php?moodlewsrestformat=json&wsfunction=core_course_get_contents&courseid=" + IDCouresesNew + "&wstoken=" + tokenofCustomweb;
+                                                                //console.log(url);
+                                                                var options2 = {
+                                                                    "method": "GET",
+                                                                    "url": url2,
+                                                                    "headers": {
+                                                                    }
+                                                                };
+
+                                                                request(options2, async function (error, response) {
+                                                                    if (error) {
+
+                                                                    }
+                                                                    else {
+                                                                        if (response.statusCode === 200) {
+                                                                            var info = JSON.parse(response.body);
+                                                                            for (var i = 0; i < info.length; i++) {
+                                                                                for (var j = 0; j < info[i].modules.length; j++) {
+                                                                                    if (info[i].modules[j].modname === "assign") {
+                                                                                        var listAssigns = CoursesContent.listAssign;
+                                                                                        if (info[i].modules[j].completion === 1) {
+                                                                                            listAssigns = {
+                                                                                                IDOfListAssign: info[i].modules[j].id,
+                                                                                                name: info[i].modules[j].name,
+                                                                                                url: info[i].modules[j].url,
+                                                                                                startDate: info[i].modules[j].completiondata.timecompleted
+                                                                                            }
+                                                                                        } else {
+                                                                                            listAssigns = {
+                                                                                                IDOfListAssign: info[i].modules[j].id,
+                                                                                                name: info[i].modules[j].name,
+                                                                                                url: info[i].modules[j].url,
+                                                                                                startDate: 0
+                                                                                            }
+                                                                                        }
+                                                                                        //console.log(listAssigns);
+                                                                                        if (CoursesContent.listAssign !== undefined) {
+                                                                                            CoursesContent.listAssign.push(listAssigns);
+                                                                                        } else {
+                                                                                            CoursesContent.listAssign = listAssigns;
+                                                                                        }
+                                                                                    } else if (info[i].modules[j].modname === "label") {
+                                                                                        var listLabels = CoursesContent.listLabel
+
+                                                                                        listLabels = {
+                                                                                            IDOfListLabel: info[i].modules[j].id,
+                                                                                            name: info[i].modules[j].name,
+                                                                                            label: info[i].modules[j].description
+                                                                                        }
+
+                                                                                        if (CoursesContent.listLabel !== undefined) {
+                                                                                            CoursesContent.listLabel.push(listLabels);
+                                                                                        } else {
+                                                                                            CoursesContent.listLabel = listLabels;
+                                                                                        }
+                                                                                    } else if (info[i].modules[j].modname === "resource") {
+                                                                                        var listresources = CoursesContent.listResource
+                                                                                        listresources = {
+                                                                                            IDOfListResources: info[i].modules[j].id,
+                                                                                            name: info[i].modules[j].name,
+                                                                                            url: info[i].modules[j].url
+                                                                                        }
+
+                                                                                        if (CoursesContent.listResource !== undefined) {
+                                                                                            CoursesContent.listResource.push(listresources);
+                                                                                        } else {
+                                                                                            CoursesContent.listResource = listresources;
+                                                                                        }
+                                                                                    } else if (info[i].modules[j].modname === "url") {
+                                                                                        var listurls = CoursesContent.listUrl
+                                                                                        listurls = {
+                                                                                            IDOfListUrl: info[i].modules[j].id,
+                                                                                            name: info[i].modules[j].name,
+                                                                                            url: info[i].modules[j].url
+                                                                                        }
+
+                                                                                        if (CoursesContent.listUrl !== undefined) {
+                                                                                            CoursesContent.listUrl.push(listurls);
+                                                                                        } else {
+                                                                                            CoursesContent.listUrl = listurls;
+                                                                                        }
+                                                                                    } else if (info[i].modules[j].modname === "folder") {
+                                                                                        var listfolders = CoursesContent.listFolder
+                                                                                        listfolders = {
+                                                                                            IDOfListFolder: info[i].modules[j].id,
+                                                                                            name: info[i].modules[j].name,
+                                                                                            url: info[i].modules[j].url
+                                                                                        }
+
+                                                                                        if (CoursesContent.listFolder !== undefined) {
+                                                                                            CoursesContent.listFolder.push(listfolders);
+                                                                                        } else {
+                                                                                            CoursesContent.listFolder = listfolders;
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                            CoursesContent.save()
+                                                                                .then(() => {
+
+                                                                                })
+                                                                                .catch(err => {
+
+                                                                                })
+                                                                            //console.log(CoursesContent);
+                                                                        }
+                                                                    }
+                                                                });
+                                                            }
+                                                        })
+                                                        .catch(err => {
+                                                            console.log(err);
+                                                            //res.status(500).json({ error: err });
+                                                        })
+
+                                                    //push thong bao
+                                                    function Init7() {
+                                                        return new Promise(async (resolve) => {
+                                                            //console.log(listUser[x][j].IDUser);
+                                                            await Account.find({ _id: IDAccount })
+                                                                .exec()
+                                                                .then(re2 => {
+                                                                    if (re2.length >= 1) {
+                                                                        //console.log(re2[0].tokenNotifition)
+                                                                        if (re2[0].tokenNotifition !== undefined) {
+                                                                            //console.log("1")
+                                                                            var temp2 = {
+                                                                                "tokenNotifition": re2[0].tokenNotifition,
+                                                                                "IDUser": IDAccount
+                                                                            }
+                                                                            if (results.ListUser !== undefined) {
+                                                                                results.ListUser.push(temp2);
+                                                                            } else {
+                                                                                results.ListUser = temp2;
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    //console.log(results);
+                                                                })
+                                                                .catch(err => {
+
+                                                                })
+
+                                                            return resolve();
+                                                        })
+                                                    };
+                                                    await Init7().then();
+
+                                                    async function sendPushNotification(expoPushToken, titleparams, bodyparams) {
+                                                        const message = {
+                                                            to: expoPushToken,
+                                                            sound: 'default',
+                                                            title: titleparams,
+                                                            body: bodyparams,
+                                                            data: {},
+                                                        };
+
+                                                        var options = {
+                                                            "method": "POST",
+                                                            "url": "https://exp.host/--/api/v2/push/send",
+                                                            "headers": {
+                                                                "Accept": "application/json",
+                                                                "Accept-encoding": "gzip, deflate",
+                                                                "Content-Type": "application/json",
+                                                            },
+                                                            body: JSON.stringify(message),
+                                                        };
+                                                        request(options, function (error, response) {
+                                                            if (error) {
+                                                            } else {
+                                                                console.log("suss");
+                                                            }
+                                                        });
+
+                                                    }
+                                                    console.log(results);
+                                                    // console.log(results.ListUser);
+                                                    // console.log(results.ListUser[0].tokenNotifition);
+                                                    // console.log(results.ListUser[0].IDUser);
+                                                    if (results.ListUser.length >= 1) {
+                                                        for (var z = 0; z < results.ListUser.length; z++) {
+                                                            // console.log(results.ListUser[z].tokenNotifition);
+                                                            // console.log(results.ListUser[z].IDUser);
+                                                            const idusertemp = results.ListUser[z].IDUser;
+                                                            sendPushNotification(results.ListUser[z].tokenNotifition, results.Title, results.Data);
+                                                            notification.find({ IDUser: idusertemp })
+                                                                .exec()
+                                                                .then(re3 => {
+                                                                    const currentDate = new Date();
+                                                                    const timestamp = currentDate.getTime();
+                                                                    if (re3.length >= 1) {
+                                                                        console.log("1");
+
+                                                                        notification.updateOne({
+                                                                            _id: re3[0]._id
+                                                                        },
+                                                                            {
+                                                                                $push: { notification: { $each: [{ Title: results.Title, Data: results.Data, Date: timestamp }], $position: 0 } }
+                                                                                //$push: { notification: { Title: results.Title, Data: results.Data, Date: timestamp } ,$position: 0}
+                                                                            }, (err, doc) => {
+                                                                                if (err) {
+                                                                                    //console.log(err);
+                                                                                }
+                                                                                else {
+                                                                                    //console.log(doc)
+                                                                                }
+                                                                            });
+                                                                    } else {
+                                                                        Notifications = new notification({
+                                                                            _id: new mongoose.Types.ObjectId(),
+                                                                            IDUser: idusertemp,
+                                                                            notification: { Title: results.Title, Data: results.Data, Date: timestamp }
+                                                                        });
+                                                                        console.log(Notifications);
+                                                                        Notifications.save()
+                                                                            .then(() => {
+                                                                                console.log("save");
+                                                                            })
+                                                                            .catch(err => {
+                                                                                console.log(err);
+                                                                            })
+                                                                    }
+                                                                })
+                                                                .catch(err => {
+                                                                    console.log(err);
+                                                                })
+                                                        }
+                                                    }
+                                                }
+                                                return resolve();
+                                            })
+                                        }
+                                        await Init6().then(() => {
+                                            //console.log("5");
+                                        });
+                                    } else {
+                                        console.log("No change");
+                                    }
+                                }
+
+                            }
+                            return resolve();
+                        });
+                    })
+                }
+                await Init().then(() => {
+                    //console.log("5");
+                });
+                //
+
+            }
+            //res.status(200).json({});
+        }
+    })
+    .catch(err => {
+
+    })
 };
 
-exports.Check_Change_Deadline_Moodle = () => {
+exports.Check_Change_Deadline_Moodle = async() => {
     console.log("new deadline");
+    var change = [];
+    var listUser = [];
+    async function Init2() {
+        await courses.find({})
+            .exec()
+            .then(async (re1) => {
+                for (var k = 0; k < re1.length; k++) {
+                    //re1.forEach(async (element) => {
+                    var element = re1[k];
+                    var tokenofCustomweb;
+                    var urlofCustweb;
+                    //console.log("51");
+                    function Init4() {
+                        return new Promise(async (resolve) => {
+                            await customweb.find({ $and: [{ idUser: element.IDUser }, { typeUrl: "Moodle" }] })
+                                .exec()
+                                .then((re2) => {
+                                    if (re2.length >= 1) {
+                                        urlofCustweb = re2[0].url;
+                                        tokenofCustomweb = re2[0].token;
+                                        return resolve();
+                                    }
+                                })
+                                .catch(err => {
+
+                                })
+
+                        });
+                    };
+
+                    await Init4().then(() => {
+                        //console.log("5");
+                    });
+
+                    var url = element.url + "/webservice/rest/server.php?moodlewsrestformat=json&wsfunction=core_course_get_contents&courseid=" + element.IDCourses + "&wstoken=" + tokenofCustomweb;
+                    var options = {
+                        "method": "GET",
+                        "url": url,
+                        "headers": {
+                        }
+                    };
+
+                    //console.log("31")
+                    await coursesContent.find({ $and: [{ urlm: element.url }, { IDCourses: element.IDCourses }] })
+                        .exec()
+                        .then(async (re2) => {
+                            if (re2.length >= 1) {
+                                async function Init() {
+                                    return new Promise((resolve) => {
+                                        request(options, async function (error, response) {
+                                            if (error) {
+                                            }
+                                            else {
+
+                                                if (response.statusCode === 200) {
+                                                    var info = JSON.parse(response.body);
+                                                    var counttotal = 0;
+                                                    var count = info.filter(value => {
+                                                        counttotal += value.modules.filter(value2 => value2.modname === "assign").length;
+                                                    }).length
+
+                                                    if (counttotal !== re2[0].listAssign.length) {
+                                                        var sayyes = re2[0].listAssign;
+                                                        //console.log(sayyes);
+                                                        for (var i = 0; i < info.length; i++) {
+                                                            for (var j = 0; j < info[i].modules.length; j++) {
+                                                                if (info[i].modules[j].modname === "assign") {
+
+                                                                    const deadlineExist = sayyes.some(users => users.IDOfListAssign.toString() === info[i].modules[j].id.toString())
+                                                                    if (!deadlineExist) {
+                                                                        //var listAssigns = coursesContent.listAssign;
+                                                                        //console.log(deadlineExist)
+                                                                        var listAssigns = {
+                                                                            IDOfListAssign: info[i].modules[j].id,
+                                                                            name: info[i].modules[j].name,
+                                                                            url: info[i].modules[j].url,
+                                                                            startDate: info[i].modules[j].completiondata.timecompleted
+                                                                        }
+
+                                                                        await coursesContent.updateOne({
+                                                                            _id: re2[0]._id
+                                                                        },
+                                                                            {
+                                                                                $push: { listAssign: listAssigns }
+                                                                            });
+
+                                                                        change.push(listAssigns)
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        //console.log("2");
+                                                        await courses.find({ $and: [{ url: element.url }, { IDCourses: element.IDCourses }] })
+                                                            .exec()
+                                                            .then(re3 => {
+                                                                if (re3.length >= 1) {
+                                                                    if (listUser !== undefined) {
+                                                                        listUser.push(re3[0].listStudent);
+                                                                    } else {
+                                                                        listUser = re3[0].listStudent;
+                                                                    }
+                                                                }
+                                                            })
+                                                        return resolve()
+                                                    }
+                                                    return resolve();
+                                                }
+                                            }
+                                        });
+                                    });
+                                }
+                                await Init();
+                            }
+                        })
+                        .catch(err => {
+                        })
+                };
+            })
+            .catch(err => {
+            });
+    };
+    var a = await Init2();
+
+    if (change.length >= 1) {
+        for (var x = 0; x < change.length; x++) {
+            results = {
+                "Title": "Deadline Môn học",
+                "Data": change[x].name,
+                "ListUser": []
+            };
+            //console.log("IDUSER:")
+            function Init5() {
+                return new Promise(async (resolve) => {
+                    for (var j = 0; j < listUser[x].length; j++) {
+                        //console.log(listUser[x][j].IDUser);
+                        await Account.find({ _id: listUser[x][j].IDUser })
+                            .exec()
+                            .then(re2 => {
+                                if (re2.length >= 1) {
+                                    //console.log(re2[0].tokenNotifition)
+                                    if (re2[0].tokenNotifition !== undefined) {
+                                        //console.log("1")
+                                        var temp2 = {
+                                            "tokenNotifition": re2[0].tokenNotifition,
+                                            "IDUser": listUser[x][j].IDUser
+                                        }
+                                        if (results.ListUser !== undefined) {
+                                            results.ListUser.push(temp2);
+                                        } else {
+                                            results.ListUser = temp2;
+                                        }
+                                    }
+                                }
+                                //console.log(results);
+                            })
+                            .catch(err => {
+
+                            })
+                    }
+                    return resolve();
+
+
+                })
+            };
+            await Init5().then();
+
+            async function sendPushNotification(expoPushToken, titleparams, bodyparams) {
+                const message = {
+                    to: expoPushToken,
+                    sound: 'default',
+                    title: titleparams,
+                    body: bodyparams,
+                    data: {},
+                };
+
+                var options = {
+                    "method": "POST",
+                    "url": "https://exp.host/--/api/v2/push/send",
+                    "headers": {
+                        "Accept": "application/json",
+                        "Accept-encoding": "gzip, deflate",
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(message),
+                };
+                request(options, function (error, response) {
+                    if (error) {
+                    } else {
+                        console.log("suss");
+                    }
+                });
+
+            }
+
+            //console.log(results);
+            //console.log(results.ListUser);
+            // console.log(results.ListUser[0].tokenNotifition);
+            // console.log(results.ListUser[0].IDUser);
+
+            if (results.ListUser.length >= 1) {
+                for (var z = 0; z < results.ListUser.length; z++) {
+                    //console.log(results.ListUser[z].tokenNotifition);
+                    //console.log(results.ListUser[z].IDUser);
+                    const idusertemp = results.ListUser[z].IDUser;
+                    sendPushNotification(results.ListUser[z].tokenNotifition, results.Title, results.Data);
+                    await notification.find({ IDUser: idusertemp })
+                        .exec()
+                        .then(async (re3) => {
+                            const currentDate = new Date();
+                            const timestamp = currentDate.getTime();
+                            if (re3.length >= 1) {
+                                console.log("1");
+                                //console.log(results.Title);
+                                //console.log(results.Data);
+                                notification.updateOne({
+                                    _id: re3[0]._id
+                                },
+                                    {
+                                        $push: { notification: {$each: [{Title: results.Title, Data: results.Data, Date: timestamp}], $position: 0 } }
+                                        //$push: { notification: { Title: results.Title, Data: results.Data, Date: timestamp } }
+                                    }, (err, doc) => {
+                                        if (err) {
+
+                                        }
+                                        else {
+
+                                        }
+                                    });
+                            } else {
+                                Notifications = new notification({
+                                    _id: new mongoose.Types.ObjectId(),
+                                    IDUser: idusertemp,
+                                    notification: { Title: results.Title, Data: results.Data, Date: timestamp }
+                                });
+                                console.log(Notifications);
+                                Notifications.save()
+                                    .then(() => {
+                                        console.log("save");
+                                    })
+                                    .catch(err => {
+                                        console.log(err);
+                                    })
+                            }
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                }
+            }
+        }
+        
+    }
+    else{
+        console.log("No change");
+    }
 };
 
-exports.Check_Change_Content_Moodle = () => {
+exports.Check_Change_Content_Moodle = async() => {
     console.log("change content");
+    var change = [];
+    var listUser = [];
+    async function Init2() {
+        await courses.find({})
+            .exec()
+            .then(async (re1) => {
+                for (var k = 0; k < re1.length; k++) {
+                    //re1.forEach(async (element) => {
+                    var element = re1[k];
+                    var tokenofCustomweb;
+                    var IDUserMoodles;
+                    var urlofCustweb;
+                    //console.log("51");
+                    function Init4() {
+                        return new Promise(async (resolve) => {
+                            await customweb.find({ $and: [{ idUser: element.IDUser }, { typeUrl: "Moodle" }] })
+                                .exec()
+                                .then((re2) => {
+                                    if (re2.length >= 1) {
+                                        urlofCustweb = re2[0].url;
+                                        tokenofCustomweb = re2[0].token;
+                                        IDUserMoodles =re2[0].IDUserMoodle;
+                                        return resolve();
+                                    }
+                                })
+                                .catch(err => {
+
+                                })
+
+                        });
+                    };
+
+                    await Init4().then(() => {
+                        //console.log("5");
+                    });
+
+                    var url = element.url + "/webservice/rest/server.php?moodlewsrestformat=json&wsfunction=core_course_get_contents&courseid=" + element.IDCourses + "&wstoken=" + tokenofCustomweb;
+                    var options = {
+                        "method": "GET",
+                        "url": url,
+                        "headers": {
+                        }
+                    };
+
+                    //console.log("31")
+                    await coursesContent.find({ $and: [{ urlm: element.url }, { IDCourses: element.IDCourses }] })
+                        .exec()
+                        .then(async (re2) => {
+                            if (re2.length >= 1) {
+                                async function Init() {
+                                    return new Promise((resolve) => {
+                                        request(options, async function (error, response) {
+                                            if (error) {
+                                            }
+                                            else {
+
+                                                if (response.statusCode === 200) {
+                                                    var info = JSON.parse(response.body);
+                                                    var countLabel = 0;
+                                                    var countResource = 0;
+                                                    var countUrl = 0;
+                                                    var countFolder = 0;
+                                                    var count = info.filter(value => {
+                                                        countLabel += value.modules.filter(value2 => value2.modname === "label").length;
+                                                        countResource += value.modules.filter(value2 => value2.modname === "resource").length;
+                                                        countUrl += value.modules.filter(value2 => value2.modname === "url").length;
+                                                        countFolder += value.modules.filter(value2 => value2.modname === "folder").length;
+                                                    }).length
+
+                                                    if (countLabel !== re2[0].listLabel.length || countResource !== re2[0].listResource.length || countUrl !== re2[0].listUrl.length || countFolder !== re2[0].listFolder.length) {
+                                                        var sayyes = re2[0].listLabel;
+                                                        var sayyes1 = re2[0].listResource;
+                                                        var sayyes2 = re2[0].listUrl;
+                                                        var sayyes3 = re2[0].listFolder;
+                                                        //console.log(sayyes);
+                                                        for (var i = 0; i < info.length; i++) {
+                                                            for (var j = 0; j < info[i].modules.length; j++) {
+                                                                if (info[i].modules[j].modname === "label") {
+                                                                    const LabelExist = sayyes.some(users => users.IDOfListLabel.toString() === info[i].modules[j].id.toString())
+                                                                    if (!LabelExist) {
+                                                                        //var listAssigns = coursesContent.listAssign;
+                                                                        //console.log(deadlineExist)
+                                                                        listLabels = {
+                                                                            IDOfListLabel: info[i].modules[j].id,
+                                                                            name: info[i].modules[j].name,
+                                                                            label: info[i].modules[j].description
+                                                                        }
+
+                                                                        await coursesContent.updateOne({
+                                                                            _id: re2[0]._id
+                                                                        },
+                                                                            {
+                                                                                $push: { listLabel: listLabels }
+                                                                            });
+
+                                                                        //change = "changed";
+                                                                    }
+                                                                } else if (info[i].modules[j].modname === "resource") {
+                                                                    const ResourceExist = sayyes1.some(users => users.IDOfListResources.toString() === info[i].modules[j].id.toString())
+                                                                    if (!ResourceExist) {
+                                                                        //var listAssigns = coursesContent.listAssign;
+                                                                        //console.log(deadlineExist)
+                                                                        listresources = {
+                                                                            IDOfListResources: info[i].modules[j].id,
+                                                                            name: info[i].modules[j].name,
+                                                                            url: info[i].modules[j].url
+                                                                        }
+
+                                                                        await coursesContent.updateOne({
+                                                                            _id: re2[0]._id
+                                                                        },
+                                                                            {
+                                                                                $push: { listResource: listresources }
+                                                                            });
+
+                                                                        //change = "changed";
+                                                                    }
+                                                                } else if (info[i].modules[j].modname === "url") {
+                                                                    const UrlExist = sayyes2.some(users => users.IDOfListUrl.toString() === info[i].modules[j].id.toString())
+                                                                    if (!UrlExist) {
+                                                                        //var listAssigns = coursesContent.listAssign;
+                                                                        //console.log(deadlineExist)
+                                                                        listurls = {
+                                                                            IDOfListUrl: info[i].modules[j].id,
+                                                                            name: info[i].modules[j].name,
+                                                                            url: info[i].modules[j].url
+                                                                        }
+
+                                                                        await coursesContent.updateOne({
+                                                                            _id: re2[0]._id
+                                                                        },
+                                                                            {
+                                                                                $push: { listUrl: listurls }
+                                                                            });
+
+                                                                        //change = "changed";
+                                                                    }
+                                                                }
+                                                                else if (info[i].modules[j].modname === "folder") {
+                                                                    const FolderExist = sayyes3.some(users => users.IDOfListFolder.toString() === info[i].modules[j].id.toString())
+                                                                    if (!FolderExist) {
+                                                                        //var listAssigns = coursesContent.listAssign;
+                                                                        //console.log(deadlineExist)
+                                                                        listfolders = {
+                                                                            IDOfListFolder: info[i].modules[j].id,
+                                                                            name: info[i].modules[j].name,
+                                                                            url: info[i].modules[j].url
+                                                                        }
+
+                                                                        await coursesContent.updateOne({
+                                                                            _id: re2[0]._id
+                                                                        },
+                                                                            {
+                                                                                $push: { listFolder: listfolders }
+                                                                            });
+
+                                                                        //change = "changed";
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        await studyCourses.find({idUserMoodle: IDUserMoodles })
+                                                        .exec()
+                                                        .then(re5=>{
+                                                            if(re5.length>=1){
+                                                                for(var d= 0;d<re5[0].listCourses.length;d++){
+                                                                    if(element.IDCourses === re5[0].listCourses[d].IDCourses){
+                                                                        change.push(re5[0].listCourses[d].name);
+                                                                    }
+                                                                }
+                                                            }
+                                                        });
+
+                                                        //console.log("2");
+                                                        await courses.find({ $and: [{ url: element.url }, { IDCourses: element.IDCourses }] })
+                                                            .exec()
+                                                            .then(re3 => {
+                                                                if (re3.length >= 1) {
+                                                                    if (listUser !== undefined) {
+                                                                        listUser.push(re3[0].listStudent);
+                                                                    } else {
+                                                                        listUser = re3[0].listStudent;
+                                                                    }
+                                                                }
+                                                            })
+                                                        return resolve()
+                                                    }
+                                                    return resolve();
+                                                }
+                                            }
+                                        });
+                                    });
+                                }
+                                await Init();
+                            }
+                        })
+                        .catch(err => {
+                        })
+                };
+            })
+            .catch(err => {
+            });
+    };
+    var a = await Init2();
+
+    if (change.length >= 1) {
+        //console.log("change:",change, listUser);
+        for (var x = 0; x < change.length; x++) {
+            results = {
+                "Title": "Nội dung môn học",
+                "Data": change[x],
+                "ListUser": []
+            };
+            //console.log("IDUSER:")
+            function Init5() {
+                return new Promise(async (resolve) => {
+                    for (var j = 0; j < listUser[x].length; j++) {
+                        //console.log(listUser[x][j].IDUser);
+                        await Account.find({ _id: listUser[x][j].IDUser })
+                            .exec()
+                            .then(re2 => {
+                                if (re2.length >= 1) {
+                                    //console.log(re2[0].tokenNotifition)
+                                    if (re2[0].tokenNotifition !== undefined) {
+                                        //console.log("1")
+                                        var temp2 = {
+                                            "tokenNotifition": re2[0].tokenNotifition,
+                                            "IDUser": listUser[x][j].IDUser
+                                        }
+                                        if (results.ListUser !== undefined) {
+                                            results.ListUser.push(temp2);
+                                        } else {
+                                            results.ListUser = temp2;
+                                        }
+                                    }
+                                }
+                                //console.log(results);
+                            })
+                            .catch(err => {
+
+                            })
+                    }
+                    return resolve();
+
+
+                })
+            };
+            await Init5().then();
+
+            async function sendPushNotification(expoPushToken, titleparams, bodyparams) {
+                const message = {
+                    to: expoPushToken,
+                    sound: 'default',
+                    title: titleparams,
+                    body: bodyparams,
+                    data: {},
+                };
+
+                var options = {
+                    "method": "POST",
+                    "url": "https://exp.host/--/api/v2/push/send",
+                    "headers": {
+                        "Accept": "application/json",
+                        "Accept-encoding": "gzip, deflate",
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(message),
+                };
+                request(options, function (error, response) {
+                    if (error) {
+                    } else {
+                        console.log("suss");
+                    }
+                });
+
+            }
+
+            //console.log(results);
+            //console.log(results.ListUser);
+            // console.log(results.ListUser[0].tokenNotifition);
+            // console.log(results.ListUser[0].IDUser);
+
+            if (results.ListUser.length >= 1) {
+                for (var z = 0; z < results.ListUser.length; z++) {
+                    //console.log(results.ListUser[z].tokenNotifition);
+                    //console.log(results.ListUser[z].IDUser);
+                    const idusertemp = results.ListUser[z].IDUser;
+                    sendPushNotification(results.ListUser[z].tokenNotifition, results.Title, results.Data);
+                    await notification.find({ IDUser: idusertemp })
+                        .exec()
+                        .then(async (re3) => {
+                            const currentDate = new Date();
+                            const timestamp = currentDate.getTime();
+                            if (re3.length >= 1) {
+                                console.log("1");
+                                //console.log(results.Title);
+                                //console.log(results.Data);
+                                notification.updateOne({
+                                    _id: re3[0]._id
+                                },
+                                    {
+                                        $push: { notification: {$each: [{Title: results.Title, Data: results.Data, Date: timestamp}], $position: 0 } }
+                                        //$push: { notification: { Title: results.Title, Data: results.Data, Date: timestamp } }
+                                    }, (err, doc) => {
+                                        if (err) {
+
+                                        }
+                                        else {
+
+                                        }
+                                    });
+                            } else {
+                                Notifications = new notification({
+                                    _id: new mongoose.Types.ObjectId(),
+                                    IDUser: idusertemp,
+                                    notification: { Title: results.Title, Data: results.Data, Date: timestamp }
+                                });
+                                console.log(Notifications);
+                                Notifications.save()
+                                    .then(() => {
+                                        console.log("save");
+                                    })
+                                    .catch(err => {
+                                        console.log(err);
+                                    })
+                            }
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                }
+            }
+        }
+    }
+    else {
+        console.log("No change");
+    }
 };
 
 module.exports.Check_Change_News_Unisersity = () => {
@@ -439,7 +1472,8 @@ module.exports.Check_Change_News_Unisersity = () => {
                                                                 _id: re3[0]._id
                                                             },
                                                                 {
-                                                                    $push: { notification: { Title: results.Title, Data: results.Data, Date: timestamp } }
+                                                                    $push: { notification: {$each: [{Title: results.Title, Data: results.Data, Date: timestamp}], $position: 0 } }
+                                                                    //$push: { notification: { Title: results.Title, Data: results.Data, Date: timestamp } }
                                                                 }, (err, doc) => {
                                                                     if (err) {
 
@@ -1692,7 +2726,8 @@ module.exports.check_Change_News_Faculty = () => {
                                                                 _id: re3[0]._id
                                                             },
                                                                 {
-                                                                    $push: { notification: { Title: results.Title, Data: results.Data, Date: timestamp } }
+                                                                    $push: { notification: {$each: [{Title: results.Title, Data: results.Data, Date: timestamp}], $position: 0 } }
+                                                                    //$push: { notification: { Title: results.Title, Data: results.Data, Date: timestamp } }
                                                                 }, (err, doc) => {
                                                                     if (err) {
 

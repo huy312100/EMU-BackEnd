@@ -8,21 +8,25 @@ const listAssigns=mongoose.Schema({
 });
 
 const listLabels = mongoose.Schema({
+    IDOfListLabel: {type: String, require:true},
     name: {type: String, require:true},
     label: {type: Object, require:true}
 });
 
 const listResources = mongoose.Schema({
+    IDOfListResources: {type: String, require:true},
     name: {type: String, require:true},
     url: {type: String, require:true}
 });
 
 const listUrls = mongoose.Schema({
+    IDOfListUrl: {type: String, require:true},
     name: {type: String, require:true},
     url: {type: String, require:true}
 });
 
 const listFolders = mongoose.Schema({
+    IDOfListFolder: {type: String, require:true},
     name: {type: String, require:true},
     url: {type: String, require:true}
 });
