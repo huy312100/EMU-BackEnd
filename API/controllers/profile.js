@@ -93,7 +93,7 @@ exports.Delete_Profile_Picture = async (req, res, next) => {
                 if (result) {
                 }
                 else {
-                    res.status(500).json();
+                    //res.status(500).json();
                 }
             })
             let profile = await pool.request()
@@ -202,7 +202,7 @@ exports.View_Profile = async (req, res, next) => {
 
         let profiles = await pool.request()
             .input('ID_Signin', sql.VarChar, req.userData._id)
-            .query("select sv.HoTen, sv.Email,u.MaTruong, u.TenTruongDH, f.MaKhoa, f.TenKhoa  from InfoSinhVien sv, University_Faculty uf, University u, Faculty f where uf.MaTruong=u.MaTruong and uf.MaKhoa=f.MaKhoa and uf.ID=sv.IDTruongKhoa and IDSignin=@ID_Signin");
+            .query("select sv.HoTen,sv.AnhSV, sv.Email,u.MaTruong, u.TenTruongDH, f.MaKhoa, f.TenKhoa  from InfoSinhVien sv, University_Faculty uf, University u, Faculty f where uf.MaTruong=u.MaTruong and uf.MaKhoa=f.MaKhoa and uf.ID=sv.IDTruongKhoa and IDSignin=@ID_Signin");
 
         //console.log(facultys.recordsets[0]);
         if (profiles.recordsets[0]) {
