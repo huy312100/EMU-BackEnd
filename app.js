@@ -5,7 +5,7 @@ const app = express();
 const mongoose = require("mongoose");
 const morgan = require("morgan");
 const cors = require("cors");
-
+const fileupload = require("express-fileupload");
 
 const accountRoutes = require("./API/routes/account");
 const universityRouter = require("./API/routes/university");
@@ -50,6 +50,7 @@ app.use(morgan('dev'));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(fileupload({useTempFiles: true}));
 
 app.use("/account", accountRoutes);
 app.use("/university", universityRouter);

@@ -56,9 +56,13 @@ exports.Get_NameWeb_Is_Link =(req,res,next)=>{
         if(re1.length>=1){
             var result =[];
             for(var i=0; i<re1.length;i++){
-                result.push(re1[i].typeUrl)
+                var temp ={
+                    "Type":re1[i].typeUrl,
+                    "Url":re1[i].url
+                };
+                result.push(temp)
             }
-            console.log(result);
+            //console.log(result);
             res.status(200).json(result);
         }
         else{

@@ -12,7 +12,7 @@ exports.Get_Info_University = async (req, res, next) => {
 
         let facultys = await pool.request()
             .input('Email_User', sql.VarChar, req.userData.username)
-            .query("select u.TenTruongDH,u.WebSite, u.Email,u.SDT,u.FanFage, STUFF((select '; '+ u2.TenDiaChi from University u1, Address_Uni u2 where u1.MaTruong=u2.MaTruong FOR XML PATH('')), 1, 1, '') [TenDiaChi], f.TenKhoa, uf.Website from University u, University_Faculty uf, Faculty f where uf.MaTruong=u.MaTruong and uf.MaKhoa=f.MaKhoa and uf.ID = (select i.IDTruongKhoa  from InfoSinhVien i where i.Email=@Email_User)");
+            .query("select u.TenTruongDH,u.WebSite, u.Email,u.SDT,u.FanFage, STUFF((select '; '+ u2.TenDiaChi from University u1, Address_Uni u2 where u1.MaTruong=u2.MaTruong FOR XML PATH('')), 1, 1, '') [TenDiaChi], f.TenKhoa, uf.Website,u.Images from University u, University_Faculty uf, Faculty f where uf.MaTruong=u.MaTruong and uf.MaKhoa=f.MaKhoa and uf.ID = (select i.IDTruongKhoa  from InfoSinhVien i where i.Email=@Email_User)");
 
         //console.log(facultys.recordsets[0]);
         if (facultys.recordsets[0]) {
