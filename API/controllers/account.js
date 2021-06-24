@@ -88,20 +88,38 @@ exports.Post_Account_Signup = (req, res, next) => {
 
               //console.log(MaTruongKhoa.recordsets[0][0]["ID"]);
               //res.status(200).json();
-              let profile = await pool.request()
+              if(MaTruongKhoa.recordsets[0]){
+                console.log(account._id);
+                let profile = await pool.request()
                 .input('IDSignin', sql.VarChar, account._id)
                 .input('HoTen', sql.NVarChar, req.body.HoTen)
                 .input('Email', sql.VarChar, req.body.username)
                 .input('IDTruongKhoa', sql.Int, MaTruongKhoa.recordsets[0][0]["ID"])
-                .input('AnhSV', sql.VarChar, req.body.AnhSV)
                 .execute('InsertProfile')
 
               res.status(201).json({
                 message: "account created"
               });
+              }else{
+                Account.remove({ _id: account._id })
+                .exec().then(re2 => {
+                  //console.log("oke deleted");
+                })
+                .catch(err => {
+                  res.status(500).json(err);
+                })
+              }
+              
             }
             catch (error) {
               console.log(error);
+              Account.remove({ _id: account._id })
+                .exec().then(re2 => {
+                  //console.log("oke deleted");
+                })
+                .catch(err => {
+                  res.status(500).json(err);
+                })
               res.status(500).json(error);
             }
           }
@@ -126,12 +144,12 @@ exports.Post_Token_Notification = (req, res, next) => {
               if (err) {
                 res.status(500).json({ error: err });
               }
-              if(doc) {
+              if (doc) {
                 //console.log(doc);
                 res.status(200).json({ message: "Token Notification is pushed" });
               }
             });
-        }else{
+        } else {
           res.status(200).json({ message: "Token Notification is pushed" });
         }
       }
