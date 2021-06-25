@@ -246,6 +246,7 @@ exports.Post_Account_Signin = (req, res, next) => {
           );
           return res.status(200).json({
             message: "Auth successful",
+            role:user[0].role,
             token: token
           });
         }

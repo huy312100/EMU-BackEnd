@@ -10,6 +10,7 @@ const accountSchema=mongoose.Schema(
             match: /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
         },
         password: {type: String, require:true},
+        role:{type: String, require:true},
         tokenNotifition: {type: String, require:true}
     }
 );
