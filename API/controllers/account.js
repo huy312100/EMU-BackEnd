@@ -64,7 +64,8 @@ exports.Post_Account_Signup = (req, res, next) => {
             const account = new Account({
               _id: new mongoose.Types.ObjectId(),
               username: req.body.username,
-              password: hash
+              password: hash,
+              role: "1"
             });
 
             try {
