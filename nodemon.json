@@ -3,6 +3,10 @@
         "MONGOOSE_ATLAS_PW": "appEMU",
         "JWT_KEY":"secret",
         "Cipheriv": "myHashIV",
-        "Key_SHA256_Crypo":"HashTable"
+        "Key_SHA256_Crypo":"HashTable",
+        "Neo4j_Connect_URI": "neo4j+s://16d4ad7b.databases.neo4j.io:7687",
+        "Neo4j_Database":"hcmus-emu",
+        "Neo4j_Username": "neo4j",
+        "Neo4j_Password":"EpC2ZcvYujFuMQ-cB-77OZiKgJlNSJDe1DmjgbPM3n8"
     }
 }

@@ -17,7 +17,7 @@ module.exports = (req, res, next) => {
         } else {
             rolefilnal = "0";
         }
-        console.log(rolefilnal);
+        //console.log(rolefilnal);
         const decoded = jwt.verify(token, process.env.JWT_KEY);
 
         account.find({ username: decoded.username })
