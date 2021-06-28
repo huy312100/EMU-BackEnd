@@ -9,68 +9,85 @@ const UserConnect = [];
 const Room = [];
 
 module.exports.OnSocket = (io, socket) => {
+
     var FromUser;
     var socketid = socket.id
     socket.on("Start", (user) => {
-        if (user !== undefined) {
-            const decoded = jwt.verify(user, process.env.JWT_KEY);
-            FromUser = decoded.username;
-            //console.log(FromUser);
-            if (FromUser.length >= 1) {
-                //FromUser = "" + FromUser;
-                chat.find({ "User": { "$all": [FromUser.toString()] } })
-                    .exec()
-                    .then(re1 => {
-                        if (re1.length >= 1) {
-                            for (var i = 0; i < re1.length; i++) {
-                                if (re1[i].chat.length >= 1) {
-                                    var idroom = re1[i]._id.toString();
-                                    socket.join(idroom);
-                                    console.log("Room id Start:", idroom)
-                                }
+        try {
+            if (user !== undefined) {
+                const decoded = jwt.verify(user, process.env.JWT_KEY);
+                FromUser = decoded.username;
+                //console.log(FromUser);
+                if (FromUser.length >= 1) {
+                    //FromUser = "" + FromUser;
+                    chat.find({ "User": { "$all": [FromUser.toString()] } })
+                        .exec()
+                        .then(re1 => {
+                            if (re1.length >= 1) {
+                                for (var i = 0; i < re1.length; i++) {
+                                    if (re1[i].chat.length >= 1) {
+                                        var idroom = re1[i]._id.toString();
+                                        socket.join(idroom);
+                                        console.log("Room id Start:", idroom)
+                                    }
 
-                            }
-                        }
-                        else {
-                            console.log("khong tim thay roomid trong db")
-                        }
-                    })
-                    .catch(err => {
-                        console.log("loiiiiiiiiiiiiii roiiiiiiiiiii", err);
-                    });
-
-                awaitMessage.find({})
-                    .exec()
-                    .then(re2 => {
-                        if (re2.length >= 1) {
-                            for (var j = 0; j > re2.length; j++) {
-                                const awaitmessagefoundcount = re2[i].awaittext.some(el => el.from === FromUser);
-                                if (awaitmessagefoundcount) {
-                                    const awaitmessagefound = re2[i].awaittext.find(el => el.from === FromUser);
-                                    var idroom2 = awaitmessagefound._id.toString();
-                                    socket.join(idroom2);
-                                    console.log("Room id Start:", idroom2);
                                 }
                             }
-                        }
-                    })
-                    .catch(err => {
-                        console.log("loiiiiiiiiii lan 2222222222222", err);
-                    })
+                            else {
+                                console.log("khong tim thay roomid trong db")
+                            }
+                        })
+                        .catch(err => {
+                            console.log("loiiiiiiiiiiiiii roiiiiiiiiiii", err);
+                        });
 
-                if (UserConnect.length !== 0) {
-                    const found = UserConnect.filter(el => el.username === FromUser).length;
-                    if (found >= 1) {
-                        var objIndex = UserConnect.findIndex(el => el.username === FromUser);
-                        socket.username = FromUser;
-                        var temp = {
-                            "idsocket": socketid,
-                            "username": FromUser
-                        };
-                        UserConnect[objIndex] = temp;
-                        //console.log("1");
+                    awaitMessage.find({})
+                        .exec()
+                        .then(re2 => {
+                            if (re2.length >= 1) {
+                                for (var j = 0; j > re2.length; j++) {
+                                    const awaitmessagefoundcount = re2[i].awaittext.some(el => el.from === FromUser);
+                                    if (awaitmessagefoundcount) {
+                                        const awaitmessagefound = re2[i].awaittext.find(el => el.from === FromUser);
+                                        var idroom2 = awaitmessagefound._id.toString();
+                                        socket.join(idroom2);
+                                        console.log("Room id Start:", idroom2);
+                                    }
+                                }
+                            }
+                        })
+                        .catch(err => {
+                            console.log("loiiiiiiiiii lan 2222222222222", err);
+                        })
+
+                    if (UserConnect.length !== 0) {
+                        const found = UserConnect.filter(el => el.username === FromUser).length;
+                        if (found >= 1) {
+                            var objIndex = UserConnect.findIndex(el => el.username === FromUser);
+                            socket.username = FromUser;
+                            var temp = {
+                                "idsocket": socketid,
+                                "username": FromUser
+                            };
+                            UserConnect[objIndex] = temp;
+                            //console.log("1");
+                        } else {
+
+                            socket.username = FromUser;
+
+                            var temp = {
+                                "idsocket": socketid,
+                                "username": FromUser
+                            };
+
+                            if (UserConnect !== undefined) {
+                                UserConnect.push(temp);
+                            } else {
+                                UserConnect = temp;
+                            }
+                            //console.log("2");
+                        }
                     } else {
-
                         socket.username = FromUser;
 
                         var temp = {
@@ -83,24 +100,13 @@ module.exports.OnSocket = (io, socket) => {
                         } else {
                             UserConnect = temp;
                         }
-                        //console.log("2");
+                        //console.log("3");
                     }
-                } else {
-                    socket.username = FromUser;
-
-                    var temp = {
-                        "idsocket": socketid,
-                        "username": FromUser
-                    };
-
-                    if (UserConnect !== undefined) {
-                        UserConnect.push(temp);
-                    } else {
-                        UserConnect = temp;
-                    }
-                    //console.log("3");
                 }
             }
+        }
+        catch(error){
+            //socket.emit("Reply-Create-Room", "error");
         }
     });
     var FromUser
@@ -596,7 +602,7 @@ module.exports.OnSocket = (io, socket) => {
                 var chattemp = found.chatContext;
                 console.log(chattemp);
                 //for (var i = 0; i < chattemp.length; i++) {
-                
+
 
                 //luu tin nhan binh thuong
                 chat.updateOne({
@@ -654,7 +660,7 @@ module.exports.OnSocket = (io, socket) => {
         }
     });
 
-    
+
     console.log('a user connecteddddddddddddddddddddddddddddddddddddddddddddddd');
     socket.on('disconnect', () => {
         console.log('user disconnected');
