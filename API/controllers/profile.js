@@ -127,7 +127,6 @@ exports.Edit_Profile = async (req, res, next) => {
             .input('IDSignin', sql.VarChar, req.userData._id)
             .input('HoTen', sql.NVarChar, req.body.HoTen)
             .input('IDTruongKhoa', sql.Int, MaTruongKhoa.recordsets[0][0]["ID"])
-            .input('AnhSV', sql.VarChar, req.body.AnhSV)
             .execute('EditProfile')
         res.status(200).json({ message: "profile edited" });
 
