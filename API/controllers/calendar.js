@@ -4,6 +4,7 @@ var request = require("request");
 const calendar = require("../models/calendar");
 const CustomWeb = require("../models/customweb");
 const deadlineMoodle = require("../models/deadlineMoodlle");
+
 exports.Get_Calendar_This_Month = async (req, res, next) => {
     var listcalendar = [];
     //calendar.find({$and:[{"IDUser": req.userData._id},{Date:{$macth:[{year:req.body.year},{month:req.body.month}]}}]})
@@ -17,26 +18,26 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
         .catch(err => {
             res.status(500).json({ error: err });
         })
-    
+
     //await calendar.find({ "ListGuest": { "$all": {Email: [req.userData.username] } }})
-    await calendar.find({"ListGuest.Email": req.userData.username})
-    .exec()
-    .then(re2=>{
-        if(re2.length>=1){
-            for(var x=0;x<re2.length;x++){
-                if (listcalendar !== undefined) {
-                    listcalendar.push(re2[x]);
-                }
-                else {
-                    listcalendar = re2[x];
+    await calendar.find({ "ListGuest.Email": req.userData.username })
+        .exec()
+        .then(re2 => {
+            if (re2.length >= 1) {
+                for (var x = 0; x < re2.length; x++) {
+                    if (listcalendar !== undefined) {
+                        listcalendar.push(re2[x]);
+                    }
+                    else {
+                        listcalendar = re2[x];
+                    }
                 }
             }
-        }
-    })
-    .catch(err=>{
-        console.log(err);
-        res.status(500).json({err:err});
-    })
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({ err: err });
+        })
 
     var url;
     CustomWeb.find({ $and: [{ typeUrl: "Moodle" }, { idUser: req.userData._id }] })
@@ -115,6 +116,46 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
                 error: err
             });
         });
+};
+
+exports.Get_Calendar_withoutdealine_This_Month = async (req, res, next) => {
+    var listcalendar = [];
+    //calendar.find({$and:[{"IDUser": req.userData._id},{Date:{$macth:[{year:req.body.year},{month:req.body.month}]}}]})
+    await calendar.find({ $and: [{ IDUser: req.userData._id }, { "Date.year": req.body.year }, { "Date.month": req.body.month }] })
+        .exec()
+        .then(re1 => {
+            if (re1.length >= 1) {
+                listcalendar = re1;
+            }
+        })
+        .catch(err => {
+            res.status(500).json({ error: err });
+        })
+
+    //await calendar.find({ "ListGuest": { "$all": {Email: [req.userData.username] } }})
+    await calendar.find({ "ListGuest.Email": req.userData.username })
+        .exec()
+        .then(re2 => {
+            if (re2.length >= 1) {
+                for (var x = 0; x < re2.length; x++) {
+                    if (listcalendar !== undefined) {
+                        listcalendar.push(re2[x]);
+                    }
+                    else {
+                        listcalendar = re2[x];
+                    }
+                }
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({ err: err });
+        })
+    if(listcalendar[0] !== undefined){
+        res.status(200).json(listcalendar);
+    }else{
+        res.status(200).json({message:"No calendar this month"})
+    }
 };
 
 exports.Post_Calendar = (req, res, next) => {
