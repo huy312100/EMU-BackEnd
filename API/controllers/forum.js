@@ -426,25 +426,28 @@ exports.View_Post = async (req, res, next) => {
             const session = configNeo4j.getSession(req);
             const query = "call {" +
                 "match (s1:STUDENT)-[:STUDY_AT]->(f1:Faculty {code:$Ma_Khoa})-[:BELONG_TO]->(u1:University{code:$Ma_Truong}) " +
-                "match (p1:POST)<-[:POSTED {scope:'f'}]-(s1) " +
+                "match (p1:POST)<-[r:POSTED {scope:'f'}]-(s1) " +
                 "MATCH (p3:POST) where ID(p3)=ID(p1) " +
                 "match (p4:POST) where ID(p4) = ID(p1) " +
+                "match (s5:STUDENT) where s5.email= $Email " +
                 "match (s3:STUDENT)-[:POSTED]-> (p1) " +
-                "return ID(p1) as ID,s3.email as email, p1.title as title,p1.image as image, p1.time as time, size((p3)<-[:LIKED]-()) as like,size((p4)<-[:COMMENT]-()) as comment " +
+                "return ID(p1) as ID,s3.email as email, p1.title as title,p1.image as image, p1.time as time, size((p3)<-[:LIKED]-()) as like,size((p4)<-[:COMMENT]-()) as comment , size((p4)<-[:LIKED]-(s5)) as likebyown,r.scope as scope " +
                 "union all " +
                 "match (s2:STUDENT)-[:STUDY_AT]->(f2:Faculty)-[:BELONG_TO]->(u2:University {code:$Ma_Truong}) " +
-                "match (p2:POST)<-[:POSTED {scope:'u'}]-(s2) " +
+                "match (p2:POST)<-[r2:POSTED {scope:'u'}]-(s2) " +
                 "MATCH (p5:POST) where ID(p5)=ID(p2) " +
                 "match (p6:POST) where ID(p6) = ID(p2) " +
+                "match (s6:STUDENT) where s6.email= $Email "+
                 "match (s4:STUDENT)-[:POSTED]-> (p2) " +
-                "return ID(p2) as ID,s4.email as email, p2.title as title,p2.image as image, p2.time as time, size((p5)<-[:LIKED]-()) as like,size((p6)<-[:COMMENT]-()) as comment " +
+                "return ID(p2) as ID,s4.email as email, p2.title as title,p2.image as image, p2.time as time, size((p5)<-[:LIKED]-()) as like,size((p6)<-[:COMMENT]-()) as comment ,size((p6)<-[:LIKED]-(s6)) as likebyown,r2.scope as scope " +
                 "} " +
-                "return ID,email,title,image,time,like,comment " +
+                "return ID,email,title,image,time,like,comment, likebyown, scope " +
                 "ORDER BY time DESC";
             var result = session.readTransaction(tx => {
                 return tx.run(query, {
                     Ma_Khoa: profiles.recordsets[0][0]["MaKhoa"],
-                    Ma_Truong: profiles.recordsets[0][0]["MaTruong"]
+                    Ma_Truong: profiles.recordsets[0][0]["MaTruong"],
+                    Email: req.userData.username
                 })
                     .then(async (re1) => {
                         const result = []
@@ -464,7 +467,9 @@ exports.View_Post = async (req, res, next) => {
                                         "image": re1.records[i].get('image'),
                                         "time": re1.records[i].get('time'),
                                         "like": re1.records[i].get('like').low,
-                                        "comment": re1.records[i].get('comment').low
+                                        "comment": re1.records[i].get('comment').low,
+                                        "LikeByOwn":re1.records[i].get('likebyown').low,
+                                        "scope": re1.records[i].get('scope')
                                     }
                                     if (result !== undefined) {
                                         result.push(temp);
