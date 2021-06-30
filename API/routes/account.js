@@ -11,6 +11,8 @@ router.post("/signup", AccountController.Post_Account_Signup);
 
 router.post("/signin", AccountController.Post_Account_Signin);
 
+router.get("/signout",check_auth,AccountController.Sign_Out);
+
 router.get("/:accountId",AccountController.Get_One_Account);
 
 router.post("/changepassword",check_auth,AccountController.Change_Password);

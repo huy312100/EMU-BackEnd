@@ -284,7 +284,34 @@ exports.PutAccount = (req, res, next) => {
     });
 };
 
-
+exports.Sign_Out = (req, res, next) => {
+  Account.find({_id:req.userData._id})
+  .exec()
+  .then(re1=>{
+    if(re1.length>=1){
+      Account.updateOne({
+        _id: re1[0]._id
+        //"User": { $all: [UserOwner, chatmessage2.from] }
+      },
+        {
+          $unset: { tokenNotifition: 1 }
+        }, (err, doc) => {
+          if (err) {
+            res.status(500).json({ error: err });
+          }
+          if (doc) {
+            //console.log(doc);
+            res.status(200).json({ message: "account signed out" });
+          }
+        });
+    }else{
+      res.status(500).json({message:"No account login in application"});
+    }
+  })
+  .catch(err=>{
+    res.status(500).json({error:err});
+  })
+};
 
 exports.Delete_Account = (req, res, next) => {
   Account.remove({ _id: req.params.username })

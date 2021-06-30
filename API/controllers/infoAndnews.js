@@ -142,7 +142,7 @@ exports.Get_News_University = async (req, res, next) => {
                         let links = []
                         for (var i = 0, j = 0; i < items.length, j < dates.length, i <= 15, j <= 15; i++, j++) {
                             title_post = items[i].innerText
-                            url_post = items[i].getAttribute("href")
+                            url_post = "https://hcmus.edu.vn" + items[i].getAttribute("href");
                             date_post = dates[j].innerText.split(" ")[1].slice(0, -1)
                             links.push({
                                 Title: title_post,

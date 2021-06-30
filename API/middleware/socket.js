@@ -15,8 +15,34 @@ module.exports.OnSocket = (io, socket) => {
     socket.on("Start", (user) => {
         try {
             if (user !== undefined) {
-                const decoded = jwt.verify(user, process.env.JWT_KEY);
+                const role = user.substr(user.length - 2, user.length);
+                const token = user.split(role)[0];
+
+                // if (role === "sT") {
+                //     rolefilnal = "1";
+                // } else if (role === "tC") {
+                //     rolefilnal = "2";
+                // } else if (role === "pR") {
+                //     rolefilnal = "3";
+                // } else {
+                //     rolefilnal = "0";
+                // }
+
+                const decoded = jwt.verify(token, process.env.JWT_KEY);
                 FromUser = decoded.username;
+                // account.find({ username: decoded.username })
+                //     .exec()
+                //     .then(re1 => {
+                //         if (re1.length >= 1) {
+                //             if (re1[0].role === rolefilnal) {
+                //                 FromUser = decoded.username;
+                //             }
+                //         }
+                //     })
+                //     .catch(err => {
+
+                //     })
+
                 //console.log(FromUser);
                 if (FromUser.length >= 1) {
                     //FromUser = "" + FromUser;
@@ -105,14 +131,16 @@ module.exports.OnSocket = (io, socket) => {
                 }
             }
         }
-        catch(error){
+        catch (error) {
             //socket.emit("Reply-Create-Room", "error");
         }
     });
     var FromUser
     socket.on("Create-Room", (user) => {
         try {
-            const decoded = jwt.verify(user[0], process.env.JWT_KEY);
+            const role = user[0].substr(user[0].length - 2, user[0].length);
+            const token = user[0].split(role)[0];
+            const decoded = jwt.verify(token, process.env.JWT_KEY);
             FromUser = decoded.username;
             if (FromUser.length >= 1) {
                 Account.find({ username: FromUser })
