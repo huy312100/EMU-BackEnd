@@ -22,6 +22,7 @@ const checkChangeRouter = require("./API/routes/checkChange");
 const infoAndNewsRouter = require("./API/routes/infoAndnews");
 const notificationRouter = require("./API/routes/notification");
 const forum = require("./API/routes/forum");
+const forumMoodleRouter = require("./API/routes/forumMoodle");
 
 //mongoose.connect("mongodb+srv://EMU:appEMU@cluster0.oktkb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
 mongoose.connect("mongodb+srv://EMU:appEMU@cluster0.oktkb.mongodb.net/EMU?retryWrites=true&w=majority",
@@ -67,6 +68,7 @@ app.use("/chat", chatRouter);
 app.use("/info", infoAndNewsRouter);
 app.use("/notification",notificationRouter);
 app.use("/forum",forum);
+app.use("/forummoodle",forumMoodleRouter);
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");

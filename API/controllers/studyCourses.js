@@ -17,6 +17,11 @@ exports.Get_ListCoures = async (req, res, next) => {
                 tokenofCustomweb = re1[0].token;
                 iduserMoodle = re1[0].IDUserMoodle;
             }
+            else{
+                res.status(500).json({message:"No account custoweb"});
+            }
+        }).catch(err => {
+            res.status(500).json({ error: err });
         })
     console.log(urlofCustweb);
     studyCourses.find({ $and: [{ idUser: req.userData._id }, { idUserMoodle: iduserMoodle }] })
@@ -125,6 +130,12 @@ exports.Get_CurrentCourses = async (req, res, next) => {
                 tokenofCustomweb = re1[0].token;
                 iduserMoodle = re1[0].IDUserMoodle;
             }
+            else{
+                res.status(500).json({message:"No account custoweb"});
+            }
+        })
+        .catch(err=>{
+            res.status(500).json({error:err});
         })
     console.log(urlofCustweb);
     studyCurrentCourses.find({ $and: [{ idUser: req.userData._id }, { idUserMoodle: iduserMoodle }] })
