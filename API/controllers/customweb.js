@@ -140,7 +140,7 @@ exports.Post_Account_Custom = async (req, res, next) => {
                                                         typeUrl: req.body.typeUrl,
                                                         url: req.body.url,
                                                         username: encodeUsername,
-                                                        password: encodePassword,
+                                                        //password: encodePassword,
                                                         token: infouser.token,
                                                         IDUserMoodle: infoIDUser[0].id
                                                     });

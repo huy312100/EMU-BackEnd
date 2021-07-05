@@ -28,3 +28,7 @@ module.exports.Check_Change_Courses = ()=>{
 module.exports.Check_Change_Deadline = ()=>{
     checkChangeController.Check_Change_Deadline_Moodle();
 };
+
+module.exports.Check_Courses_Graph = ()=>{
+    checkChangeController.check_New_Courses_Graph();
+};

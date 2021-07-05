@@ -20,7 +20,7 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
         })
 
     //await calendar.find({ "ListGuest": { "$all": {Email: [req.userData.username] } }})
-    await calendar.find({ "ListGuest.Email": req.userData.username })
+    await calendar.find({ $and: [{ "ListGuest.Email": req.userData.username }, { "Date.year": req.body.year }, { "Date.month": req.body.month }]})
         .exec()
         .then(re2 => {
             if (re2.length >= 1) {

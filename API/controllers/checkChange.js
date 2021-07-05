@@ -13,6 +13,90 @@ const puppeteer = require("puppeteer");
 const request = require("request");
 const sql = require("mssql");
 const mongoose = require("mongoose");
+const neo4j = require("neo4j-driver");
+
+exports.check_New_Courses_Graph = async () => {
+    var driver = neo4j.driver(process.env.Neo4j_Connect_URI, neo4j.auth.basic(process.env.Neo4j_Username, process.env.Neo4j_Password));
+    var session = driver.session();
+    //tx = session.begin_transaction()
+    function Init() {
+        return new Promise(async resolve => {
+            await studyCourses.find({})
+                .exec()
+                .then(async (re1) => {
+                    if (re1.length >= 1) {
+
+                        for (var i = 0; i < re1.length; i++) {
+                            var temp = re1[i];
+                            try {
+
+                                let pool = await sql.connect(Config);
+
+                                let profiles = await pool.request()
+                                    .input('ID_Signin', sql.VarChar, temp.idUser)
+                                    .query("SELECT i.HoTen,uf.MaKhoa, uf.MaTruong,i.Email FROM [InfoSinhVien] i, [University_Faculty] uf where i.IDTruongKhoa = uf.ID and i.IDSignin =@ID_Signin");
+
+                                if (profiles.recordsets[0]) {
+                                    const query = "match (n:Faculty {code:$Ma_Khoa})-[:BELONG_TO]->(u:University{code: $Ma_Truong})" +
+                                        "merge (s:STUDENT {name:$Ho_Ten, email:$Email})" +
+                                        "MERGE (s)-[:STUDY_AT]->(n)";
+
+                                    var result = await session.writeTransaction(tx => {
+                                        return tx.run(query, {
+                                            Ma_Khoa: profiles.recordsets[0][0]["MaKhoa"],
+                                            Ma_Truong: profiles.recordsets[0][0]["MaTruong"],
+                                            Ho_Ten: profiles.recordsets[0][0]["HoTen"],
+                                            Email: profiles.recordsets[0][0]["Email"]
+                                        })
+                                            .then(async re1 => {
+                                                //session.close();
+                                            })
+                                            .catch(err => {
+                                                console.log(err);
+                                            })
+                                    })
+                                    for (var j = 0; j < temp.listCourses.length; j++) {
+                                        const query1 = "match (s:STUDENT { email:$Email})" +
+                                            "merge (c:COURSES {name: $name_courses,code:$IDCourses}) " +
+                                            "merge (s)-[:HAVE]->(c) ";
+
+                                        var result1 = await session.writeTransaction(tx => {
+                                            return tx.run(query1, {
+                                                Email: profiles.recordsets[0][0]["Email"],
+                                                name_courses: temp.listCourses[j].name,
+                                                IDCourses: temp.listCourses[j].IDCourses
+                                            })
+                                                .then(async re1 => {
+                                                    //session.close();
+                                                    console.log("Created")
+
+                                                })
+                                                .catch(err => {
+                                                    console.log(err);
+                                                })
+                                        })
+                                    }
+                                }
+
+                            }
+                            catch (error) {
+                                console.log(error);
+                            }
+                        }
+                    }
+                    return resolve();
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+        })
+    }
+    Init().then(() => {
+        session.close();
+        driver.close();
+    })
+
+};
 
 exports.check_Change_New_Courses = () => {
     console.log("new courses");

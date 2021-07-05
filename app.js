@@ -47,6 +47,11 @@ setInterval(function() {
   checkChangeRouter.Check_Change_News();
 }, the_interval_News);
 
+var minutesGraph = 1440, the_interval_Graph = minutesGraph * 60 * 1000;
+setInterval(function() {
+  console.log("start grap");
+  checkChangeRouter.Check_Courses_Graph();
+}, the_interval_Graph);
 
 app.use(morgan('dev'));
 app.use(cors());
