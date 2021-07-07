@@ -9,6 +9,8 @@ router.get("/", AccountController.Get_All_Account);
 
 router.post("/signup", AccountController.Post_Account_Signup);
 
+router.post("/signupparent",check_auth,AccountController.Post_Account_Signup_For_Parents);
+
 router.post("/signin", AccountController.Post_Account_Signin);
 
 router.get("/signout",check_auth,AccountController.Sign_Out);

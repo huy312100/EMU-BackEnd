@@ -4,6 +4,7 @@ const router = express.Router();
 //const jwt =require("jsonwebtoken");
 
 const universityController =require("../controllers/university");
+const check_auth=require("../middleware/check-auth");
 
 router.get("/getallinfo",universityController.Get_All_Info);
 

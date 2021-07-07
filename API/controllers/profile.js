@@ -77,6 +77,52 @@ exports.Post_Profile_Picture = async (req, res, next) => {
     }
 }
 
+exports.Post_Profile_Picture_For_Parent = async (req, res, next) => {
+    try {
+        cloudinary.config(ImgConfig);
+        //F:\duy\Profile Picture Zoom
+
+        const test = async () => {
+            try {
+                const file = req.files.image;
+
+                var a = await cloudinary.uploader.upload(file.tempFilePath, {}, { folder: '/Profile' })
+                if (a) {
+                    var temp = {
+                        "IDImages": a.public_id,
+                        "AnhSV": a.url
+                    };
+
+                    try {
+                        let pool = await sql.connect(Config);
+
+                        let profile = await pool.request()
+                            .input('AnhSV', sql.VarChar, temp.AnhSV)
+                            .input('IDImages', sql.VarChar, temp.IDImages)
+                            .input('IDSignin', sql.VarChar, req.userData._id)
+                            .execute('UploadImageProfileParent')
+                        res.status(200).json({ message: "Image posted" });
+                    }
+                    catch (error) {
+                        console.log(error);
+                        res.status(500).json(error);
+                    }
+                }
+
+                res.status(200);
+            } catch (error) {
+                console.log(error);
+                res.status(500).json(error);
+            }
+        }
+        test();
+
+    }
+    catch (error) {
+        res.status(500).json(error);
+    }
+}
+
 exports.Delete_Profile_Picture = async (req, res, next) => {
 
     try {
@@ -112,6 +158,41 @@ exports.Delete_Profile_Picture = async (req, res, next) => {
     }
 }
 
+exports.Delete_Profile_Picture_For_Parent = async (req, res, next) => {
+
+    try {
+        cloudinary.config(ImgConfig);
+        let pool = await sql.connect(Config);
+
+        let MaTruongKhoa = await pool.request()
+            .input('IDSignin', sql.VarChar, req.userData._id)
+            .query("SELECT IDImages FROM [dbo].[InfoPhuHuynh] where IDSignin=@IDSignin;");
+
+        const imagedelete =MaTruongKhoa.recordsets[0][0]["IDImages"];
+        if(imagedelete !== undefined){
+            cloudinary.uploader.destroy(imagedelete, function (error, result) {
+                if (result) {
+                }
+                else {
+                    //res.status(500).json();
+                }
+            })
+            let profile = await pool.request()
+                .input('IDSignin', sql.VarChar, req.userData._id)
+                .execute('DeleteImageProfileParent')
+            res.status(200).json({ message: "Images deleted" });
+        }
+        else{
+            res.status(500).json({message:"image doesnt delete"})
+        }
+        
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json(error);
+    }
+}
+
 exports.Edit_Profile = async (req, res, next) => {
     try {
         let pool = await sql.connect(Config);
@@ -130,6 +211,23 @@ exports.Edit_Profile = async (req, res, next) => {
             .execute('EditProfile')
         res.status(200).json({ message: "profile edited" });
 
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json(error);
+    }
+};
+
+exports.Edit_Profile_For_Parent = async (req, res, next) => {
+    try {
+        let pool = await sql.connect(Config);
+
+        
+        let profile = await pool.request()
+            .input('IDSignin', sql.VarChar, req.userData._id)
+            .input('HoTen', sql.NVarChar, req.body.HoTen)
+            .execute('EditProfileParent')
+        res.status(200).json({ message: "profile edited" });
     }
     catch (error) {
         console.log(error);

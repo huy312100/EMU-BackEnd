@@ -72,45 +72,138 @@ exports.Post_Account_Signup = (req, res, next) => {
               let pool = await sql.connect(Config);
 
               account.save()
-                .then(results => {
+                .then(async(results) => {
                   //console.log(results);
+                  let MaTruongKhoa = await pool.request()
+                    .input('Ma_Truong', sql.VarChar, req.body.MaTruong)
+                    .input('Ma_Khoa', sql.VarChar, req.body.MaKhoa)
+                    .query("Select uf.ID from University u,Faculty f, University_Faculty uf where uf.MaTruong=u.MaTruong and uf.MaKhoa=f.MaKhoa and u.MaTruong= @Ma_Truong and f.MaKhoa=@Ma_Khoa;");
+
+                  //console.log(MaTruongKhoa.recordsets[0][0]["ID"]);
+                  //res.status(200).json();
+                  if (MaTruongKhoa.recordsets[0]) {
+                    console.log(account._id);
+                    let profile = await pool.request()
+                      .input('IDSignin', sql.VarChar, account._id)
+                      .input('HoTen', sql.NVarChar, req.body.HoTen)
+                      .input('Email', sql.VarChar, req.body.username)
+                      .input('IDTruongKhoa', sql.Int, MaTruongKhoa.recordsets[0][0]["ID"])
+                      .execute('InsertProfile')
+
+                    res.status(201).json({
+                      message: "account created"
+                    });
+                  } else {
+                    Account.remove({ _id: account._id })
+                      .exec().then(re2 => {
+                        //console.log("oke deleted");
+                      })
+                      .catch(err => {
+                        res.status(500).json(err);
+                      })
+                  }
                 })
                 .catch(err => {
                   console.log(err);
+                  Account.remove({ _id: account._id })
+                  .exec().then(re2 => {
+                    //console.log("oke deleted");
+                  })
+                  .catch(err => {
+                    res.status(500).json(err);
+                  })
                   res.status(500).json({
                     error: err
                   });
                 });
-
-              let MaTruongKhoa = await pool.request()
-                .input('Ma_Truong', sql.VarChar, req.body.MaTruong)
-                .input('Ma_Khoa', sql.VarChar, req.body.MaKhoa)
-                .query("Select uf.ID from University u,Faculty f, University_Faculty uf where uf.MaTruong=u.MaTruong and uf.MaKhoa=f.MaKhoa and u.MaTruong= @Ma_Truong and f.MaKhoa=@Ma_Khoa;");
-
-              //console.log(MaTruongKhoa.recordsets[0][0]["ID"]);
-              //res.status(200).json();
-              if(MaTruongKhoa.recordsets[0]){
-                console.log(account._id);
-                let profile = await pool.request()
-                .input('IDSignin', sql.VarChar, account._id)
-                .input('HoTen', sql.NVarChar, req.body.HoTen)
-                .input('Email', sql.VarChar, req.body.username)
-                .input('IDTruongKhoa', sql.Int, MaTruongKhoa.recordsets[0][0]["ID"])
-                .execute('InsertProfile')
-
-              res.status(201).json({
-                message: "account created"
-              });
-              }else{
-                Account.remove({ _id: account._id })
+            }
+            catch (error) {
+              console.log(error);
+              Account.remove({ _id: account._id })
                 .exec().then(re2 => {
                   //console.log("oke deleted");
                 })
                 .catch(err => {
                   res.status(500).json(err);
                 })
-              }
-              
+              res.status(500).json(error);
+            }
+          }
+        });
+      }
+    });
+};
+
+exports.Post_Account_Signup_For_Parents = (req, res, next) => {
+
+  Account.find({ username: req.body.username })
+    .exec()
+    .then(user => {
+      if (user.length >= 1) {
+        return res.status(409).json({
+          message: "Username exists"
+        });
+      } else {
+        bcrypt.hash(req.body.password, 9, async (err, hash) => {
+          if (err) {
+            return res.status(500).json({
+              error: err
+            });
+          } else {
+            const account = new Account({
+              _id: new mongoose.Types.ObjectId(),
+              username: req.body.username,
+              password: hash,
+              role: "3"
+            });
+
+            try {
+              let pool = await sql.connect(Config);
+
+              account.save()
+                .then(async (results) => {
+                  //console.log(results);
+                  let MaTruongKhoa = await pool.request()
+                    .input('IDSignin', sql.VarChar, req.userData._id)
+                    .query(" select i.ID from InfoSinhVien i where i.IDSignin = @IDSignin");
+
+                  //console.log(MaTruongKhoa.recordsets[0][0]["ID"]);
+                  //res.status(200).json();
+                  if (MaTruongKhoa.recordsets[0]) {
+                    console.log(account._id);
+                    let profile = await pool.request()
+                      .input('IDSignin', sql.VarChar, account._id)
+                      .input('HoTen', sql.NVarChar, req.body.HoTen)
+                      .input('Email', sql.VarChar, req.body.username)
+                      .input('IDSinhVien', sql.Int, MaTruongKhoa.recordsets[0][0]["ID"])
+                      .execute('InsertProfileParent')
+
+                    res.status(201).json({
+                      message: "account created"
+                    });
+                  } else {
+                    Account.remove({ _id: account._id })
+                      .exec().then(re2 => {
+                        //console.log("oke deleted");
+                      })
+                      .catch(err => {
+                        res.status(500).json(err);
+                      })
+                  }
+                })
+                .catch(err => {
+                  console.log(err);
+                  Account.remove({ _id: account._id })
+                  .exec().then(re2 => {
+                    //console.log("oke deleted");
+                  })
+                  .catch(err => {
+                    res.status(500).json(err);
+                  })
+                  res.status(500).json({
+                    error: err
+                  });
+                });
             }
             catch (error) {
               console.log(error);
@@ -216,7 +309,7 @@ exports.Change_Password = async (req, res, next) => {
 };
 
 exports.Forgot_Password = (req, res, next) => {
-  
+
   res.status(200).json({ message: "forgot password" });
 }
 
@@ -248,7 +341,7 @@ exports.Post_Account_Signin = (req, res, next) => {
           );
           return res.status(200).json({
             message: "Auth successful",
-            role:user[0].role,
+            role: user[0].role,
             token: token
           });
         }
@@ -286,32 +379,32 @@ exports.PutAccount = (req, res, next) => {
 };
 
 exports.Sign_Out = (req, res, next) => {
-  Account.find({_id:req.userData._id})
-  .exec()
-  .then(re1=>{
-    if(re1.length>=1){
-      Account.updateOne({
-        _id: re1[0]._id
-        //"User": { $all: [UserOwner, chatmessage2.from] }
-      },
-        {
-          $unset: { tokenNotifition: 1 }
-        }, (err, doc) => {
-          if (err) {
-            res.status(500).json({ error: err });
-          }
-          if (doc) {
-            //console.log(doc);
-            res.status(200).json({ message: "account signed out" });
-          }
-        });
-    }else{
-      res.status(500).json({message:"No account login in application"});
-    }
-  })
-  .catch(err=>{
-    res.status(500).json({error:err});
-  })
+  Account.find({ _id: req.userData._id })
+    .exec()
+    .then(re1 => {
+      if (re1.length >= 1) {
+        Account.updateOne({
+          _id: re1[0]._id
+          //"User": { $all: [UserOwner, chatmessage2.from] }
+        },
+          {
+            $unset: { tokenNotifition: 1 }
+          }, (err, doc) => {
+            if (err) {
+              res.status(500).json({ error: err });
+            }
+            if (doc) {
+              //console.log(doc);
+              res.status(200).json({ message: "account signed out" });
+            }
+          });
+      } else {
+        res.status(500).json({ message: "No account login in application" });
+      }
+    })
+    .catch(err => {
+      res.status(500).json({ error: err });
+    })
 };
 
 exports.Delete_Account = (req, res, next) => {
