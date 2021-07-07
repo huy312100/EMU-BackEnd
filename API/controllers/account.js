@@ -216,6 +216,7 @@ exports.Change_Password = async (req, res, next) => {
 };
 
 exports.Forgot_Password = (req, res, next) => {
+  
   res.status(200).json({ message: "forgot password" });
 }
 

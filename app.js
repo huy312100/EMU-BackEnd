@@ -31,17 +31,17 @@ mongoose.connect("mongodb+srv://EMU:appEMU@cluster0.oktkb.mongodb.net/EMU?retryW
   });
 mongoose.set('useFindAndModify', false);
 
-var minutesDeadline = 5, the_interval_Deadline = minutesDeadline *60 * 1000;
+var minutesDeadline = 15, the_interval_Deadline = minutesDeadline *60 * 1000;
 setInterval(function() {
   checkChangeRouter.Check_Change_Deadline();
 }, the_interval_Deadline);
 
-var minutesCourses = 60, the_interval_Courses = minutesCourses * 60 * 1000;
+var minutesCourses = 120, the_interval_Courses = minutesCourses * 60 * 1000;
 setInterval(function() {
   checkChangeRouter.Check_Change_Courses();
 }, the_interval_Courses);
 
-var minutesNews = 60, the_interval_News = minutesNews * 60 * 1000;
+var minutesNews = 120, the_interval_News = minutesNews * 60 * 1000;
 setInterval(function() {
   console.log("start");
   checkChangeRouter.Check_Change_News();

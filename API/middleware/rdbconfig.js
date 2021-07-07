@@ -1,5 +1,5 @@
 module.exports={
-    server: "hcmus-emu-rdbms2.database.windows.net",
+    server: "hcmus-emu-rdbms3.database.windows.net",
     database: "ApplicationEMU", 
     user: "rdbms", 
     password: "appEMU111", 
