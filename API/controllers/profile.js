@@ -315,3 +315,26 @@ exports.View_Profile = async (req, res, next) => {
         res.status(500).json(error);
     }
 };
+
+exports.View_Profile_For_Parent = async (req, res, next) => {
+    try {
+        let pool = await sql.connect(Config);
+
+        let profiles = await pool.request()
+            .input('ID_Signin', sql.VarChar, req.userData._id)
+            .query("select ph.HoTen,ph.AnhSV, ph.Email,u.MaTruong, u.TenTruongDH, f.MaKhoa, f.TenKhoa  from InfoSinhVien sv, University_Faculty uf, University u, Faculty f, InfoPhuHuynh ph where ph.IDSinhVien= sv.ID and uf.MaTruong=u.MaTruong and uf.MaKhoa=f.MaKhoa and uf.ID=sv.IDTruongKhoa and ph.IDSignin= @ID_Signin");
+
+        //console.log(facultys.recordsets[0]);
+        if (profiles.recordsets[0]) {
+            res.status(200).json(profiles.recordsets[0]);
+        }
+        else {
+            res.status(500).json();
+        }
+
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json(error);
+    }
+};

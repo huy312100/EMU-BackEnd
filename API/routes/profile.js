@@ -8,6 +8,8 @@ router.post("/createprofile",check_auth,profileController.Create_Profile);
 
 router.get("/view",check_auth,profileController.View_Profile);
 
+router.get("/view/parent",check_auth,profileController.View_Profile_For_Parent);
+
 router.post("/edit", check_auth,profileController.Edit_Profile);
 
 router.post("/editparent",check_auth,profileController.Edit_Profile_For_Parent);

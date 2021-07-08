@@ -11,7 +11,8 @@ const accountSchema=mongoose.Schema(
         },
         password: {type: String, require:true},
         role:{type: String, require:true},
-        tokenNotifition: {type: String, require:true}
+        tokenNotifition: {type: String, require:true},
+        parent: {type:mongoose.Schema.Types.ObjectId},
     }
 );
 

@@ -72,7 +72,7 @@ exports.Post_Account_Signup = (req, res, next) => {
               let pool = await sql.connect(Config);
 
               account.save()
-                .then(async(results) => {
+                .then(async (results) => {
                   //console.log(results);
                   let MaTruongKhoa = await pool.request()
                     .input('Ma_Truong', sql.VarChar, req.body.MaTruong)
@@ -106,12 +106,12 @@ exports.Post_Account_Signup = (req, res, next) => {
                 .catch(err => {
                   console.log(err);
                   Account.remove({ _id: account._id })
-                  .exec().then(re2 => {
-                    //console.log("oke deleted");
-                  })
-                  .catch(err => {
-                    res.status(500).json(err);
-                  })
+                    .exec().then(re2 => {
+                      //console.log("oke deleted");
+                    })
+                    .catch(err => {
+                      res.status(500).json(err);
+                    })
                   res.status(500).json({
                     error: err
                   });
@@ -156,66 +156,149 @@ exports.Post_Account_Signup_For_Parents = (req, res, next) => {
               password: hash,
               role: "3"
             });
+            Account.find({ username: req.userData.username })
+              .exec()
+              .then(async (re1) => {
+                if (re1.length >= 1) {
+                  if (re1[0].parent === undefined) {
+                    try {
+                      let pool = await sql.connect(Config);
+                      account.save()
+                        .then(async (results) => {
+                          //console.log(results);
+                          let MaTruongKhoa = await pool.request()
+                            .input('IDSignin', sql.VarChar, req.userData._id)
+                            .query(" select i.ID from InfoSinhVien i where i.IDSignin = @IDSignin");
 
-            try {
-              let pool = await sql.connect(Config);
+                          //console.log(MaTruongKhoa.recordsets[0][0]["ID"]);
+                          //res.status(200).json();
+                          if (MaTruongKhoa.recordsets[0]) {
+                            console.log(account._id);
+                            let profile = await pool.request()
+                              .input('IDSignin', sql.VarChar, account._id)
+                              .input('HoTen', sql.NVarChar, req.body.HoTen)
+                              .input('Email', sql.VarChar, req.body.username)
+                              .input('IDSinhVien', sql.Int, MaTruongKhoa.recordsets[0][0]["ID"])
+                              .execute('InsertProfileParent')
 
-              account.save()
-                .then(async (results) => {
-                  //console.log(results);
-                  let MaTruongKhoa = await pool.request()
-                    .input('IDSignin', sql.VarChar, req.userData._id)
-                    .query(" select i.ID from InfoSinhVien i where i.IDSignin = @IDSignin");
+                            Account.updateOne({
+                              _id: re1[0]._id
+                              //"User": { $all: [UserOwner, chatmessage2.from] }
+                            },
+                              {
+                                $set: { parent: account._id }
+                              }, (err, doc) => {
+                                if (err) {
+                                  console.log(err);
+                                  res.status(500).json({ error: err });
+                                }
+                                if (doc) {
+                                  //console.log(doc);
+                                  //res.status(200).json({ message: "Token Notification is pushed" });
+                                }
+                              });
 
-                  //console.log(MaTruongKhoa.recordsets[0][0]["ID"]);
-                  //res.status(200).json();
-                  if (MaTruongKhoa.recordsets[0]) {
-                    console.log(account._id);
-                    let profile = await pool.request()
-                      .input('IDSignin', sql.VarChar, account._id)
-                      .input('HoTen', sql.NVarChar, req.body.HoTen)
-                      .input('Email', sql.VarChar, req.body.username)
-                      .input('IDSinhVien', sql.Int, MaTruongKhoa.recordsets[0][0]["ID"])
-                      .execute('InsertProfileParent')
+                            res.status(201).json({
+                              message: "account created"
+                            });
 
-                    res.status(201).json({
-                      message: "account created"
-                    });
-                  } else {
-                    Account.remove({ _id: account._id })
-                      .exec().then(re2 => {
-                        //console.log("oke deleted");
-                      })
-                      .catch(err => {
-                        res.status(500).json(err);
-                      })
+                          } else {
+                            //chi remove
+                            Account.remove({ _id: account._id })
+                              .exec().then(re2 => {
+                                //console.log("oke deleted");
+                              })
+                              .catch(err => {
+                                console.log(err);
+                                res.status(500).json(err);
+                              })
+                          }
+                        })
+                        .catch(err => {
+                          //remove and update
+                          console.log(err);
+                          Account.remove({ _id: account._id })
+                            .exec().then(re2 => {
+                              //console.log("oke deleted");
+                            })
+                            .catch(err => {
+                              console.log(err);
+                              res.status(500).json(err);
+                            })
+
+                          Account.updateOne({
+                            _id: re1[0]._id
+                            //"User": { $all: [UserOwner, chatmessage2.from] }
+                          },
+                            {
+                              $unset: { parent: 1 }
+                            }, (err, doc) => {
+                              if (err) {
+                                res.status(500).json({ error: err });
+                              }
+                              if (doc) {
+                                //console.log(doc);
+                                //res.status(200).json({ message: "account signed out" });
+                              }
+                            });
+
+                          res.status(500).json({
+                            error: err
+                          });
+
+                        });
+
+
+
+                    } catch (error) {
+                      //remove and update
+                      console.log(error);
+                      Account.remove({ _id: account._id })
+                        .exec().then(re2 => {
+                          //console.log("oke deleted");
+                        })
+                        .catch(err => {
+                          console.log(err);
+                          res.status(500).json(err);
+                        })
+
+                      Account.updateOne({
+                        _id: re1[0]._id
+                        //"User": { $all: [UserOwner, chatmessage2.from] }
+                      },
+                        {
+                          $unset: { parent: 1 }
+                        }, (err, doc) => {
+                          if (err) {
+                            res.status(500).json({ error: err });
+                          }
+                          if (doc) {
+                            //console.log(doc);
+                            //res.status(200).json({ message: "account signed out" });
+                          }
+                        });
+
+                      res.status(500).json({err:error});
+                    }
+                  }else{
+                    res.status(500).json({ message: "You created account parent" });
+                  
                   }
-                })
-                .catch(err => {
-                  console.log(err);
-                  Account.remove({ _id: account._id })
-                  .exec().then(re2 => {
-                    //console.log("oke deleted");
-                  })
-                  .catch(err => {
-                    res.status(500).json(err);
-                  })
+                  
+                }
+                else {
                   res.status(500).json({
                     error: err
                   });
+                }
+              })
+              .catch(err => {
+                console.log(err);
+                //khong can update or remove
+                res.status(500).json({
+                  error: err
                 });
-            }
-            catch (error) {
-              console.log(error);
-              Account.remove({ _id: account._id })
-                .exec().then(re2 => {
-                  //console.log("oke deleted");
-                })
-                .catch(err => {
-                  res.status(500).json(err);
-                })
-              res.status(500).json(error);
-            }
+              })
           }
         });
       }
