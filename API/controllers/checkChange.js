@@ -681,7 +681,7 @@ exports.Check_Change_Deadline_Moodle = async () => {
                         //console.log(listUser[x][j].IDUser);
                         await Account.find({ _id: listUser[x][j].IDUser })
                             .exec()
-                            .then(re2 => {
+                            .then(async(re2) => {
                                 if (re2.length >= 1) {
                                     //console.log(re2[0].tokenNotifition)
                                     if (re2[0].tokenNotifition !== undefined) {
@@ -695,6 +695,29 @@ exports.Check_Change_Deadline_Moodle = async () => {
                                         } else {
                                             results.ListUser = temp2;
                                         }
+                                    }
+                                    if (re2[0].parent !== undefined) {
+                                        await Account.find({ _id: re2[0].parent })
+                                            .exec()
+                                            .then(re8 => {
+                                                if (re8.length >= 1) {
+                                                    if (re2[0].tokenNotifition !== undefined) {
+                                                        //console.log("1")
+                                                        if (results.ListUser !== undefined) {
+                                                            var temp2 = {
+                                                                "tokenNotifition": re2[0].tokenNotifition,
+                                                                "IDUser": temp[j].IDSignin
+                                                            }
+                                                            results.ListUser.push(temp2);
+                                                        } else {
+                                                            results.ListUser = temp2;
+                                                        }
+                                                    }
+                                                }
+                                            })
+                                            .catch(err => {
+
+                                            })
                                     }
                                 }
                                 //console.log(results);
@@ -1486,7 +1509,7 @@ module.exports.Check_Change_News_Unisersity = () => {
                                                     for (var j = 0; j < temp.length; j++) {
                                                         await Account.find({ _id: temp[j].IDSignin })
                                                             .exec()
-                                                            .then(re2 => {
+                                                            .then(async(re2) => {
                                                                 if (re2.length >= 1) {
                                                                     //console.log(re2[0].tokenNotifition)
                                                                     if (re2[0].tokenNotifition !== undefined) {
@@ -1500,6 +1523,29 @@ module.exports.Check_Change_News_Unisersity = () => {
                                                                         } else {
                                                                             results.ListUser = temp2;
                                                                         }
+                                                                    }
+                                                                    if (re2[0].parent !== undefined) {
+                                                                        await Account.find({ _id: re2[0].parent })
+                                                                            .exec()
+                                                                            .then(re8 => {
+                                                                                if (re8.length >= 1) {
+                                                                                    if (re2[0].tokenNotifition !== undefined) {
+                                                                                        //console.log("1")
+                                                                                        if (results.ListUser !== undefined) {
+                                                                                            var temp2 = {
+                                                                                                "tokenNotifition": re2[0].tokenNotifition,
+                                                                                                "IDUser": temp[j].IDSignin
+                                                                                            }
+                                                                                            results.ListUser.push(temp2);
+                                                                                        } else {
+                                                                                            results.ListUser = temp2;
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            })
+                                                                            .catch(err => {
+
+                                                                            })
                                                                     }
                                                                 }
                                                                 //console.log(results);
@@ -2749,7 +2795,7 @@ module.exports.check_Change_News_Faculty = () => {
                                                     for (var j = 0; j < temp.length; j++) {
                                                         await Account.find({ _id: temp[j].IDSignin })
                                                             .exec()
-                                                            .then(re2 => {
+                                                            .then(async (re2) => {
                                                                 if (re2.length >= 1) {
                                                                     //console.log(re2[0].tokenNotifition)
                                                                     if (re2[0].tokenNotifition !== undefined) {
@@ -2763,6 +2809,29 @@ module.exports.check_Change_News_Faculty = () => {
                                                                         } else {
                                                                             results.ListUser = temp2;
                                                                         }
+                                                                    }
+                                                                    if (re2[0].parent !== undefined) {
+                                                                        await Account.find({ _id: re2[0].parent })
+                                                                            .exec()
+                                                                            .then(re8 => {
+                                                                                if (re8.length >= 1) {
+                                                                                    if (re2[0].tokenNotifition !== undefined) {
+                                                                                        //console.log("1")
+                                                                                        if (results.ListUser !== undefined) {
+                                                                                            var temp2 = {
+                                                                                                "tokenNotifition": re2[0].tokenNotifition,
+                                                                                                "IDUser": temp[j].IDSignin
+                                                                                            }
+                                                                                            results.ListUser.push(temp2);
+                                                                                        } else {
+                                                                                            results.ListUser = temp2;
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            })
+                                                                            .catch(err => {
+
+                                                                            })
                                                                     }
                                                                 }
                                                                 //console.log(results);

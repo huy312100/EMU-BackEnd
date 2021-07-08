@@ -11,7 +11,7 @@ exports.Get_Notification = (req, res, next) => {
             res.status(200).json(re1[0].notification);
         }
         else{
-            res.status(500).json({message:"Dont have notification"});
+            res.status(200).json({message:"Dont have notification"});
         }
     })
     .catch(err => {
