@@ -10,6 +10,6 @@ router.get("/month/parent",check_auth,deadlineModdleController.Get_Deadline_This
 
 router.post("/month",check_auth,deadlineModdleController.Get_Deadline_With_MonthID);
 
-router.post("/month/parent",check_auth,deadlineModdleController.Get_Deadline_With_MonthID);
+router.post("/month/parent",check_auth,deadlineModdleController.Get_Deadline_With_MonthID_For_Parent);
 
 module.exports=router;
