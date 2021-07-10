@@ -473,8 +473,96 @@ exports.View_Post = async (req, res, next) => {
                 "match (s4:STUDENT)-[:POSTED]-> (p2) " +
                 "return ID(p2) as ID,s4.email as email, p2.title as title,p2.image as image, p2.time as time, size((p5)<-[:LIKED]-()) as like,size((p6)<-[:COMMENT]-()) as comment ,size((p6)<-[:LIKED]-(s6)) as likebyown,r2.scope as scope " +
                 "} " +
-                "return ID,email,title,image,time,like,comment, likebyown, scope " +
+                "return DISTINCT ID,email,title,image,time,like,comment, likebyown, scope " +
                 "ORDER BY time DESC";
+            var result = session.readTransaction(tx => {
+                return tx.run(query, {
+                    Ma_Khoa: profiles.recordsets[0][0]["MaKhoa"],
+                    Ma_Truong: profiles.recordsets[0][0]["MaTruong"],
+                    Email: req.userData.username
+                })
+                    .then(async (re1) => {
+                        const result = []
+                        if (re1.records.length >= 1) {
+                            for (var i = 0; i < re1.records.length; i++) {
+                                let profiles1 = await pool.request()
+                                    .input('ID_Signin', sql.VarChar, re1.records[i].get('email'))
+                                    .query("SELECT  i.HoTen, i.AnhSV FROM [dbo].[InfoSinhVien] i where i.Email=@ID_Signin");
+
+                                if (profiles1.recordsets[0]) {
+                                    var temp = {
+                                        "ID": re1.records[i].get('ID').low,
+                                        "NameOwn": profiles1.recordsets[0][0]["HoTen"],
+                                        "AvartaOwn": profiles1.recordsets[0][0]["AnhSV"],
+                                        "EmailOwn": re1.records[i].get('email'),
+                                        "title": re1.records[i].get('title'),
+                                        "image": re1.records[i].get('image'),
+                                        "time": re1.records[i].get('time'),
+                                        "like": re1.records[i].get('like').low,
+                                        "comment": re1.records[i].get('comment').low,
+                                        "LikeByOwn": re1.records[i].get('likebyown').low,
+                                        "scope": re1.records[i].get('scope')
+                                    }
+                                    if (result !== undefined) {
+                                        result.push(temp);
+                                    }
+                                    else {
+                                        result = temp;
+                                    }
+                                }
+                            }
+                            //console.log(result);
+                            res.status(200).json(result);
+                        }
+                        else {
+                            res.status(200).json(result);
+                        }
+
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).json({ error: err });
+                    })
+            })
+        }
+    }
+    catch (error) {
+        res.status(500).json({ err: error });
+    }
+};
+
+exports.View_Top20_Post = async (req, res, next) => {
+    try {
+        let pool = await sql.connect(Config);
+
+        let profiles = await pool.request()
+            .input('ID_Signin', sql.VarChar, req.userData._id)
+            .query("SELECT i.HoTen,uf.MaKhoa, uf.MaTruong FROM [InfoSinhVien] i, [University_Faculty] uf where i.IDTruongKhoa = uf.ID and i.IDSignin =@ID_Signin");
+
+        //console.log(facultys.recordsets[0]);
+        if (profiles.recordsets[0]) {
+            //res.status(200).json(profiles.recordsets[0]);
+            const session = configNeo4j.getSession(req);
+            const query = "call {" +
+                "match (s1:STUDENT)-[:STUDY_AT]->(f1:Faculty {code:$Ma_Khoa})-[:BELONG_TO]->(u1:University{code:$Ma_Truong}) " +
+                "match (p1:POST)<-[r:POSTED {scope:'f'}]-(s1) " +
+                "MATCH (p3:POST) where ID(p3)=ID(p1) " +
+                "match (p4:POST) where ID(p4) = ID(p1) " +
+                "match (s5:STUDENT) where s5.email= $Email " +
+                "match (s3:STUDENT)-[:POSTED]-> (p1) " +
+                "return ID(p1) as ID,s3.email as email, p1.title as title,p1.image as image, p1.time as time, size((p3)<-[:LIKED]-()) as like,size((p4)<-[:COMMENT]-()) as comment , size((p4)<-[:LIKED]-(s5)) as likebyown,r.scope as scope " +
+                "union all " +
+                "match (s2:STUDENT)-[:STUDY_AT]->(f2:Faculty)-[:BELONG_TO]->(u2:University {code:$Ma_Truong}) " +
+                "match (p2:POST)<-[r2:POSTED {scope:'u'}]-(s2) " +
+                "MATCH (p5:POST) where ID(p5)=ID(p2) " +
+                "match (p6:POST) where ID(p6) = ID(p2) " +
+                "match (s6:STUDENT) where s6.email= $Email " +
+                "match (s4:STUDENT)-[:POSTED]-> (p2) " +
+                "return ID(p2) as ID,s4.email as email, p2.title as title,p2.image as image, p2.time as time, size((p5)<-[:LIKED]-()) as like,size((p6)<-[:COMMENT]-()) as comment ,size((p6)<-[:LIKED]-(s6)) as likebyown,r2.scope as scope " +
+                "} " +
+                "return DISTINCT ID,email,title,image,time,like,comment, likebyown, scope " +
+                "ORDER BY time DESC" +
+                "LIMIT 20";
             var result = session.readTransaction(tx => {
                 return tx.run(query, {
                     Ma_Khoa: profiles.recordsets[0][0]["MaKhoa"],
@@ -649,6 +737,128 @@ exports.View_List_User_Commented = async (req, res, next) => {
     }
 };
 
+exports.View_List_Top15_User_Commented = async (req, res, next) => {
+    try {
+        let pool = await sql.connect(Config);
+        const session = configNeo4j.getSession(req);
+        const query = "match(p:POST) where ID(p)= $IDPost " +
+            "match (s:STUDENT)-[r:COMMENT]->(p) " +
+            "return ID(r) as ID,s.email as email, r.comments as comment, r.image as image, r.time as time " +
+            "order by time DESC " +
+            "LIMIT 15";
+        var result = session.readTransaction(tx => {
+            return tx.run(query, {
+                IDPost: parseInt(req.body.IDPost)
+            })
+                .then(async (re1) => {
+                    const result = []
+                    if (re1.records.length >= 1) {
+                        for (var i = 0; i < re1.records.length; i++) {
+                            let profiles1 = await pool.request()
+                                .input('ID_Signin', sql.VarChar, re1.records[i].get('email'))
+                                .query("SELECT  i.HoTen, i.AnhSV FROM [dbo].[InfoSinhVien] i where i.Email=@ID_Signin");
+
+                            if (profiles1.recordsets[0]) {
+                                var temp = {
+                                    "ID": re1.records[i].get('ID').low,
+                                    "NameOwn": profiles1.recordsets[0][0]["HoTen"],
+                                    "EmailOwn": re1.records[i].get('email'),
+                                    "AvartOwn": profiles1.recordsets[0][0]["AnhSV"],
+                                    "comment": re1.records[i].get('comment'),
+                                    "image": re1.records[i].get('image'),
+                                    "time": re1.records[i].get('time'),
+                                }
+                                if (result !== undefined) {
+                                    result.push(temp);
+                                }
+                                else {
+                                    result = temp;
+                                }
+                            }
+                        }
+                        //console.log(result);
+                        res.status(200).json(result);
+                    }
+                    else {
+                        res.status(200).json(result);
+                    }
+
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({ error: err });
+                })
+        })
+    }
+    catch (error) {
+        //console.log(error);
+        res.status(500).json({ err: error });
+    }
+};
+
+exports.View_Your_Post = async (req, res, next) => {
+    try {
+        let pool = await sql.connect(Config);
+        //res.status(200).json(profiles.recordsets[0]);
+        const session = configNeo4j.getSession(req);
+        const query = "match (s6:STUDENT) where s6.email= $Email "+
+                    "match (s2:STUDENT {email:$Email})-[r2:POSTED]-> (p2) " +
+                    "return ID(p2) as ID,s2.email as email, p2.title as title,p2.image as image, p2.time as time, size((p2)<-[:LIKED]-()) as like,size((p2)<-[:COMMENT]-()) as comment ,size((p2)<-[:LIKED]-(s6)) as likebyown,r2.scope as scope "+
+                    "order by time DESC ";
+        var result = session.readTransaction(tx => {
+            return tx.run(query, {
+                Email: req.userData.username
+            })
+                .then(async (re1) => {
+                    const result = []
+                    if (re1.records.length >= 1) {
+                        for (var i = 0; i < re1.records.length; i++) {
+                            let profiles1 = await pool.request()
+                                .input('ID_Signin', sql.VarChar, re1.records[i].get('email'))
+                                .query("SELECT  i.HoTen, i.AnhSV FROM [dbo].[InfoSinhVien] i where i.Email=@ID_Signin");
+
+                            if (profiles1.recordsets[0]) {
+                                var temp = {
+                                    "ID": re1.records[i].get('ID').low,
+                                    "NameOwn": profiles1.recordsets[0][0]["HoTen"],
+                                    "AvartaOwn": profiles1.recordsets[0][0]["AnhSV"],
+                                    "EmailOwn": re1.records[i].get('email'),
+                                    "title": re1.records[i].get('title'),
+                                    "image": re1.records[i].get('image'),
+                                    "time": re1.records[i].get('time'),
+                                    "like": re1.records[i].get('like').low,
+                                    "comment": re1.records[i].get('comment').low,
+                                    "LikeByOwn": re1.records[i].get('likebyown').low,
+                                    "scope": re1.records[i].get('scope')
+                                }
+                                if (result !== undefined) {
+                                    result.push(temp);
+                                }
+                                else {
+                                    result = temp;
+                                }
+                            }
+                        }
+                        //console.log(result);
+                        res.status(200).json(result);
+                    }
+                    else {
+                        res.status(200).json(result);
+                    }
+
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({ error: err });
+                })
+        })
+
+    }
+    catch (error) {
+        res.status(500).json({ err: error });
+    }
+};
+
 exports.Create_Post_Courses = async (req, res, next) => {
     try {
         var infoCourses;
@@ -743,7 +953,6 @@ exports.Create_Post_Courses = async (req, res, next) => {
         res.status(500).json({ err: error });
     }
 }
-
 
 exports.Delete_Post_Courses = async (req, res, next) => {
     try {
@@ -1059,7 +1268,7 @@ exports.View_Post_Courses = async (req, res, next) => {
         const query = "match (p1:POST)<-[r:POSTED]-(c1:COURSES) <-[:HAVE]-(s1:STUDENT) where s1.email= $Email " +
             "MATCH (p3:POST) where ID(p3) = ID(p1) " +
             "match (s5:STUDENT) where s5.email= $Email " +
-            "return ID(p1) as ID,c1.code as IDCourses,c1.name as nameCourses,r.postby as email, p1.title as title,p1.image as image, p1.time as time, size((p3)<-[:LIKED]-()) as like,size((p3)<-[:COMMENT]-()) as comment , size((p3)<-[:LIKED]-(s5)) as likebyown " +
+            "return DISTINCT ID(p1) as ID,c1.code as IDCourses,c1.name as nameCourses,r.postby as email, p1.title as title,p1.image as image, p1.time as time, size((p3)<-[:LIKED]-()) as like,size((p3)<-[:COMMENT]-()) as comment , size((p3)<-[:LIKED]-(s5)) as likebyown " +
             "ORDER BY time DESC";
         var result = session.readTransaction(tx => {
             return tx.run(query, {
@@ -1116,6 +1325,75 @@ exports.View_Post_Courses = async (req, res, next) => {
     }
 }
 
+exports.View_Top20_Post_Courses = async (req, res, next) => {
+    try {
+        let pool = await sql.connect(Config);
+
+        //console.log(facultys.recordsets[0]);
+
+        //res.status(200).json(profiles.recordsets[0]);
+        const session = configNeo4j.getSession(req);
+        const query = "match (p1:POST)<-[r:POSTED]-(c1:COURSES) <-[:HAVE]-(s1:STUDENT) where s1.email= $Email " +
+            "MATCH (p3:POST) where ID(p3) = ID(p1) " +
+            "match (s5:STUDENT) where s5.email= $Email " +
+            "return DISTINCT ID(p1) as ID,c1.code as IDCourses,c1.name as nameCourses,r.postby as email, p1.title as title,p1.image as image, p1.time as time, size((p3)<-[:LIKED]-()) as like,size((p3)<-[:COMMENT]-()) as comment , size((p3)<-[:LIKED]-(s5)) as likebyown " +
+            "ORDER BY time DESC" +
+            "LIMIT 20";
+        var result = session.readTransaction(tx => {
+            return tx.run(query, {
+                Email: req.userData.username
+            })
+                .then(async (re1) => {
+                    const result = []
+                    if (re1.records.length >= 1) {
+                        for (var i = 0; i < re1.records.length; i++) {
+                            let profiles1 = await pool.request()
+                                .input('ID_Signin', sql.VarChar, re1.records[i].get('email'))
+                                .query("SELECT  i.HoTen, i.AnhSV FROM [dbo].[InfoSinhVien] i where i.Email=@ID_Signin");
+
+                            if (profiles1.recordsets[0]) {
+                                var temp = {
+                                    "ID": re1.records[i].get('ID').low,
+                                    "IDCourses": re1.records[i].get('IDCourses'),
+                                    "NameCourses": re1.records[i].get('nameCourses'),
+                                    "NameOwn": profiles1.recordsets[0][0]["HoTen"],
+                                    "AvartaOwn": profiles1.recordsets[0][0]["AnhSV"],
+                                    "EmailOwn": re1.records[i].get('email'),
+                                    "title": re1.records[i].get('title'),
+                                    "image": re1.records[i].get('image'),
+                                    "time": re1.records[i].get('time'),
+                                    "like": re1.records[i].get('like').low,
+                                    "comment": re1.records[i].get('comment').low,
+                                    "LikeByOwn": re1.records[i].get('likebyown').low
+                                }
+                                if (result !== undefined) {
+                                    result.push(temp);
+                                }
+                                else {
+                                    result = temp;
+                                }
+                            }
+                        }
+                        //console.log(result);
+                        res.status(200).json(result);
+                    }
+                    else {
+                        res.status(200).json(result);
+                    }
+
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({ error: err });
+                })
+        })
+
+    }
+    catch (error) {
+        res.status(500).json({ err: error });
+    }
+};
+
 exports.View_Post_One_Courses = async (req, res, next) => {
     try {
 
@@ -1132,8 +1410,87 @@ exports.View_Post_One_Courses = async (req, res, next) => {
                     const query = "match (p1:POST)<-[r:POSTED]-(c1:COURSES) where c1.code= $IDCourses " +
                         "MATCH (p3:POST) where ID(p3) = ID(p1) " +
                         "match (s5:STUDENT) where s5.email= $Email " +
-                        "return ID(p1) as ID,r.postby as email, p1.title as title,p1.image as image, p1.time as time, size((p3)<-[:LIKED]-()) as like,size((p3)<-[:COMMENT]-()) as comment , size((p3)<-[:LIKED]-(s5)) as likebyown " +
+                        "return DISTINCT ID(p1) as ID,r.postby as email, p1.title as title,p1.image as image, p1.time as time, size((p3)<-[:LIKED]-()) as like,size((p3)<-[:COMMENT]-()) as comment , size((p3)<-[:LIKED]-(s5)) as likebyown " +
                         "ORDER BY time DESC";
+                    var result = session.readTransaction(tx => {
+                        return tx.run(query, {
+                            Email: req.userData.username,
+                            IDCourses: req.body.IDCourses
+                        })
+                            .then(async (re1) => {
+                                const result = []
+                                if (re1.records.length >= 1) {
+                                    for (var i = 0; i < re1.records.length; i++) {
+                                        let profiles1 = await pool.request()
+                                            .input('ID_Signin', sql.VarChar, re1.records[i].get('email'))
+                                            .query("SELECT  i.HoTen, i.AnhSV FROM [dbo].[InfoSinhVien] i where i.Email=@ID_Signin");
+
+                                        if (profiles1.recordsets[0]) {
+                                            var temp = {
+                                                "ID": re1.records[i].get('ID').low,
+                                                "NameOwn": profiles1.recordsets[0][0]["HoTen"],
+                                                "AvartaOwn": profiles1.recordsets[0][0]["AnhSV"],
+                                                "EmailOwn": re1.records[i].get('email'),
+                                                "title": re1.records[i].get('title'),
+                                                "image": re1.records[i].get('image'),
+                                                "time": re1.records[i].get('time'),
+                                                "like": re1.records[i].get('like').low,
+                                                "comment": re1.records[i].get('comment').low,
+                                                "LikeByOwn": re1.records[i].get('likebyown').low
+                                            }
+                                            if (result !== undefined) {
+                                                result.push(temp);
+                                            }
+                                            else {
+                                                result = temp;
+                                            }
+                                        }
+                                    }
+                                    //console.log(result);
+                                    res.status(200).json(result);
+                                }
+                                else {
+                                    res.status(200).json(result);
+                                }
+
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).json({ error: err });
+                            })
+                    })
+                } else {
+                    res.status(500).json({ message: "You dont have role view post" });
+                }
+            })
+            .catch(err => {
+                res.status(500).json({ err: err });
+            })
+    }
+    catch (error) {
+        res.status(500).json({ err: error });
+    }
+}
+
+exports.View_Top20_Post_One_Courses = async (req, res, next) => {
+    try {
+
+        await studuCourses.find({ $and: [{ idUser: req.userData._id }, { "listCourses.IDCourses": req.body.IDCourses }] })
+            .exec()
+            .then(async (re3) => {
+                if (re3.length >= 1) {
+                    let pool = await sql.connect(Config);
+
+                    //console.log(facultys.recordsets[0]);
+
+                    //res.status(200).json(profiles.recordsets[0]);
+                    const session = configNeo4j.getSession(req);
+                    const query = "match (p1:POST)<-[r:POSTED]-(c1:COURSES) where c1.code= $IDCourses " +
+                        "MATCH (p3:POST) where ID(p3) = ID(p1) " +
+                        "match (s5:STUDENT) where s5.email= $Email " +
+                        "return DISTINCT ID(p1) as ID,r.postby as email, p1.title as title,p1.image as image, p1.time as time, size((p3)<-[:LIKED]-()) as like,size((p3)<-[:COMMENT]-()) as comment , size((p3)<-[:LIKED]-(s5)) as likebyown " +
+                        "ORDER BY time DESC" +
+                        "LIMIT 20";
                     var result = session.readTransaction(tx => {
                         return tx.run(query, {
                             Email: req.userData.username,
@@ -1306,7 +1663,7 @@ exports.View_List_User_comment_Courses = async (req, res, next) => {
                 "match (s:STUDENT)-[r:COMMENT]->(p) " +
                 "return ID(r) as ID,s.email as email, r.comments as comment, r.image as image, r.time as time " +
                 "order by time DESC ";
-                var result1 = session.readTransaction(tx => {
+            var result1 = session.readTransaction(tx => {
                 return tx.run(query1, {
                     IDPost: parseInt(req.body.IDPost)
                 })
@@ -1348,13 +1705,167 @@ exports.View_List_User_comment_Courses = async (req, res, next) => {
                         console.log(err);
                         res.status(500).json({ error: err });
                     })
+            })
+        } else {
+            res.status(500).json({ message: "You dont have role view like post" });
+        }
+    }
+    catch (error) {
+        //console.log(error);
+        res.status(500).json({ err: error });
+    }
+};
+
+exports.View_Top15_List_User_comment_Courses = async (req, res, next) => {
+    try {
+        var resultsrecord = [];
+        let pool = await sql.connect(Config);
+        const session = configNeo4j.getSession(req);
+
+        const query = "MATCH (p:POST) <-[:POSTED]- (c:COURSES) <-[:HAVE]- (s:STUDENT) where ID(p)= $IDPost and s.email= $Email " +
+            "return  c.code as IDCourses";
+
+        var result = await session.readTransaction(tx => {
+            return tx.run(query, {
+                IDPost: parseInt(req.body.IDPost),
+                Email: req.userData.username
+            })
+                .then(re2 => {
+                    if (re2.records.length >= 1) {
+                        resultsrecord.push("a");
+                    }
+                    else {
+                        res.status(500).json({ message: "You dont have role view like post" })
+                    }
+                })
+                .catch(err => {
+                    res.status(500).json({ err: err });
+                })
         })
-    } else {
-        res.status(500).json({ message: "You dont have role view like post" });
+
+        if (resultsrecord !== undefined) {
+            const query1 = "match(p:POST) where ID(p)= $IDPost " +
+                "match (s:STUDENT)-[r:COMMENT]->(p) " +
+                "return ID(r) as ID,s.email as email, r.comments as comment, r.image as image, r.time as time " +
+                "order by time DESC " +
+                "LIMIT 15";
+            var result1 = session.readTransaction(tx => {
+                return tx.run(query1, {
+                    IDPost: parseInt(req.body.IDPost)
+                })
+                    .then(async (re1) => {
+                        const result = []
+                        if (re1.records.length >= 1) {
+                            for (var i = 0; i < re1.records.length; i++) {
+                                let profiles1 = await pool.request()
+                                    .input('ID_Signin', sql.VarChar, re1.records[i].get('email'))
+                                    .query("SELECT  i.HoTen, i.AnhSV FROM [dbo].[InfoSinhVien] i where i.Email=@ID_Signin");
+
+                                if (profiles1.recordsets[0]) {
+                                    var temp = {
+                                        "ID": re1.records[i].get('ID').low,
+                                        "NameOwn": profiles1.recordsets[0][0]["HoTen"],
+                                        "EmailOwn": re1.records[i].get('email'),
+                                        "AvartOwn": profiles1.recordsets[0][0]["AnhSV"],
+                                        "comment": re1.records[i].get('comment'),
+                                        "image": re1.records[i].get('image'),
+                                        "time": re1.records[i].get('time'),
+                                    }
+                                    if (result !== undefined) {
+                                        result.push(temp);
+                                    }
+                                    else {
+                                        result = temp;
+                                    }
+                                }
+                            }
+                            //console.log(result);
+                            res.status(200).json(result);
+                        }
+                        else {
+                            res.status(200).json(result);
+                        }
+
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).json({ error: err });
+                    })
+            })
+        } else {
+            res.status(500).json({ message: "You dont have role view like post" });
+        }
+    }
+    catch (error) {
+        //console.log(error);
+        res.status(500).json({ err: error });
     }
 }
+
+exports.View_Your_Post_Courses = async (req, res, next) => {
+    try {
+        let pool = await sql.connect(Config);
+
+        //console.log(facultys.recordsets[0]);
+
+        //res.status(200).json(profiles.recordsets[0]);
+        const session = configNeo4j.getSession(req);
+        const query = "match (p1:POST)<-[r:POSTED]-(c1:COURSES) <-[:HAVE]-(s1:STUDENT) where r.postby= $Email "+
+                        "MATCH (p3:POST) where ID(p3) = ID(p1) "+
+                        "match (s5:STUDENT) where s5.email= $Email "+
+                        "return DISTINCT ID(p1) as ID,c1.code as IDCourses,c1.name as nameCourses,r.postby as email, p1.title as title,p1.image as image, p1.time as time, size((p3)<-[:LIKED]-()) as like,size((p3)<-[:COMMENT]-()) as comment , size((p3)<-[:LIKED]-(s5)) as likebyown "+
+                        "ORDER BY time DESC";
+        var result = session.readTransaction(tx => {
+            return tx.run(query, {
+                Email: req.userData.username
+            })
+                .then(async (re1) => {
+                    const result = []
+                    if (re1.records.length >= 1) {
+                        for (var i = 0; i < re1.records.length; i++) {
+                            let profiles1 = await pool.request()
+                                .input('ID_Signin', sql.VarChar, re1.records[i].get('email'))
+                                .query("SELECT  i.HoTen, i.AnhSV FROM [dbo].[InfoSinhVien] i where i.Email=@ID_Signin");
+
+                            if (profiles1.recordsets[0]) {
+                                var temp = {
+                                    "ID": re1.records[i].get('ID').low,
+                                    "IDCourses": re1.records[i].get('IDCourses'),
+                                    "NameCourses": re1.records[i].get('nameCourses'),
+                                    "NameOwn": profiles1.recordsets[0][0]["HoTen"],
+                                    "AvartaOwn": profiles1.recordsets[0][0]["AnhSV"],
+                                    "EmailOwn": re1.records[i].get('email'),
+                                    "title": re1.records[i].get('title'),
+                                    "image": re1.records[i].get('image'),
+                                    "time": re1.records[i].get('time'),
+                                    "like": re1.records[i].get('like').low,
+                                    "comment": re1.records[i].get('comment').low,
+                                    "LikeByOwn": re1.records[i].get('likebyown').low
+                                }
+                                if (result !== undefined) {
+                                    result.push(temp);
+                                }
+                                else {
+                                    result = temp;
+                                }
+                            }
+                        }
+                        //console.log(result);
+                        res.status(200).json(result);
+                    }
+                    else {
+                        res.status(200).json(result);
+                    }
+
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({ error: err });
+                })
+        })
+
+    }
     catch (error) {
-    //console.log(error);
-    res.status(500).json({ err: error });
-}
+        res.status(500).json({ err: error });
+    }
 };

@@ -23,8 +23,12 @@ router.post("/tokennotification",check_auth,AccountController.Post_Token_Notific
 
 router.post("/forgotpassword",AccountController.Forgot_Password);
 
+router.post("/resetpassword",AccountController.Reset_Password);
+
 router.patch("/:accountId", AccountController.PutAccount);
 
 router.delete("/:username",check_auth,AccountController.Delete_Account);
+
+router.get("/setchangefirst",check_auth,AccountController.Set_Change_First_Signin);
 
 module.exports=router;

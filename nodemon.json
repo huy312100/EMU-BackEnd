@@ -2,6 +2,8 @@
     "env":{
         "MONGOOSE_ATLAS_PW": "appEMU",
         "JWT_KEY":"secret",
+        "RESET_PASSWORD":"reseremu111",
+        "URL_CLIENT":"http://localhost:3000/university/getname",
         "Cipheriv": "myHashIV",
         "Key_SHA256_Crypo":"HashTable",
         "Neo4j_Connect_URI": "neo4j+s://16d4ad7b.databases.neo4j.io:7687",

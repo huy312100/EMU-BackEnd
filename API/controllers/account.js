@@ -2,9 +2,11 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const sql = require("mssql");
+const nodemailer = require("nodemailer");
 
 const Config = require("../middleware/rdbconfig");
 const Account = require("../models/account");
+const EmailConfig = require("../middleware/mailConfig");
 
 exports.Get_All_Account = (req, res, next) => {
   Account.find()
@@ -65,6 +67,7 @@ exports.Post_Account_Signup = (req, res, next) => {
               _id: new mongoose.Types.ObjectId(),
               username: req.body.username,
               password: hash,
+              firstsign: true,
               role: "1"
             });
 
@@ -154,6 +157,7 @@ exports.Post_Account_Signup_For_Parents = (req, res, next) => {
               _id: new mongoose.Types.ObjectId(),
               username: req.body.username,
               password: hash,
+              firstsign: true,
               role: "3"
             });
             Account.find({ username: req.userData.username })
@@ -247,9 +251,6 @@ exports.Post_Account_Signup_For_Parents = (req, res, next) => {
                           });
 
                         });
-
-
-
                     } catch (error) {
                       //remove and update
                       console.log(error);
@@ -278,13 +279,13 @@ exports.Post_Account_Signup_For_Parents = (req, res, next) => {
                           }
                         });
 
-                      res.status(500).json({err:error});
+                      res.status(500).json({ err: error });
                     }
-                  }else{
+                  } else {
                     res.status(500).json({ message: "You created account parent" });
-                  
+
                   }
-                  
+
                 }
                 else {
                   res.status(500).json({
@@ -392,9 +393,106 @@ exports.Change_Password = async (req, res, next) => {
 };
 
 exports.Forgot_Password = (req, res, next) => {
+  Account.find({ username: req.userData.username })
+    .exec()
+    .then(re1 => {
+      if (re1.length >= 1) {
+        const token = jwt.sign(
+          {
+            _id: re1[0]._id
+          },
+          process.env.RESET_PASSWORD,
+          {
+            expiresIn: "20m"
+          });
 
-  res.status(200).json({ message: "forgot password" });
+        var transporter = nodemailer.createTransport(EmailConfig.MailCongfig);
+
+        const Data = {
+          from: "theemuteam@gmail.com",
+          to: req.body.email,
+          subject: "[EMU] Please reset your password",
+          html: "<html>" +
+            "<body>" +
+            "<h2>Reset your EMU password <h2>" +
+            "<p>We heard that you lost your EMU password. Sorry about that!<p>" +
+            "<p>But don’t worry! You can use the following link to reset your password:<p>" +
+            "<a href='http://localhost:3000/university/getname'>Reset your password</a>" +
+            "</body>" +
+            "</html>"
+        }
+        transporter.sendMail(Data, (err, info) => {
+          if (err) {
+            res.status(500).json({ error: err })
+          }
+          else {
+            Account.updateOne({
+              _id: re1[0]._id
+              //"User": { $all: [UserOwner, chatmessage2.from] }
+            },
+              {
+                $set: { tokenReset: token }
+              }, (err, doc) => {
+                if (err) {
+                  res.status(500).json({ error: err });
+                }
+                if (doc) {
+                  //console.log(doc);
+                  res.status(200).json({ message: "your mail sent" })
+                }
+              });
+          }
+        })
+      } else {
+        res.status(500).json({ message: "You dont have account" })
+      }
+    })
+    .catch(err => {
+      res.status(500).json({ err: err })
+    })
 }
+
+exports.Reset_Password = (req, res, next) => {
+  if (req.body.tokenreset) {
+    try {
+      const decoded = jwt.verify(req.body.tokenreset, process.env.RESET_PASSWORD);
+
+      Account.find({ $and: [{ _id: decoded._id }, { tokenReset: req.body.tokenreset }] })
+        .exec()
+        .then(re1 => {
+          if (re1.length >= 1) {
+            bcrypt.hash(req.body.passwordreset, 9, async (err, hash) => {
+              if (err) {
+                res.status(500).json({
+                  error: err
+                });
+              } else {
+                await Account.updateOne({
+                  _id: re1[0]._id
+                },
+                  {
+                    $set: { password: hash },
+                    $unset: { tokenReset: 1 }
+                  });
+                  res.status(200).json({message: "your password was reset"})
+              }
+            })
+            
+          } else {
+            res.status(500).json({ message: "the usser is not exist" })
+          }
+        })
+        .catch(err => {
+          res.status(500).json({ err: err });
+        })
+    }
+    catch (error) {
+      res.status(500).json({ err: error });
+    }
+  } else {
+    res.status(500).json({ message: "the usser with email is not exist" })
+  }
+};
 
 exports.Post_Account_Signin = (req, res, next) => {
   Account.find({ username: req.body.username })
@@ -425,6 +523,7 @@ exports.Post_Account_Signin = (req, res, next) => {
           return res.status(200).json({
             message: "Auth successful",
             role: user[0].role,
+            firstsign:user[0].firstsign,
             token: token
           });
         }
@@ -479,6 +578,35 @@ exports.Sign_Out = (req, res, next) => {
             if (doc) {
               //console.log(doc);
               res.status(200).json({ message: "account signed out" });
+            }
+          });
+      } else {
+        res.status(500).json({ message: "No account login in application" });
+      }
+    })
+    .catch(err => {
+      res.status(500).json({ error: err });
+    })
+};
+
+exports.Set_Change_First_Signin = (req, res, next) => {
+  Account.find({ _id: req.userData._id })
+    .exec()
+    .then(re1 => {
+      if (re1.length >= 1) {
+        Account.updateOne({
+          _id: re1[0]._id
+          //"User": { $all: [UserOwner, chatmessage2.from] }
+        },
+          {
+            $unset: { firstsign: 1 }
+          }, (err, doc) => {
+            if (err) {
+              res.status(500).json({ error: err });
+            }
+            if (doc) {
+              //console.log(doc);
+              res.status(200).json({ message: "account change" });
             }
           });
       } else {

@@ -1283,7 +1283,7 @@ exports.Get_News_Faculty = async (req, res, next) => {
                     else { head = items[i].querySelector("a").getAttribute("href"); }
                     if (!head.includes("edu.vn")) {
                         let head_url = url.split(".");
-                        head = head_url[0] + "." + head_url[1] + "." + head_url[2] + ".vn" + head;
+                        head = head_url[0]+"."+head_url[1]+ "."+ head_url[2] + "." + head_url[3] + ".vn" + head;
                     }
                     let time;
                     if (url.includes("environment") || url.includes("chemistry")) { time = items[i].querySelector("span").innerText }
@@ -2430,7 +2430,7 @@ exports.Get_News_Faculty_For_Parent = async (req, res, next) => {
                     else { head = items[i].querySelector("a").getAttribute("href"); }
                     if (!head.includes("edu.vn")) {
                         let head_url = url.split(".");
-                        head = head_url[0] + "." + head_url[1] + "." + head_url[2] + ".vn" + head;
+                        head = head_url[0]+"."+head_url[1]+ "."+ head_url[2] + "." + head_url[3] + ".vn" + head;
                     }
                     let time;
                     if (url.includes("environment") || url.includes("chemistry")) { time = items[i].querySelector("span").innerText }

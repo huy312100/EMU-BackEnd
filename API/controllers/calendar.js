@@ -106,9 +106,6 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
                 });
                 console.log(result);
             }
-            else {
-                res.status(500).json({ message: "No account your custom Moodle" });
-            }
         })
         .catch(err => {
             console.log(err);
