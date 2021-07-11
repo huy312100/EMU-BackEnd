@@ -622,12 +622,13 @@ module.exports.OnSocket = (io, socket) => {
     });
 
     socket.on("Return-Chat", async (user) => {
-        var clientNumber = io.sockets.adapter.rooms[user[0].toString()].length;
+        var clientNumber = io.sockets.adapter.rooms[user[0].toString()];
+        console.log("client number room",clientNumber);
         if (Room.length >= 1) {
             const foundcount = Room.some(el => el.idRoom === user[0]);
             if (foundcount) {
                 //co roomid trong room
-                if (clientNumber >= 2) {
+                if (clientNumber.length >= 2) {
                     const found = Room.find(el => el.idRoom === user[0]);
                     var chattemp = found.chatContext;
                     console.log(chattemp);
