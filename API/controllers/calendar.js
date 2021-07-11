@@ -40,7 +40,7 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
         })
 
     var url;
-    CustomWeb.find({ $and: [{ typeUrl: "Moodle" }, { idUser: req.userData._id }] })
+    await CustomWeb.find({ $and: [{ typeUrl: "Moodle" }, { idUser: req.userData._id }] })
         .exec()
         .then(user => {
             if (user.length >= 1) {
@@ -97,7 +97,7 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
                             }
 
 
-                            res.status(200).json(listcalendar);
+                            
                         } else {
                             res.status(500).json({ message: "Have res error" });
                         }
@@ -113,6 +113,8 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
                 error: err
             });
         });
+
+    res.status(200).json(listcalendar);
 };
 
 exports.Get_Calendar_withoutdealine_This_Month = async (req, res, next) => {
