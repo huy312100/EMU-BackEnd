@@ -622,63 +622,66 @@ module.exports.OnSocket = (io, socket) => {
     });
 
     socket.on("Return-Chat", async (user) => {
+        var clientNumber = io.sockets.adapter.rooms[user[0].toString()].length;
         if (Room.length >= 1) {
-            const foundcount = Room.some(el => el.idRoom === user);
+            const foundcount = Room.some(el => el.idRoom === user[0]);
             if (foundcount) {
                 //co roomid trong room
-                const found = Room.find(el => el.idRoom === user);
-                var chattemp = found.chatContext;
-                console.log(chattemp);
-                //for (var i = 0; i < chattemp.length; i++) {
+                if (clientNumber >= 2) {
+                    const found = Room.find(el => el.idRoom === user[0]);
+                    var chattemp = found.chatContext;
+                    console.log(chattemp);
+                    //for (var i = 0; i < chattemp.length; i++) {
 
 
-                //luu tin nhan binh thuong
-                chat.updateOne({
-                    _id: user
-                    //"User": { $all: [UserOwner, chatmessage2.from] }
-                },
-                    {
-                        $push: { chat: { $each: chattemp } }
-                    }, (err, doc) => {
-                        if (err) {
-                            console.log("error ne", err);
-                        }
-                        else {
-                            console.log("Updated Docs : ", doc);
-                        }
-                    });
-                //};
+                    //luu tin nhan binh thuong
+                    chat.updateOne({
+                        _id: user[0]
+                        //"User": { $all: [UserOwner, chatmessage2.from] }
+                    },
+                        {
+                            $push: { chat: { $each: chattemp } }
+                        }, (err, doc) => {
+                            if (err) {
+                                console.log("error ne", err);
+                            }
+                            else {
+                                console.log("Updated Docs : ", doc);
+                            }
+                        });
+                    //};
 
-                await chat.find({ _id: user })
-                    .exec()
-                    .then((re1) => {
-                        if (re1.length >= 1) {
-                            var MessageState = re1[0].chat[re1[0].chat.length - 1];
+                    await chat.find({ _id: user[0] })
+                        .exec()
+                        .then((re1) => {
+                            if (re1.length >= 1) {
+                                var MessageState = re1[0].chat[re1[0].chat.length - 1];
 
-                            chat.updateOne({
-                                "_id": re1[0]._id,
-                                "chat._id": MessageState._id
-                            },
-                                {
-                                    $set: { "chat.$.state": "true" }
-                                }
-                                , (err, doc) => {
-                                    if (err) {
-                                        console.log("err", err);
-                                    } else {
-                                        console.log("doc:", doc);
+                                chat.updateOne({
+                                    "_id": re1[0]._id,
+                                    "chat._id": MessageState._id
+                                },
+                                    {
+                                        $set: { "chat.$.state": "true" }
                                     }
-                                });
+                                    , (err, doc) => {
+                                        if (err) {
+                                            console.log("err", err);
+                                        } else {
+                                            console.log("doc:", doc);
+                                        }
+                                    });
 
+                            }
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+
+                    for (var j = Room.length - 1; j >= 0; --j) {
+                        if (Room[j].idRoom === found.idRoom) {
+                            Room.splice(j, 1);
                         }
-                    })
-                    .catch(err => {
-                        console.log(err);
-                    });
-
-                for (var j = Room.length - 1; j >= 0; --j) {
-                    if (Room[j].idRoom === found.idRoom) {
-                        Room.splice(j, 1);
                     }
                 }
             }
