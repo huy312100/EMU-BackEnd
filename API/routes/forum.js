@@ -27,6 +27,8 @@ router.post("/viewcmttop",forumController.View_List_Top15_User_Commented);
 
 router.get("/yourpost",checkauth,forumController.View_Your_Post);
 
+router.post("/viewdetail",checkauth,forumController.View_Detail_Post);
+
 router.post("/delete",checkauth,forumController.Delete_Post);
 
 router.post("/deletecmt",checkauth,forumController.Delete_Comment);
@@ -54,5 +56,7 @@ router.post("/courses/viewcmt",checkauth,forumController.View_List_User_comment_
 router.post("/courses/viewcmttop",checkauth,forumController.View_Top15_List_User_comment_Courses);
 
 router.get("/courses/yourpost",checkauth,forumController.View_Your_Post_Courses);
+
+router.post("/courses/viewdetail",checkauth,forumController.View_Deatil_Post_Courses);
 
 module.exports=router;

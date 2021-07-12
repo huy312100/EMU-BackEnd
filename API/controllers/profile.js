@@ -2,6 +2,7 @@ const Config = require("../middleware/rdbconfig");
 const sql = require("mssql");
 const cloudinary = require("cloudinary");
 const ImgConfig = require("../middleware/cloudImgConfig");
+const configNeo4j = require("../middleware/neo4jconfig");
 const { initParams } = require("request");
 exports.Create_Profile = async (req, res, next) => {
 
@@ -133,8 +134,8 @@ exports.Delete_Profile_Picture = async (req, res, next) => {
             .input('IDSignin', sql.VarChar, req.userData._id)
             .query("SELECT IDImages FROM [dbo].[InfoSinhVien] where IDSignin=@IDSignin;");
 
-        const imagedelete =MaTruongKhoa.recordsets[0][0]["IDImages"];
-        if(imagedelete !== undefined){
+        const imagedelete = MaTruongKhoa.recordsets[0][0]["IDImages"];
+        if (imagedelete !== undefined) {
             cloudinary.uploader.destroy(imagedelete, function (error, result) {
                 if (result) {
                 }
@@ -147,10 +148,10 @@ exports.Delete_Profile_Picture = async (req, res, next) => {
                 .execute('DeleteImageProfile')
             res.status(200).json({ message: "Images deleted" });
         }
-        else{
-            res.status(500).json({message:"image doesnt delete"})
+        else {
+            res.status(500).json({ message: "image doesnt delete" })
         }
-        
+
     }
     catch (error) {
         console.log(error);
@@ -168,8 +169,8 @@ exports.Delete_Profile_Picture_For_Parent = async (req, res, next) => {
             .input('IDSignin', sql.VarChar, req.userData._id)
             .query("SELECT IDImages FROM [dbo].[InfoPhuHuynh] where IDSignin=@IDSignin;");
 
-        const imagedelete =MaTruongKhoa.recordsets[0][0]["IDImages"];
-        if(imagedelete !== undefined){
+        const imagedelete = MaTruongKhoa.recordsets[0][0]["IDImages"];
+        if (imagedelete !== undefined) {
             cloudinary.uploader.destroy(imagedelete, function (error, result) {
                 if (result) {
                 }
@@ -182,10 +183,10 @@ exports.Delete_Profile_Picture_For_Parent = async (req, res, next) => {
                 .execute('DeleteImageProfileParent')
             res.status(200).json({ message: "Images deleted" });
         }
-        else{
-            res.status(500).json({message:"image doesnt delete"})
+        else {
+            res.status(500).json({ message: "image doesnt delete" })
         }
-        
+
     }
     catch (error) {
         console.log(error);
@@ -197,20 +198,50 @@ exports.Edit_Profile = async (req, res, next) => {
     try {
         let pool = await sql.connect(Config);
 
-        let MaTruongKhoa = await pool.request()
-            .input('Ma_Truong', sql.VarChar, req.body.MaTruong)
-            .input('Ma_Khoa', sql.VarChar, req.body.MaKhoa)
-            .query("Select uf.ID from University u,Faculty f, University_Faculty uf where uf.MaTruong=u.MaTruong and uf.MaKhoa=f.MaKhoa and u.MaTruong= @Ma_Truong and f.MaKhoa=@Ma_Khoa;");
+        let Info = await pool.request()
+            .input('ID_Signin', sql.VarChar, req.userData._id)
+            .query("SELECT i.HoTen,uf.MaKhoa, uf.MaTruong FROM [InfoSinhVien] i, [University_Faculty] uf where i.IDTruongKhoa = uf.ID and i.IDSignin =@ID_Signin");
+        if (Info.recordsets[0]) {
+            const session = configNeo4j.getSession(req);
+            const query = "match (s:STUDENT {email: $Email}) SET s.name = $name " +
+                "with s "+
+                "match(f1:Faculty {code: $preFaculty}) -[:BELONG_TO]-> (u:University {code:$PreUniversity}) " +
+                "match (f2:Faculty {code: $posFaculty}) -[:BELONG_TO]-> (u:University {code: $PosUniversity}) " +
+                "match (s) -[r:STUDY_AT]->(f1) delete r " +
+                "merge (s) -[:STUDY_AT]->(f2) ";
+            var result = session.readTransaction(tx => {
+                return tx.run(query, {
+                    preFaculty: Info.recordsets[0][0]["MaKhoa"],
+                    PreUniversity: Info.recordsets[0][0]["MaTruong"],
+                    posFaculty: req.body.MaKhoa,
+                    PosUniversity:req.body.MaTruong,
+                    name:req.body.HoTen,
+                    Email: req.userData.username
+                })
+                    .then(async (re1) => {
 
-        //console.log(MaTruongKhoa.recordsets[0][0]["ID"]);
-        //res.status(200).json();
-        let profile = await pool.request()
-            .input('IDSignin', sql.VarChar, req.userData._id)
-            .input('HoTen', sql.NVarChar, req.body.HoTen)
-            .input('IDTruongKhoa', sql.Int, MaTruongKhoa.recordsets[0][0]["ID"])
-            .execute('EditProfile')
-        res.status(200).json({ message: "profile edited" });
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).json({ error: err });
+                    })
+            });
 
+
+            let MaTruongKhoa = await pool.request()
+                .input('Ma_Truong', sql.VarChar, req.body.MaTruong)
+                .input('Ma_Khoa', sql.VarChar, req.body.MaKhoa)
+                .query("Select uf.ID from University u,Faculty f, University_Faculty uf where uf.MaTruong=u.MaTruong and uf.MaKhoa=f.MaKhoa and u.MaTruong= @Ma_Truong and f.MaKhoa=@Ma_Khoa;");
+
+            //console.log(MaTruongKhoa.recordsets[0][0]["ID"]);
+            //res.status(200).json();
+            let profile = await pool.request()
+                .input('IDSignin', sql.VarChar, req.userData._id)
+                .input('HoTen', sql.NVarChar, req.body.HoTen)
+                .input('IDTruongKhoa', sql.Int, MaTruongKhoa.recordsets[0][0]["ID"])
+                .execute('EditProfile')
+            res.status(200).json({ message: "profile edited" });
+        }
     }
     catch (error) {
         console.log(error);
@@ -222,7 +253,7 @@ exports.Edit_Profile_For_Parent = async (req, res, next) => {
     try {
         let pool = await sql.connect(Config);
 
-        
+
         let profile = await pool.request()
             .input('IDSignin', sql.VarChar, req.userData._id)
             .input('HoTen', sql.NVarChar, req.body.HoTen)
@@ -331,7 +362,6 @@ exports.View_Profile_For_Parent = async (req, res, next) => {
         else {
             res.status(500).json();
         }
-
     }
     catch (error) {
         console.log(error);
