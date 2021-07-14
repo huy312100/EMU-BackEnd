@@ -417,7 +417,7 @@ exports.Forgot_Password = (req, res, next) => {
             "<h2>Reset your EMU password <h2>" +
             "<p>We heard that you lost your EMU password. Sorry about that!<p>" +
             "<p>But don’t worry! You can use the following link to reset your password:<p>" +
-            "<a href='https://student-emu-web.vercel.app/newpassword?token= "+token+"'>Reset your password</a>" +
+            "<a href='https://student-emu-web.vercel.app/newpassword?token="+token+"'>Reset your password</a>" +
             "</body>" +
             "</html>"
         }
