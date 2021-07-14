@@ -21,7 +21,7 @@ router.post("/changepassword",check_auth,AccountController.Change_Password);
 
 router.post("/tokennotification",check_auth,AccountController.Post_Token_Notification);
 
-router.post("/forgotpassword",check_auth,AccountController.Forgot_Password);
+router.post("/forgotpassword",AccountController.Forgot_Password);
 
 router.post("/resetpassword",AccountController.Reset_Password);
 
