@@ -393,7 +393,7 @@ exports.Change_Password = async (req, res, next) => {
 };
 
 exports.Forgot_Password = (req, res, next) => {
-  Account.find({ username: req.userData.username })
+  Account.find({ username: req.body.emailApp })
     .exec()
     .then(re1 => {
       if (re1.length >= 1) {
@@ -410,7 +410,7 @@ exports.Forgot_Password = (req, res, next) => {
 
         const Data = {
           from: "theemuteam@gmail.com",
-          to: req.body.email,
+          to: req.body.emailReset,
           subject: "[EMU] Please reset your password",
           html: "<html>" +
             "<body>" +

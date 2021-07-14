@@ -6,6 +6,7 @@ const CustomWeb = require("../models/customweb");
 const studyCourses = require("../models/studyCourses");
 const currentStudyCourses = require("../models/currentStudyCourses");
 const Courses = require("../models/courses");
+const configNeo4j = require("../middleware/neo4jconfig");
 
 const { resolve } = require("path");
 const customweb = require("../models/customweb");
@@ -49,29 +50,29 @@ exports.Get_Website_Custom = (req, res, next) => {
         });
 };
 
-exports.Get_NameWeb_Is_Link =(req,res,next)=>{
+exports.Get_NameWeb_Is_Link = (req, res, next) => {
     customweb.find({ idUser: req.userData._id })
-    .exec()
-    .then(re1=>{
-        if(re1.length>=1){
-            var result =[];
-            for(var i=0; i<re1.length;i++){
-                var temp ={
-                    "Type":re1[i].typeUrl,
-                    "Url":re1[i].url
-                };
-                result.push(temp)
+        .exec()
+        .then(re1 => {
+            if (re1.length >= 1) {
+                var result = [];
+                for (var i = 0; i < re1.length; i++) {
+                    var temp = {
+                        "Type": re1[i].typeUrl,
+                        "Url": re1[i].url
+                    };
+                    result.push(temp)
+                }
+                //console.log(result);
+                res.status(200).json(result);
             }
-            //console.log(result);
-            res.status(200).json(result);
-        }
-        else{
-            res.status(500).json({message:"You dont custom web"})
-        }
-    })
-    .catch(err=>{
-        res.status(500).json({ error: err})
-    })
+            else {
+                res.status(500).json({ message: "You dont custom web" })
+            }
+        })
+        .catch(err => {
+            res.status(500).json({ error: err })
+        })
 }
 
 exports.Post_Account_Custom = async (req, res, next) => {
@@ -394,7 +395,73 @@ exports.Post_Account_Custom = async (req, res, next) => {
 
 
 
-exports.Delete_Website = (req, res, next) => {
+exports.Delete_Website = async(req, res, next) => {
+    //Delete graph
+    //delete post
+    const session = configNeo4j.getSession(req);
+    const query = "match (s:STUDENT {email: $Email})-[:HAVE]->(c:COURSES)-[:POSTED {postby: $Email}]->(p:POST) " +
+        "DETACH DELETE p";
+    var result = await session.writeTransaction(tx => {
+        return tx.run(query, {
+            Email: req.userData.username
+        })
+            .then(re1 => {
+                //res.status(200).json({ message: "The post have created" });
+
+                //const studentExist = re1.records[0].get('name');
+                //console.log(studentExist);
+                //res.status(200).json(re1.records);
+
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({ error: err });
+            })
+    })
+
+    //delete courses
+    const query1 = "match (s:STUDENT {email: $Email})-[:HAVE]->(c:COURSES) " +
+        "where size((c) <-[:HAVE]-()) =1 " +
+        "DETACH DELETE c";
+
+    var result1 = await session.writeTransaction(tx => {
+        return tx.run(query1, {
+            Email: req.userData.username
+        })
+            .then(re1 => {
+                //res.status(200).json({ message: "The post have created" });
+
+                //const studentExist = re1.records[0].get('name');
+                //console.log(studentExist);
+                //res.status(200).json(re1.records);
+
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({ error: err });
+            })
+    })
+    //delete relation
+    const query2 = "match (s:STUDENT {email: $Email})-[r:HAVE]->(c:COURSES) "+
+                "delete r";
+
+    var result2 = await session.writeTransaction(tx => {
+        return tx.run(query2, {
+            Email: req.userData.username
+        })
+            .then(re1 => {
+                //res.status(200).json({ message: "The post have created" });
+
+                //const studentExist = re1.records[0].get('name');
+                //console.log(studentExist);
+                //res.status(200).json(re1.records);
+
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({ error: err });
+            })
+    })
 
     function RemovethreeCollection() {
         return new Promise(async(resolve) => {
@@ -420,9 +487,9 @@ exports.Delete_Website = (req, res, next) => {
                             .exec()
                             .then((re2) => {
                                 if (re2.length >= 1) {
- 
+
                                      re2[0].listCourses.forEach(( element) => {
-                                        
+
                                         Courses.find({ $and: [{ url: urlcoures }, { IDCourses: element.IDCourses }] })
                                             .exec()
                                             .then(async (re3) => {
@@ -443,7 +510,7 @@ exports.Delete_Website = (req, res, next) => {
                                                     } else {
                                                         //co nhieu hon 1 SV
                                                         //xem thu SV do dang phai la user dai dien khong
-                                                        
+
                                                         if (re3IDUser.toString() === req.userData._id.toString()) {
                                                             var IDUserUpdate2 = re3[0].listStudent[1].IDUser;
                                                             var IDMoodleUpdate2 = re3[0].listStudent[1].IDUserMoodle;
@@ -453,7 +520,7 @@ exports.Delete_Website = (req, res, next) => {
                                                                 {
                                                                     $pull: { listStudent: { IDUser: req.userData._id, IDUserMoodle: IDUserMooodleFind } }
                                                                 });
-                                                           
+
                                                             await Courses.updateOne({
                                                                 _id: re3[0]._id
                                                             },
@@ -461,7 +528,7 @@ exports.Delete_Website = (req, res, next) => {
                                                                     $set: { IDUser: IDUserUpdate2, IDUserInstead: IDMoodleUpdate2 }
                                                                 });
                                                         } else {
-                                                            
+
                                                             await Courses.updateOne({
                                                                 _id: re3[0]._id
                                                             },
@@ -502,7 +569,7 @@ exports.Delete_Website = (req, res, next) => {
                                     message: "No account need deleted"
                                 });
                             });
-                        
+
                         //3. remove current coures
                         currentStudyCourses.remove({ $and: [{ idUser: req.userData._id }, { idUserMoodle: IDUserMooodleFind }] })
                         .exec()
@@ -528,10 +595,10 @@ exports.Delete_Website = (req, res, next) => {
 
     };
 
-    
+
     RemovethreeCollection().then((value)=>{
         if(value==="done"){
-            
+
             CustomWeb.remove({ $and: [{ typeUrl: req.body.typeUrl }, { idUser: req.userData._id }] })
         .exec()
         .then(re=>{
