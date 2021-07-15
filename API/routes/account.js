@@ -4,10 +4,11 @@ const router = express.Router();
 const AccountController = require("../controllers/account");
 const check_auth =require("../middleware/check-auth");
 
+const neo4jSessionCleanup = require("../middleware/neo4jSessionCleanup");
 
 router.get("/", AccountController.Get_All_Account);
 
-router.post("/signup", AccountController.Post_Account_Signup);
+router.post("/signup", AccountController.Post_Account_Signup,neo4jSessionCleanup);
 
 router.post("/signupparent",check_auth,AccountController.Post_Account_Signup_For_Parents);
 

@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const sql = require("mssql");
 const nodemailer = require("nodemailer");
+const configNeo4j = require("../middleware/neo4jconfig");
 
 const Config = require("../middleware/rdbconfig");
 const Account = require("../models/account");
@@ -92,6 +93,26 @@ exports.Post_Account_Signup = (req, res, next) => {
                       .input('Email', sql.VarChar, req.body.username)
                       .input('IDTruongKhoa', sql.Int, MaTruongKhoa.recordsets[0][0]["ID"])
                       .execute('InsertProfile')
+
+                    const session = configNeo4j.getSession(req);
+                    const query = "match (n:Faculty {code:$Ma_Khoa})-[:BELONG_TO]->(u:University{code:$Ma_Truong}) " +
+                      "merge (s:STUDENT {name: $Ho_Ten, email:$Email})  " +
+                      "MERGE (s)-[:STUDY_AT]->(n)  ";
+                    var result = session.readTransaction(tx => {
+                      return tx.run(query, {
+                        Ma_Khoa: req.body.MaKhoa,
+                        Ma_Truong: req.body.MaTruong,
+                        Email: req.body.username,
+                        Ho_Ten: req.body.HoTen
+                      })
+                        .then(async (re1) => {
+
+                        })
+                        .catch(err => {
+                          console.log(err);
+                          res.status(500).json({ error: err });
+                        })
+                    });
 
                     res.status(201).json({
                       message: "account created"
@@ -417,7 +438,7 @@ exports.Forgot_Password = (req, res, next) => {
             "<h2>Reset your EMU password <h2>" +
             "<p>We heard that you lost your EMU password. Sorry about that!<p>" +
             "<p>But don’t worry! You can use the following link to reset your password:<p>" +
-            "<a href='https://student-emu-web.vercel.app/newpassword?token="+token+"'>Reset your password</a>" +
+            "<a href='https://emustudy.tk/newpassword?token=" + token + "'>Reset your password</a>" +
             "</body>" +
             "</html>"
         }
@@ -474,10 +495,10 @@ exports.Reset_Password = (req, res, next) => {
                     $set: { password: hash },
                     $unset: { tokenReset: 1 }
                   });
-                  res.status(200).json({message: "your password was reset"})
+                res.status(200).json({ message: "your password was reset" })
               }
             })
-            
+
           } else {
             res.status(500).json({ message: "the usser is not exist" })
           }
@@ -517,13 +538,13 @@ exports.Post_Account_Signin = (req, res, next) => {
             },
             process.env.JWT_KEY,
             {
-              expiresIn: "2h"
+              expiresIn: "3d"
             }
           );
           return res.status(200).json({
             message: "Auth successful",
             role: user[0].role,
-            firstsign:user[0].firstsign,
+            firstsign: user[0].firstsign,
             token: token
           });
         }

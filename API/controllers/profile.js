@@ -13,18 +13,18 @@ exports.Create_Profile = async (req, res, next) => {
             .input('Ma_Truong', sql.VarChar, req.body.MaTruong)
             .input('Ma_Khoa', sql.VarChar, req.body.MaKhoa)
             .query("Select uf.ID from University u,Faculty f, University_Faculty uf where uf.MaTruong=u.MaTruong and uf.MaKhoa=f.MaKhoa and u.MaTruong= @Ma_Truong and f.MaKhoa=@Ma_Khoa;");
-
-        //console.log(MaTruongKhoa.recordsets[0][0]["ID"]);
-        //res.status(200).json();
-        let profile = await pool.request()
-            .input('IDSignin', sql.VarChar, req.userData._id)
-            .input('HoTen', sql.NVarChar, req.body.HoTen)
-            .input('Email', sql.VarChar, req.userData.username)
-            .input('IDTruongKhoa', sql.Int, MaTruongKhoa.recordsets[0][0]["ID"])
-            .input('AnhSV', sql.VarChar, req.body.AnhSV)
-            .execute('InsertProfile')
-        res.status(200).json({ message: "profile created" });
-
+        if (MaTruongKhoa.recordsets[0]) {
+            //console.log(MaTruongKhoa.recordsets[0][0]["ID"]);
+            //res.status(200).json();
+            let profile = await pool.request()
+                .input('IDSignin', sql.VarChar, req.userData._id)
+                .input('HoTen', sql.NVarChar, req.body.HoTen)
+                .input('Email', sql.VarChar, req.userData.username)
+                .input('IDTruongKhoa', sql.Int, MaTruongKhoa.recordsets[0][0]["ID"])
+                .input('AnhSV', sql.VarChar, req.body.AnhSV)
+                .execute('InsertProfile')
+            res.status(200).json({ message: "profile created" });
+        }
     }
     catch (error) {
         console.log(error);
@@ -204,7 +204,7 @@ exports.Edit_Profile = async (req, res, next) => {
         if (Info.recordsets[0]) {
             const session = configNeo4j.getSession(req);
             const query = "match (s:STUDENT {email: $Email}) SET s.name = $name " +
-                "with s "+
+                "with s " +
                 "match(f1:Faculty {code: $preFaculty}) -[:BELONG_TO]-> (u:University {code:$PreUniversity}) " +
                 "match (f2:Faculty {code: $posFaculty}) -[:BELONG_TO]-> (u:University {code: $PosUniversity}) " +
                 "match (s) -[r:STUDY_AT]->(f1) delete r " +
@@ -214,8 +214,8 @@ exports.Edit_Profile = async (req, res, next) => {
                     preFaculty: Info.recordsets[0][0]["MaKhoa"],
                     PreUniversity: Info.recordsets[0][0]["MaTruong"],
                     posFaculty: req.body.MaKhoa,
-                    PosUniversity:req.body.MaTruong,
-                    name:req.body.HoTen,
+                    PosUniversity: req.body.MaTruong,
+                    name: req.body.HoTen,
                     Email: req.userData.username
                 })
                     .then(async (re1) => {
