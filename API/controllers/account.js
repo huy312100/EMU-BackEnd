@@ -590,6 +590,7 @@ exports.Sign_Out = (req, res, next) => {
 };
 
 exports.Set_Change_First_Signin = (req, res, next) => {
+  //console.log(req.userData._id);
   Account.find({ _id: req.userData._id })
     .exec()
     .then(re1 => {
@@ -606,7 +607,7 @@ exports.Set_Change_First_Signin = (req, res, next) => {
             }
             if (doc) {
               //console.log(doc);
-              res.status(200).json({ message: "account change" });
+              res.status(200).json({ message: "changed" });
             }
           });
       } else {

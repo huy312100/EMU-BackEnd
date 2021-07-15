@@ -11,11 +11,12 @@ const accountSchema=mongoose.Schema(
             match: /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
         },
         password: {type: String, require:true},
-        role:{type: String, require:true},
         firstsign:{type: Boolean, require:true},
+        role:{type: String, require:true},
         tokenNotifition: {type: String, require:true},
         parent: {type:mongoose.Schema.Types.ObjectId},
-        tokenReset:{type: String, require:true}
+        tokenReset:{type: String, require:true},
+        
     }
 );
 

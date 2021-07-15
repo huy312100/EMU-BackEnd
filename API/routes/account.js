@@ -13,6 +13,8 @@ router.post("/signupparent",check_auth,AccountController.Post_Account_Signup_For
 
 router.post("/signin", AccountController.Post_Account_Signin);
 
+router.get("/setchangefirst",check_auth,AccountController.Set_Change_First_Signin);
+
 router.get("/signout",check_auth,AccountController.Sign_Out);
 
 router.get("/:accountId",AccountController.Get_One_Account);
@@ -28,7 +30,5 @@ router.post("/resetpassword",AccountController.Reset_Password);
 router.patch("/:accountId", AccountController.PutAccount);
 
 router.delete("/:username",check_auth,AccountController.Delete_Account);
-
-router.get("/setchangefirst",check_auth,AccountController.Set_Change_First_Signin);
 
 module.exports=router;
