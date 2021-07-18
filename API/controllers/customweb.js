@@ -57,11 +57,14 @@ exports.Get_NameWeb_Is_Link = (req, res, next) => {
             if (re1.length >= 1) {
                 var result = [];
                 for (var i = 0; i < re1.length; i++) {
-                    var temp = {
-                        "Type": re1[i].typeUrl,
-                        "Url": re1[i].url
-                    };
-                    result.push(temp)
+                    console.log(re1[i])
+                        var temp = {
+                            "Type": re1[i].typeUrl,
+                            "Url": re1[i].url,
+                            "Username": re1[i].username
+                        };
+                        result.push(temp)
+                    
                 }
                 //console.log(result);
                 res.status(200).json(result);
@@ -395,7 +398,7 @@ exports.Post_Account_Custom = async (req, res, next) => {
 
 
 
-exports.Delete_Website = async(req, res, next) => {
+exports.Delete_Website = async (req, res, next) => {
     //Delete graph
     //delete post
     const session = configNeo4j.getSession(req);
@@ -442,8 +445,8 @@ exports.Delete_Website = async(req, res, next) => {
             })
     })
     //delete relation
-    const query2 = "match (s:STUDENT {email: $Email})-[r:HAVE]->(c:COURSES) "+
-                "delete r";
+    const query2 = "match (s:STUDENT {email: $Email})-[r:HAVE]->(c:COURSES) " +
+        "delete r";
 
     var result2 = await session.writeTransaction(tx => {
         return tx.run(query2, {
@@ -464,13 +467,13 @@ exports.Delete_Website = async(req, res, next) => {
     })
 
     function RemovethreeCollection() {
-        return new Promise(async(resolve) => {
+        return new Promise(async (resolve) => {
             await CustomWeb.find({ $and: [{ typeUrl: req.body.typeUrl }, { idUser: req.userData._id }] })
                 .exec()
-                .then(async(re1) => {
+                .then(async (re1) => {
                     if (re1.length >= 1) {
                         //1. remove studycoures
-                        var IDUserMooodleFind=re1[0].IDUserMoodle;
+                        var IDUserMooodleFind = re1[0].IDUserMoodle;
                         var urlcoures = re1[0].url.split(".edu.vn")[0] + ".edu.vn";
                         studyCourses.remove({ $and: [{ idUser: req.userData._id }, { idUserMoodle: IDUserMooodleFind }] })
                             .exec()
@@ -488,7 +491,7 @@ exports.Delete_Website = async(req, res, next) => {
                             .then((re2) => {
                                 if (re2.length >= 1) {
 
-                                     re2[0].listCourses.forEach(( element) => {
+                                    re2[0].listCourses.forEach((element) => {
 
                                         Courses.find({ $and: [{ url: urlcoures }, { IDCourses: element.IDCourses }] })
                                             .exec()
@@ -572,14 +575,14 @@ exports.Delete_Website = async(req, res, next) => {
 
                         //3. remove current coures
                         currentStudyCourses.remove({ $and: [{ idUser: req.userData._id }, { idUserMoodle: IDUserMooodleFind }] })
-                        .exec()
-                        .then()
-                        .catch(err => {
-                            //console.log(err);
-                            res.status(500).json({
-                                error: err
+                            .exec()
+                            .then()
+                            .catch(err => {
+                                //console.log(err);
+                                res.status(500).json({
+                                    error: err
+                                });
                             });
-                        });
                     } else {
 
                     }
@@ -596,28 +599,28 @@ exports.Delete_Website = async(req, res, next) => {
     };
 
 
-    RemovethreeCollection().then((value)=>{
-        if(value==="done"){
+    RemovethreeCollection().then((value) => {
+        if (value === "done") {
 
             CustomWeb.remove({ $and: [{ typeUrl: req.body.typeUrl }, { idUser: req.userData._id }] })
-        .exec()
-        .then(re=>{
-            res.status(200).json({
-                message:"account custom deleted"
-            })
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
-                error: err
-            });
-        });
+                .exec()
+                .then(re => {
+                    res.status(200).json({
+                        message: "account custom deleted"
+                    })
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({
+                        error: err
+                    });
+                });
         }
 
     })
-    .catch(err=>{
-        res.status(500).json({
-            error:err
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            })
         })
-    })
 };
