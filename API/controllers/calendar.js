@@ -7,6 +7,7 @@ const deadlineMoodle = require("../models/deadlineMoodlle");
 
 exports.Get_Calendar_This_Month = async (req, res, next) => {
     var listcalendar = [];
+    //console.log(req.userData._id);
     //calendar.find({$and:[{"IDUser": req.userData._id},{Date:{$macth:[{year:req.body.year},{month:req.body.month}]}}]})
     await calendar.find({ $and: [{ IDUser: req.userData._id }, { "Date.year": req.body.year }, { "Date.month": req.body.month }] })
         .exec()
@@ -42,7 +43,7 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
     var url;
     function Init() {
         return new Promise(async (resolve) => {
-            CustomWeb.find({ $and: [{ typeUrl: "Moodle" }, { idUser: req.userData._id }] })
+            await CustomWeb.find({ $and: [{ typeUrl: "Moodle" }, { idUser: req.userData._id }] })
                 .exec()
                 .then((user) => {
                     if (user.length >= 1) {
@@ -81,6 +82,7 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
                                                             CalendarDeadline.weeks[i].days[j].events[z].url,
                                                             CalendarDeadline.weeks[i].days[j].events[z].timestart
                                                         );
+
                                                         if (listcalendar !== undefined) {
                                                             listcalendar.push(deadline);
                                                         }
@@ -97,8 +99,8 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
                                         }
 
                                     }
+                                    
                                     return resolve();
-
 
                                 } else {
                                     res.status(500).json({ message: "Have res error" });
@@ -106,8 +108,13 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
                             }
 
                         });
-                        console.log(result);
+                        //return resolve();
+                        //console.log(result);
                     }
+                    else{
+                        return resolve();
+                    }
+                    
                 })
                 .catch(err => {
                     console.log(err);
