@@ -20,7 +20,7 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
         })
 
     //await calendar.find({ "ListGuest": { "$all": {Email: [req.userData.username] } }})
-    await calendar.find({ $and: [{ "ListGuest.Email": req.userData.username }, { "Date.year": req.body.year }, { "Date.month": req.body.month }]})
+    await calendar.find({ $and: [{ "ListGuest.Email": req.userData.username }, { "Date.year": req.body.year }, { "Date.month": req.body.month }] })
         .exec()
         .then(re2 => {
             if (re2.length >= 1) {
@@ -40,80 +40,84 @@ exports.Get_Calendar_This_Month = async (req, res, next) => {
         })
 
     var url;
-    await CustomWeb.find({ $and: [{ typeUrl: "Moodle" }, { idUser: req.userData._id }] })
-        .exec()
-        .then(user => {
-            if (user.length >= 1) {
-                var tokenMoodle = user[0].token;
-                var urlMoodle = user[0].url.split(".edu.vn")[0];
+    function Init() {
+        return new Promise(async (resolve) => {
+            CustomWeb.find({ $and: [{ typeUrl: "Moodle" }, { idUser: req.userData._id }] })
+                .exec()
+                .then((user) => {
+                    if (user.length >= 1) {
+                        var tokenMoodle = user[0].token;
+                        var urlMoodle = user[0].url.split(".edu.vn")[0];
 
-                var url = urlMoodle + ".edu.vn/webservice/rest/server.php?moodlewsrestformat=json&wstoken=" + tokenMoodle + "&wsfunction=core_calendar_get_calendar_monthly_view&year=" + req.body.year + "&month=" + req.body.month;
-                //url2 = urlMoodle + ".edu.vn/webservice/rest/server.php?moodlewsrestformat=json&wstoken=" + tokenMoodle + "&wsfunction=core_calendar_get_calendar_monthly_view&year=" + yyyy + "&month=" + mm2.toString();
-                //console.log(url);
-                var options = {
-                    "method": "GET",
-                    "url": url,
-                    "headers": {
-                    }
-                };
+                        var url = urlMoodle + ".edu.vn/webservice/rest/server.php?moodlewsrestformat=json&wstoken=" + tokenMoodle + "&wsfunction=core_calendar_get_calendar_monthly_view&year=" + req.body.year + "&month=" + req.body.month;
+                        //url2 = urlMoodle + ".edu.vn/webservice/rest/server.php?moodlewsrestformat=json&wstoken=" + tokenMoodle + "&wsfunction=core_calendar_get_calendar_monthly_view&year=" + yyyy + "&month=" + mm2.toString();
+                        //console.log(url);
+                        var options = {
+                            "method": "GET",
+                            "url": url,
+                            "headers": {
+                            }
+                        };
 
-                var result = [];
-                request(options, function (error, response) {
-                    if (error) {
-                        res.status(500).json({ message: error });
-                    }
-                    else {
-                        if (response.statusCode === 200) {
-                            //console.log(response.body);
-                            var CalendarDeadline = JSON.parse(response.body);
-                            //console.log(CalendarDeadline.weeks)
+                        var result = [];
+                        request(options, function (error, response) {
+                            if (error) {
+                                res.status(500).json({ message: error });
+                            }
+                            else {
+                                if (response.statusCode === 200) {
+                                    //console.log(response.body);
+                                    var CalendarDeadline = JSON.parse(response.body);
+                                    //console.log(CalendarDeadline.weeks)
 
-                            for (var i = 0; i < CalendarDeadline.weeks.length; i++) {
-                                for (var j = 0; j < CalendarDeadline.weeks[i].days.length; j++) {
-                                    if (CalendarDeadline.weeks[i].days[j].events != "") {
-                                        for (var z = 0; z < CalendarDeadline.weeks[i].days[j].events.length; z++) {
-                                            if (CalendarDeadline.weeks[i].days[j].events[z].modulename === "assign") {
-                                                const deadline = new deadlineMoodle(
-                                                    CalendarDeadline.weeks[i].days[j].events[z].course.fullname,
-                                                    CalendarDeadline.weeks[i].days[j].events[z].name,
-                                                    CalendarDeadline.weeks[i].days[j].events[z].url,
-                                                    CalendarDeadline.weeks[i].days[j].events[z].timestart
-                                                );
-                                                if (listcalendar !== undefined) {
-                                                    listcalendar.push(deadline);
+                                    for (var i = 0; i < CalendarDeadline.weeks.length; i++) {
+                                        for (var j = 0; j < CalendarDeadline.weeks[i].days.length; j++) {
+                                            if (CalendarDeadline.weeks[i].days[j].events != "") {
+                                                for (var z = 0; z < CalendarDeadline.weeks[i].days[j].events.length; z++) {
+                                                    if (CalendarDeadline.weeks[i].days[j].events[z].modulename === "assign") {
+                                                        const deadline = new deadlineMoodle(
+                                                            CalendarDeadline.weeks[i].days[j].events[z].course.fullname,
+                                                            CalendarDeadline.weeks[i].days[j].events[z].name,
+                                                            CalendarDeadline.weeks[i].days[j].events[z].url,
+                                                            CalendarDeadline.weeks[i].days[j].events[z].timestart
+                                                        );
+                                                        if (listcalendar !== undefined) {
+                                                            listcalendar.push(deadline);
+                                                        }
+                                                        else {
+                                                            listcalendar = deadline;
+                                                        }
+
+                                                    }
                                                 }
-                                                else {
-                                                    listcalendar = deadline;
-                                                }
+
 
                                             }
+
                                         }
 
-
                                     }
+                                    return resolve();
 
+
+                                } else {
+                                    res.status(500).json({ message: "Have res error" });
                                 }
-
                             }
 
-
-                            
-                        } else {
-                            res.status(500).json({ message: "Have res error" });
-                        }
+                        });
+                        console.log(result);
                     }
-
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({
+                        error: err
+                    });
                 });
-                console.log(result);
-            }
         })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
-                error: err
-            });
-        });
-
+    };
+    await Init();
     res.status(200).json(listcalendar);
 };
 
@@ -150,10 +154,10 @@ exports.Get_Calendar_withoutdealine_This_Month = async (req, res, next) => {
             console.log(err);
             res.status(500).json({ err: err });
         })
-    if(listcalendar[0] !== undefined){
+    if (listcalendar[0] !== undefined) {
         res.status(200).json(listcalendar);
-    }else{
-        res.status(200).json({message:"No calendar this month"})
+    } else {
+        res.status(200).json({ message: "No calendar this month" })
     }
 };
 
