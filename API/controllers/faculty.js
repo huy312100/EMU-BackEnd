@@ -1,4 +1,4 @@
-const Config = require("../middleware/rdbconfig");
+const Config = require("../dbConfig/rdbconfig");
 const sql = require("mssql");
 
 exports.Get_Faculty_Of_Univerity =  async (req, res, next) => {

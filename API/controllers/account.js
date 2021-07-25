@@ -3,11 +3,11 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const sql = require("mssql");
 const nodemailer = require("nodemailer");
-const configNeo4j = require("../middleware/neo4jconfig");
+const configNeo4j = require("../dbConfig/neo4jconfig");
 
-const Config = require("../middleware/rdbconfig");
+const Config = require("../dbConfig/rdbconfig");
 const Account = require("../models/account");
-const EmailConfig = require("../middleware/mailConfig");
+const EmailConfig = require("../dbConfig/mailConfig");
 
 exports.Get_All_Account = (req, res, next) => {
   Account.find()

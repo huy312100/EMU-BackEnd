@@ -1,8 +1,8 @@
-const Config = require("../middleware/rdbconfig");
+const Config = require("../dbConfig/rdbconfig");
 const sql = require("mssql");
 const cloudinary = require("cloudinary");
-const ImgConfig = require("../middleware/cloudImgConfig");
-const configNeo4j = require("../middleware/neo4jconfig");
+const ImgConfig = require("../dbConfig/cloudImgConfig");
+const configNeo4j = require("../dbConfig/neo4jconfig");
 const { initParams } = require("request");
 exports.Create_Profile = async (req, res, next) => {
 

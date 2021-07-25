@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Config = require("../middleware/rdbconfig");
+const Config = require("../dbConfig/rdbconfig");
 const sql = require("mssql");
 const puppeteer = require("puppeteer");
 const newsUniversity = require("../models/newsUniversity");

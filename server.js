@@ -6,7 +6,7 @@ const port = process.env.PORT || 3000;
 const server = http.createServer(app);
 
 const io = require("socket.io")(server);
-const soctketss= require("./API/middleware/socket");
+const soctketss= require("./API/socket/socket");
 // app.use(function(req, res, next){
 //   res.io = io;
 //   next();

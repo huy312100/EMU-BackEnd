@@ -18,12 +18,11 @@ const StudyCoursesRouter = require("./API/routes/studyCourses");
 const coursesContentRouter = require("./API/routes/coursesContent");
 const calendarRouter = require("./API/routes/calendar");
 const chatRouter = require("./API/routes/chat");
-const checkChangeRouter = require("./API/routes/checkChange");
 const infoAndNewsRouter = require("./API/routes/infoAndnews");
 const notificationRouter = require("./API/routes/notification");
 const forum = require("./API/routes/forum");
 const forumMoodleRouter = require("./API/routes/forumMoodle");
-
+const AutoRequestcheckChange = require("./API/autoRequest/checkChange");
 //mongoose.connect("mongodb+srv://EMU:appEMU@cluster0.oktkb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
 mongoose.connect("mongodb+srv://EMU:appEMU@cluster0.oktkb.mongodb.net/EMU?retryWrites=true&w=majority",
   {
@@ -33,24 +32,26 @@ mongoose.set('useFindAndModify', false);
 
 var minutesDeadline = 15, the_interval_Deadline = minutesDeadline *60 * 1000;
 setInterval(function() {
-  checkChangeRouter.Check_Change_Deadline();
+  AutoRequestcheckChange.Check_Change_Deadline_Moodle();
 }, the_interval_Deadline);
 
 var minutesCourses = 120, the_interval_Courses = minutesCourses * 60 * 1000;
 setInterval(function() {
-  checkChangeRouter.Check_Change_Courses();
+  AutoRequestcheckChange.Check_Change_Content_Moodle();
+  AutoRequestcheckChange.check_Change_New_Courses();
 }, the_interval_Courses);
 
 var minutesNews = 120, the_interval_News = minutesNews * 60 * 1000;
 setInterval(function() {
   console.log("start");
-  checkChangeRouter.Check_Change_News();
+  AutoRequestcheckChange.Check_Change_News_Unisersity();
+  AutoRequestcheckChange.check_Change_News_Faculty();
 }, the_interval_News);
 
-var minutesGraph = 1440, the_interval_Graph = minutesGraph * 60 * 1000;
+var minutesGraph = 720, the_interval_Graph = minutesGraph * 60 * 1000;
 setInterval(function() {
   console.log("start grap");
-  checkChangeRouter.Check_Courses_Graph();
+  AutoRequestcheckChange.check_New_Courses_Graph();
 }, the_interval_Graph);
 
 app.use(morgan('dev'));

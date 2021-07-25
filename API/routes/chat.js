@@ -10,6 +10,4 @@ router.get("/findchatawait",check_auth,chatController.FindChatAwait);
 
 router.post("/loadmessage",check_auth,chatController.LoadMessage);
 
-router.post("/test",chatController.Test_Noti);
-
 module.exports=router;

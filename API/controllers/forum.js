@@ -1,6 +1,6 @@
-const configNeo4j = require("../middleware/neo4jconfig");
-const Config = require("../middleware/rdbconfig");
-const ImgConfig = require("../middleware/cloudImgConfig");
+const configNeo4j = require("../dbConfig/neo4jconfig");
+const Config = require("../dbConfig/rdbconfig");
+const ImgConfig = require("../dbConfig/cloudImgConfig");
 
 const sql = require("mssql");
 const cloudinary = require("cloudinary");

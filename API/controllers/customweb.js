@@ -6,7 +6,7 @@ const CustomWeb = require("../models/customweb");
 const studyCourses = require("../models/studyCourses");
 const currentStudyCourses = require("../models/currentStudyCourses");
 const Courses = require("../models/courses");
-const configNeo4j = require("../middleware/neo4jconfig");
+const configNeo4j = require("../dbConfig/neo4jconfig");
 
 const { resolve } = require("path");
 const customweb = require("../models/customweb");
