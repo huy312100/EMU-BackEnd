@@ -102,6 +102,7 @@ exports.FindChatUser = (req, res, next) => {
                                     "Email": Usertemp,
                                     "Anh": profiles.recordsets[0][0]["AnhSV"],
                                     "TypeRoom": "TwoPeople",
+                                    "EmailEnd": re1[i].chat[leng - 1].from,
                                     "text": re1[i].chat[leng - 1].text,
                                     "time": parseInt(re1[i].chat[leng - 1].time),
                                     "state": re1[i].chat[leng - 1].state,
