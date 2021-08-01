@@ -659,7 +659,7 @@ module.exports.OnSocket = (io, socket) => {
                         });
                     //};
 
-                    await chat.find({ _id: user[0] })
+                    chat.find({ _id: user[0] })
                         .exec()
                         .then((re1) => {
                             if (re1.length >= 1) {
