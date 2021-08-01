@@ -28,6 +28,7 @@ exports.FindChatAwait = (req, res, next) => {
 
                             //var leng = re1[i].chat.length;
                             var temp = {
+                                "idChatRoom": re1[0].awaittext[i].idChatRoom,
                                 "name": profiles.recordsets[0][0]["HoTen"],
                                 "Email": re1[0].awaittext[i].from,
                                 "Anh": profiles.recordsets[0][0]["AnhSV"],
