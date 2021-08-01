@@ -627,7 +627,7 @@ module.exports.OnSocket = (io, socket) => {
         var clientNumber3 = io.sockets.adapter.rooms.get(user[0].toString()).size;
         //var clientNumber4 = io.sockets.adapter.rooms.get(user[0]).size;
         //console.log("client number room 1:",clientNumber);
-        console.log("client number room 2:",clientNumber2);
+        console.log("client number room 3:",clientNumber3);
         //console.log("client number room 3:",clientNumber3);
         //console.log("client number room 4:",clientNumber4);
         console.log( "Room",Room);
