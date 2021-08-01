@@ -623,7 +623,13 @@ module.exports.OnSocket = (io, socket) => {
 
     socket.on("Return-Chat", async (user) => {
         var clientNumber = io.sockets.adapter.rooms[user[0].toString()];
-        console.log("client number room",clientNumber);
+        var clientNumber2 = io.sockets.adapter.rooms[user[0]];
+        var clientNumber3 = io.sockets.adapter.rooms.get(user[0].toString()).size;
+        var clientNumber3 = io.sockets.adapter.rooms.get(user[0]).size;
+        console.log("client number room 1:",clientNumber);
+        console.log("client number room 2:",clientNumber2);
+        console.log("client number room 3:",clientNumber3);
+        console.log("client number room 4:",clientNumber4);
         if (Room.length >= 1) {
             const foundcount = Room.some(el => el.idRoom === user[0]);
             if (foundcount) {
