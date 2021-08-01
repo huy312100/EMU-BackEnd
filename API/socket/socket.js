@@ -622,19 +622,20 @@ module.exports.OnSocket = (io, socket) => {
     });
 
     socket.on("Return-Chat", async (user) => {
-        var clientNumber = io.sockets.adapter.rooms[user[0].toString()];
-        var clientNumber2 = io.sockets.adapter.rooms[user[0]];
+        //var clientNumber = io.sockets.adapter.rooms[user[0].toString()];
+        //var clientNumber2 = io.sockets.adapter.rooms[user[0]];
         var clientNumber3 = io.sockets.adapter.rooms.get(user[0].toString()).size;
-        var clientNumber4 = io.sockets.adapter.rooms.get(user[0]).size;
-        console.log("client number room 1:",clientNumber);
+        //var clientNumber4 = io.sockets.adapter.rooms.get(user[0]).size;
+        //console.log("client number room 1:",clientNumber);
         console.log("client number room 2:",clientNumber2);
-        console.log("client number room 3:",clientNumber3);
-        console.log("client number room 4:",clientNumber4);
+        //console.log("client number room 3:",clientNumber3);
+        //console.log("client number room 4:",clientNumber4);
+        console.log( "Room",Room);
         if (Room.length >= 1) {
             const foundcount = Room.some(el => el.idRoom === user[0]);
             if (foundcount) {
                 //co roomid trong room
-                if (clientNumber3.length >= 2) {
+                if (parseInt( clientNumber3) >= 2) {
                     const found = Room.find(el => el.idRoom === user[0]);
                     var chattemp = found.chatContext;
                     console.log(chattemp);
