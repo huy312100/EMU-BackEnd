@@ -58,13 +58,13 @@ exports.Get_NameWeb_Is_Link = (req, res, next) => {
                 var result = [];
                 for (var i = 0; i < re1.length; i++) {
                     console.log(re1[i])
-                        var temp = {
-                            "Type": re1[i].typeUrl,
-                            "Url": re1[i].url,
-                            "Username": re1[i].username
-                        };
-                        result.push(temp)
-                    
+                    var temp = {
+                        "Type": re1[i].typeUrl,
+                        "Url": re1[i].url,
+                        "Username": re1[i].username
+                    };
+                    result.push(temp)
+
                 }
                 //console.log(result);
                 res.status(200).json(result);
@@ -210,23 +210,83 @@ exports.Post_Account_Custom = async (req, res, next) => {
                                                             listCourses: []
                                                         });
 
-                                                        for (var l = 0; l < studycourses.listCourses.length; l++) {
-                                                            if (studycourses.listCourses[l].category === studycourses.listCourses[0].category) {
-                                                                var ListCurrentCourses = StudyCurrentCourses.listCourses;
-                                                                ListCurrentCourses = {
-                                                                    IDCourses: studycourses.listCourses[l].IDCourses,
-                                                                    name: studycourses.listCourses[l].name,
-                                                                    startDate: studycourses.listCourses[l].startDate
-                                                                };
-                                                                if (StudyCurrentCourses.listCourses !== undefined) {
-                                                                    StudyCurrentCourses.listCourses.push(ListCurrentCourses);
-                                                                } else {
-                                                                    StudyCurrentCourses.listCourses = ListCurrentCourses;
-                                                                }
-                                                            } else {
-                                                                break;
+                                                        var UrlFindcategory = req.body.url.split(".edu.vn")[0] + ".edu.vn/webservice/rest/server.php?moodlewsrestformat=json&wstoken=" + infouser.token + "&wsfunction=core_course_get_categories";
+
+                                                        var optionsFindcategory = {
+                                                            "method": "GET",
+                                                            "url": UrlFindcategory,
+                                                            "headers": {
                                                             }
-                                                        }
+                                                        };
+
+                                                        var ResultIDCategory = [];
+
+                                                        function Init6() {
+                                                            return new Promise(resolve => {
+                                                                request(optionsFindcategory, function (error, response) {
+                                                                    if (error) {
+                                                                        res.status(500).json({ message: error });
+                                                                    }
+                                                                    else {
+                                                                        if (response.statusCode === 200) {
+                                                                            //var results = [].concat(studyCourses.listCourses)
+                                                                            
+                                                                            var infocatetory = JSON.parse(response.body);
+
+                                                                            try {
+                                                                                //console.log(infocatetory);
+                                                                                
+                                                                                var IDofFirst = infocatetory.find((el) => {
+                                                                                    //console.log(el.id);
+                                                                                    if(el.id === parseInt(studycourses.listCourses[0].category)){
+                                                                                        //console.log(el.id);
+                                                                                        return el.id;
+                                                                                    }
+                                                                                });
+                                                                                //console.log("idFirst", IDofFirst);
+                                                                                const IDofParent = infocatetory.find(element => element.id === IDofFirst.parent);
+
+                                                                                var IDCategory = infocatetory.filter(element => element.parent === IDofParent.id);
+
+                                                                                //console.log(IDofFirst);
+                                                                                //console.log(IDofParent);
+                                                                                //console.log(IDCategory);
+                                                                                return resolve(IDCategory);
+                                                                            }
+                                                                            catch (error) {
+                                                                                console.log(error);
+                                                                                res.status(200).json({message:"Have a error"});
+                                                                            }
+                                                                        }
+                                                                    }
+
+                                                                });
+                                                            })
+                                                        };
+                                                        await Init6().then(re1 => {
+                                                            //ResultIDCategory = re1;
+
+                                                            //console.log("IDCate:", re1);
+
+                                                            for (var l = 0; l < studycourses.listCourses.length; l++) {
+                                                                if (re1.some(element => element.id === parseInt(studycourses.listCourses[l].category))) {
+                                                                    //if (studycourses.listCourses[l].category === studycourses.listCourses[0].category) {
+                                                                    var ListCurrentCourses = StudyCurrentCourses.listCourses;
+                                                                    ListCurrentCourses = {
+                                                                        IDCourses: studycourses.listCourses[l].IDCourses,
+                                                                        name: studycourses.listCourses[l].name,
+                                                                        startDate: studycourses.listCourses[l].startDate
+                                                                    };
+                                                                    if (StudyCurrentCourses.listCourses !== undefined) {
+                                                                        StudyCurrentCourses.listCourses.push(ListCurrentCourses);
+                                                                    } else {
+                                                                        StudyCurrentCourses.listCourses = ListCurrentCourses;
+                                                                    }
+                                                                } else {
+                                                                    break;
+                                                                }
+                                                            }
+                                                        })
 
                                                         //console.log(StudyCurrentCourses.listCourses[0].IDCourses);
 
@@ -468,7 +528,7 @@ exports.Delete_Website = async (req, res, next) => {
 
     function RemovethreeCollection() {
         return new Promise(async (resolve) => {
-            await CustomWeb.find({ $and: [{ typeUrl: req.body.typeUrl }, { idUser: req.userData._id }] })
+            await CustomWeb.find({ $and: [{ typeUrl: "Moodle" }, { idUser: req.userData._id }] })
                 .exec()
                 .then(async (re1) => {
                     if (re1.length >= 1) {
@@ -602,7 +662,7 @@ exports.Delete_Website = async (req, res, next) => {
     RemovethreeCollection().then((value) => {
         if (value === "done") {
 
-            CustomWeb.remove({ $and: [{ typeUrl: req.body.typeUrl }, { idUser: req.userData._id }] })
+            CustomWeb.remove({ $and: [{ typeUrl: "Moodle" }, { idUser: req.userData._id }] })
                 .exec()
                 .then(re => {
                     res.status(200).json({
@@ -624,3 +684,26 @@ exports.Delete_Website = async (req, res, next) => {
             })
         })
 };
+
+exports.Delete_Website_Portal = async (req, res, next) => {
+    CustomWeb.findOneAndRemove({ $and: [{ typeUrl: "Portal" }, { idUser: req.userData._id }] })
+        .exec()
+        .then(re1 => {
+            if (re1 !== null) {
+                res.status(200).json({
+                    message: "account custom deleted"
+                })
+            }
+            else {
+                res.status(500).json({
+                    message: "you dont have account custom deleted"
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                error: err
+            });
+        });
+}

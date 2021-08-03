@@ -12,4 +12,6 @@ router.post("/postaccountcustom",check_auth,customWebController.Post_Account_Cus
 
 router.delete("/deleteaccount",check_auth,customWebController.Delete_Website);
 
+router.delete("/deleteaccountportal",check_auth,customWebController.Delete_Website_Portal);
+
 module.exports=router;

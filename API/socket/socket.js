@@ -686,7 +686,11 @@ module.exports.OnSocket = (io, socket) => {
                     //         console.log(err);
                     //     });
 
-
+                    // for (var j = Room.length - 1; j >= 0; --j) {
+                    //     if (Room[j].idRoom === found.idRoom) {
+                    //         Room.splice(j, 1);
+                    //     }
+                    // }
 
                 }
 
