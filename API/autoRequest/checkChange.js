@@ -1529,11 +1529,11 @@ module.exports.Check_Change_News_Unisersity = () => {
                                                                             .exec()
                                                                             .then(re8 => {
                                                                                 if (re8.length >= 1) {
-                                                                                    if (re2[0].tokenNotifition !== undefined) {
+                                                                                    if (re8[0].tokenNotifition !== undefined) {
                                                                                         //console.log("1")
                                                                                         if (results.ListUser !== undefined) {
                                                                                             var temp2 = {
-                                                                                                "tokenNotifition": re2[0].tokenNotifition,
+                                                                                                "tokenNotifition": re8[0].tokenNotifition,
                                                                                                 "IDUser": temp[j].IDSignin
                                                                                             }
                                                                                             results.ListUser.push(temp2);
@@ -2815,11 +2815,11 @@ module.exports.check_Change_News_Faculty = () => {
                                                                             .exec()
                                                                             .then(re8 => {
                                                                                 if (re8.length >= 1) {
-                                                                                    if (re2[0].tokenNotifition !== undefined) {
+                                                                                    if (re8[0].tokenNotifition !== undefined) {
                                                                                         //console.log("1")
                                                                                         if (results.ListUser !== undefined) {
                                                                                             var temp2 = {
-                                                                                                "tokenNotifition": re2[0].tokenNotifition,
+                                                                                                "tokenNotifition": re8[0].tokenNotifition,
                                                                                                 "IDUser": temp[j].IDSignin
                                                                                             }
                                                                                             results.ListUser.push(temp2);
