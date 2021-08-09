@@ -4,6 +4,7 @@ const notifi = mongoose.Schema({
     Title: {type: String, require:true},
     Data: {type: String, require:true},
     Date: {type: String, require:true},
+    Url: {type: String, require:true},
     State: {type: Boolean, default:false}
 });
 

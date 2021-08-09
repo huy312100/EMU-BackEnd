@@ -1501,6 +1501,7 @@ module.exports.Check_Change_News_Unisersity = () => {
                                             results = {
                                                 "Title": "Tin Tức Trường",
                                                 "Data": a[m].Title,
+                                                "Url": a[m].Link,
                                                 "ListUser": []
                                             };
 
@@ -1524,6 +1525,7 @@ module.exports.Check_Change_News_Unisersity = () => {
                                                                             results.ListUser = temp2;
                                                                         }
                                                                     }
+
                                                                     if (re2[0].parent !== undefined) {
                                                                         await Account.find({ _id: re2[0].parent })
                                                                             .exec()
@@ -1607,7 +1609,7 @@ module.exports.Check_Change_News_Unisersity = () => {
                                                                     _id: re3[0]._id
                                                                 },
                                                                     {
-                                                                        $push: { notification: { $each: [{ Title: results.Title, Data: results.Data, Date: timestamp }], $position: 0 } }
+                                                                        $push: { notification: { $each: [{ Title: results.Title, Data: results.Data, Date: timestamp, Url: results.Url }], $position: 0 } }
                                                                         //$push: { notification: { Title: results.Title, Data: results.Data, Date: timestamp } }
                                                                     }, (err, doc) => {
                                                                         if (err) {
@@ -1621,7 +1623,7 @@ module.exports.Check_Change_News_Unisersity = () => {
                                                                 Notifications = new notification({
                                                                     _id: new mongoose.Types.ObjectId(),
                                                                     IDUser: idusertemp,
-                                                                    notification: { Title: results.Title, Data: results.Data, Date: timestamp }
+                                                                    notification: { Title: results.Title, Data: results.Data, Date: timestamp, Url: results.Url }
                                                                 });
                                                                 console.log(Notifications);
                                                                 Notifications.save()
@@ -1647,7 +1649,7 @@ module.exports.Check_Change_News_Unisersity = () => {
                                                     $set: { news: a }
                                                 }, (err, doc) => {
                                                     if (err) {
-
+                                                    
                                                     }
                                                     else {
 
@@ -2787,6 +2789,7 @@ module.exports.check_Change_News_Faculty = () => {
                                             results = {
                                                 "Title": "Tin Tức Khoa",
                                                 "Data": a[m].Title,
+                                                "Url": a[m].Link,
                                                 "ListUser": []
                                             };
 
@@ -2888,7 +2891,7 @@ module.exports.check_Change_News_Faculty = () => {
                                                                     _id: re3[0]._id
                                                                 },
                                                                     {
-                                                                        $push: { notification: { $each: [{ Title: results.Title, Data: results.Data, Date: timestamp }], $position: 0 } }
+                                                                        $push: { notification: { $each: [{ Title: results.Title, Data: results.Data, Date: timestamp, Url: results.Url }], $position: 0 } }
                                                                         //$push: { notification: { Title: results.Title, Data: results.Data, Date: timestamp } }
                                                                     }, (err, doc) => {
                                                                         if (err) {
@@ -2902,7 +2905,7 @@ module.exports.check_Change_News_Faculty = () => {
                                                                 Notifications = new notification({
                                                                     _id: new mongoose.Types.ObjectId(),
                                                                     IDUser: idusertemp,
-                                                                    notification: { Title: results.Title, Data: results.Data, Date: timestamp }
+                                                                    notification: { Title: results.Title, Data: results.Data, Date: timestamp, Url: results.Url }
                                                                 });
 
                                                                 Notifications.save()
