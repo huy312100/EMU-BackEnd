@@ -164,6 +164,7 @@ exports.check_Change_New_Courses = () => {
                                                         var results = {
                                                             "Title": "Môn học mới",
                                                             "Data": info[j].fullname,
+                                                            "Url": urlcourses,
                                                             "ListUser": []
                                                         };
                                                         var IDCouresesNew = info[j].id;
@@ -480,7 +481,7 @@ exports.check_Change_New_Courses = () => {
                                                                                 _id: re3[0]._id
                                                                             },
                                                                                 {
-                                                                                    $push: { notification: { $each: [{ Title: results.Title, Data: results.Data, Date: timestamp }], $position: 0 } }
+                                                                                    $push: { notification: { $each: [{ Title: results.Title, Data: results.Data, Date: timestamp, Url: results.Url }], $position: 0 } }
                                                                                     //$push: { notification: { Title: results.Title, Data: results.Data, Date: timestamp } ,$position: 0}
                                                                                 }, (err, doc) => {
                                                                                     if (err) {
@@ -494,7 +495,7 @@ exports.check_Change_New_Courses = () => {
                                                                             Notifications = new notification({
                                                                                 _id: new mongoose.Types.ObjectId(),
                                                                                 IDUser: idusertemp,
-                                                                                notification: { Title: results.Title, Data: results.Data, Date: timestamp }
+                                                                                notification: { Title: results.Title, Data: results.Data, Date: timestamp, Url: results.Url }
                                                                             });
                                                                             console.log(Notifications);
                                                                             Notifications.save()
@@ -672,6 +673,7 @@ exports.Check_Change_Deadline_Moodle = async () => {
             results = {
                 "Title": "Deadline Môn học",
                 "Data": change[x].name,
+                "Url": change[x].url,
                 "ListUser": []
             };
             //console.log("IDUSER:")
@@ -785,7 +787,7 @@ exports.Check_Change_Deadline_Moodle = async () => {
                                     _id: re3[0]._id
                                 },
                                     {
-                                        $push: { notification: { $each: [{ Title: results.Title, Data: results.Data, Date: timestamp }], $position: 0 } }
+                                        $push: { notification: { $each: [{ Title: results.Title, Data: results.Data, Date: timestamp, Url: results.Url  }], $position: 0 } }
                                         //$push: { notification: { Title: results.Title, Data: results.Data, Date: timestamp } }
                                     }, (err, doc) => {
                                         if (err) {
@@ -799,7 +801,7 @@ exports.Check_Change_Deadline_Moodle = async () => {
                                 Notifications = new notification({
                                     _id: new mongoose.Types.ObjectId(),
                                     IDUser: idusertemp,
-                                    notification: { Title: results.Title, Data: results.Data, Date: timestamp }
+                                    notification: { Title: results.Title, Data: results.Data, Date: timestamp, Url: results.Url }
                                 });
                                 console.log(Notifications);
                                 Notifications.save()
@@ -827,6 +829,7 @@ exports.Check_Change_Deadline_Moodle = async () => {
 exports.Check_Change_Content_Moodle = async () => {
     console.log("change content");
     var change = [];
+    var url2 =[];
     var listUser = [];
     async function Init2() {
         await courses.find({})
@@ -913,7 +916,8 @@ exports.Check_Change_Content_Moodle = async () => {
                                                                             name: info[i].modules[j].name,
                                                                             label: info[i].modules[j].description
                                                                         }
-
+                                                                        //url2.push(info[i].modules[j]);
+                                                                        url2.push(element.url);
                                                                         await coursesContent.updateOne({
                                                                             _id: re2[0]._id
                                                                         },
@@ -933,6 +937,7 @@ exports.Check_Change_Content_Moodle = async () => {
                                                                             name: info[i].modules[j].name,
                                                                             url: info[i].modules[j].url
                                                                         }
+                                                                        url2.push(info[i].modules[j].url);
 
                                                                         await coursesContent.updateOne({
                                                                             _id: re2[0]._id
@@ -954,6 +959,7 @@ exports.Check_Change_Content_Moodle = async () => {
                                                                             url: info[i].modules[j].url
                                                                         }
 
+                                                                        url2.push(info[i].modules[j].url);
                                                                         await coursesContent.updateOne({
                                                                             _id: re2[0]._id
                                                                         },
@@ -975,6 +981,7 @@ exports.Check_Change_Content_Moodle = async () => {
                                                                             url: info[i].modules[j].url
                                                                         }
 
+                                                                        url2.push(info[i].modules[j].url);
                                                                         await coursesContent.updateOne({
                                                                             _id: re2[0]._id
                                                                         },
@@ -1037,6 +1044,7 @@ exports.Check_Change_Content_Moodle = async () => {
             results = {
                 "Title": "Nội dung môn học",
                 "Data": change[x],
+                "Url": url2[x],
                 "ListUser": []
             };
             //console.log("IDUSER:")
@@ -1127,7 +1135,7 @@ exports.Check_Change_Content_Moodle = async () => {
                                     _id: re3[0]._id
                                 },
                                     {
-                                        $push: { notification: { $each: [{ Title: results.Title, Data: results.Data, Date: timestamp }], $position: 0 } }
+                                        $push: { notification: { $each: [{ Title: results.Title, Data: results.Data, Date: timestamp, Url: results.Url }], $position: 0 } }
                                         //$push: { notification: { Title: results.Title, Data: results.Data, Date: timestamp } }
                                     }, (err, doc) => {
                                         if (err) {
@@ -1141,7 +1149,7 @@ exports.Check_Change_Content_Moodle = async () => {
                                 Notifications = new notification({
                                     _id: new mongoose.Types.ObjectId(),
                                     IDUser: idusertemp,
-                                    notification: { Title: results.Title, Data: results.Data, Date: timestamp }
+                                    notification: { Title: results.Title, Data: results.Data, Date: timestamp, Url: results.Url }
                                 });
                                 console.log(Notifications);
                                 Notifications.save()

@@ -48,7 +48,7 @@ setInterval(function() {
   AutoRequestcheckChange.check_Change_News_Faculty();
 }, the_interval_News);
 
-var minutesGraph = 723, the_interval_Graph = minutesGraph * 60 * 1000;
+var minutesGraph = 200, the_interval_Graph = minutesGraph * 60 * 1000;
 setInterval(function() {
   console.log("start grap");
   AutoRequestcheckChange.check_New_Courses_Graph();
