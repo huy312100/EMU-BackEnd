@@ -530,13 +530,16 @@ module.exports.OnSocket = (io, socket) => {
             //neu khong co user connect
             const currentDate = new Date();
             const timestamp = currentDate.getTime();
+            console.log("neu ko co usser connect");
+            console.log("idroom:", user[0]);
 
-            chat.find({ _id: user[0] })
+            await chat.find({ _id: user[0] })
                 .exec()
                 .then(re3 => {
                     if (re3.length >= 1) {
                         if (re3[0].chat.length >= 1) {
                             //save into chat
+                            console.log("Da nhan tin");
                             chat.updateOne({
                                 //_id: idRoomObject
                                 "User": { $all: [socket.username, user[1].toString()] }
@@ -554,8 +557,8 @@ module.exports.OnSocket = (io, socket) => {
 
                         }
                         else {
-                            
                             //save into await message
+                            console.log("Chua nhan tin");
                             awaitMessage.find({ OwnUser: user[1] })
                                 .exec()
                                 .then(re1 => {
@@ -615,6 +618,8 @@ module.exports.OnSocket = (io, socket) => {
                         }
                     } else {
                         // await accepted
+                        console.log("nhan r doi chap nhan");
+
                         socket.emit("Request-Accept", "message_await");
                     }
                 })
