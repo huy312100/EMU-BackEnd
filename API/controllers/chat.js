@@ -169,21 +169,23 @@ exports.LoadMessage = async (req, res, next) => {
                     }
                     //console.log(listchat[i]);
                 };
-                
-                chat.updateOne({
-                    "_id": re1[0]._id,
-                    "chat._id": re1[0].chat[re1[0].chat.length-1]._id
-                },
-                    {
-                        $set: { "chat.$.state": "true" }
-                    }
-                    , (err, doc) => {
-                        if (err) {
-                            console.log("err", err);
-                        } else {
-                            console.log("doc:", doc);
+                if (req.userData.username !== re1[0].chat[re1[0].chat.length - 1].from) 
+                {
+                    chat.updateOne({
+                        "_id": re1[0]._id,
+                        "chat._id": re1[0].chat[re1[0].chat.length - 1]._id
+                    },
+                        {
+                            $set: { "chat.$.state": "true" }
                         }
-                    });
+                        , (err, doc) => {
+                            if (err) {
+                                console.log("err", err);
+                            } else {
+                                console.log("doc:", doc);
+                            }
+                        });
+                }
 
                 console.log("1");
                 res.status(200).json(results);
@@ -194,6 +196,6 @@ exports.LoadMessage = async (req, res, next) => {
         .catch(err => {
             res.status(500).json({ err: err });
         })
-    
+
 };
 
